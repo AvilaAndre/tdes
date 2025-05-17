@@ -1,56 +1,137 @@
-use lazy_static::lazy_static;
-use tokio::{
-    sync::Mutex,
-    time::{Duration, sleep},
+use std::{
+    cmp::{Ordering, Reverse},
+    collections::BinaryHeap,
 };
 
-#[tokio::main]
-async fn main() {
-    tokio::spawn(async {
-        sleep(Duration::from_secs(1)).await;
-        println!("Task done!");
-    });
+use ordered_float::OrderedFloat;
 
-    println!("Main function running");
-    sleep(Duration::from_secs(2)).await;
+fn main() {
+    let mut event_q: BinaryHeap<Reverse<EventType>> = BinaryHeap::new();
 
-    let rounds = 4;
+    event_q.push(Reverse(EventType::SampleEvent(SampleEvent::new(
+        OrderedFloat(0.0),
+        1,
+    ))));
+    event_q.push(Reverse(EventType::SampleEvent(SampleEvent::new(
+        OrderedFloat(1.2),
+        2,
+    ))));
+    event_q.push(Reverse(EventType::SampleEvent(SampleEvent::new(
+        OrderedFloat(0.5),
+        3,
+    ))));
+    event_q.push(Reverse(EventType::TimerEvent(TimerEvent::new(
+        OrderedFloat(0.8),
+    ))));
 
-    let mut nodes: Vec<Node> = Vec::new();
-    nodes.push(Node::new(3.0, 2.0, 0.0).await);
-    nodes.push(Node::new(-3.0, 2.0, 0.0).await);
+    println!("{:?}", event_q.clone().into_sorted_vec());
 
-    for round in 0..rounds {
-        println!("Stating round {}", round);
-        for node in nodes.iter() {
-            println!("node {} ({},{},{})", node.id, node.x, node.y, node.z);
+    let mut sim_clock = OrderedFloat(0.0);
+
+    while !event_q.is_empty() {
+        let ev = event_q.pop().unwrap().0;
+
+        if ev.timestamp() < sim_clock {
+            panic!("An event was earlier than the simulation clock");
         }
+
+        sim_clock = ev.timestamp();
+
+        // println!("{:?}", ev);
+
+        ev.run();
+    }
+
+    println!("Finished with clock {}", sim_clock)
+}
+
+#[derive(Debug, Eq, Clone, Copy)]
+pub enum EventType {
+    SampleEvent(SampleEvent),
+    TimerEvent(TimerEvent),
+}
+
+impl Ord for EventType {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.timestamp().cmp(&other.timestamp())
+    }
+}
+impl PartialOrd for EventType {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
-lazy_static! {
-    static ref NODE_ID: Mutex<u32> = Mutex::new(0);
+impl PartialEq for EventType {
+    fn eq(&self, other: &Self) -> bool {
+        self.timestamp() == other.timestamp()
+    }
 }
 
-struct Node {
-    pub id: u32,
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+impl Event for EventType {
+    fn timestamp(&self) -> OrderedFloat<f64> {
+        let event: &dyn Event = match self {
+            EventType::SampleEvent(event) => event,
+            EventType::TimerEvent(event) => event,
+        };
+        event.timestamp()
+    }
+
+    fn run(&self) {
+        let event: &dyn Event = match self {
+            EventType::SampleEvent(event) => event,
+            EventType::TimerEvent(event) => event,
+        };
+        event.run()
+    }
 }
 
-impl Node {
-    async fn new(x: f64, y: f64, z: f64) -> Self {
-        let mut id_lock = NODE_ID.lock().await;
+trait Event {
+    fn timestamp(&self) -> OrderedFloat<f64>;
+    fn run(&self);
+}
 
-        let new_id = *id_lock;
-        *id_lock += 1;
+// types
 
-        Self {
-            id: new_id,
-            x,
-            y,
-            z,
-        }
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Clone, Copy)]
+pub struct SampleEvent {
+    timestamp: OrderedFloat<f64>,
+    value: u64,
+}
+
+impl SampleEvent {
+    fn new(timestamp: OrderedFloat<f64>, value: u64) -> Self {
+        Self { timestamp, value }
+    }
+}
+
+impl Event for SampleEvent {
+    fn timestamp(&self) -> OrderedFloat<f64> {
+        self.timestamp
+    }
+
+    fn run(&self) {
+        println!("SampleEvent triggered with value {}!", self.value);
+    }
+}
+
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Clone, Copy)]
+pub struct TimerEvent {
+    timestamp: OrderedFloat<f64>,
+}
+
+impl TimerEvent {
+    fn new(timestamp: OrderedFloat<f64>) -> Self {
+        Self { timestamp }
+    }
+}
+
+impl Event for TimerEvent {
+    fn timestamp(&self) -> OrderedFloat<f64> {
+        self.timestamp
+    }
+
+    fn run(&self) {
+        println!("TimerEvent triggered!");
     }
 }
