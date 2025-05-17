@@ -158,5 +158,7 @@ impl Event for TimerEvent {
 
     fn trigger(&self, ctx: &mut Context) {
         println!("[{}] TimerEvent triggered!", ctx.clock);
+
+        ctx.add_event(EventType::SampleEvent(SampleEvent::new(ctx.clock + 1.0, 10)));
     }
 }
