@@ -5,44 +5,69 @@ use std::{
 
 use ordered_float::OrderedFloat;
 
-fn main() {
-    let mut event_q: BinaryHeap<Reverse<EventType>> = BinaryHeap::new();
+struct Context {
+    pub event_q: BinaryHeap<Reverse<EventType>>,
+    pub clock: OrderedFloat<f64>,
+}
 
-    event_q.push(Reverse(EventType::SampleEvent(SampleEvent::new(
-        OrderedFloat(0.0),
-        1,
-    ))));
-    event_q.push(Reverse(EventType::SampleEvent(SampleEvent::new(
-        OrderedFloat(1.2),
-        2,
-    ))));
-    event_q.push(Reverse(EventType::SampleEvent(SampleEvent::new(
-        OrderedFloat(0.5),
-        3,
-    ))));
-    event_q.push(Reverse(EventType::TimerEvent(TimerEvent::new(
-        OrderedFloat(0.8),
-    ))));
-
-    println!("{:?}", event_q.clone().into_sorted_vec());
-
-    let mut sim_clock = OrderedFloat(0.0);
-
-    while !event_q.is_empty() {
-        let ev = event_q.pop().unwrap().0;
-
-        if ev.timestamp() < sim_clock {
-            panic!("An event was earlier than the simulation clock");
+impl Context {
+    fn new() -> Self {
+        Self {
+            event_q: BinaryHeap::new(),
+            clock: OrderedFloat(0.0),
         }
-
-        sim_clock = ev.timestamp();
-
-        // println!("{:?}", ev);
-
-        ev.trigger();
     }
 
-    println!("Finished with clock {}", sim_clock)
+    fn add_event(&mut self, event: EventType) {
+        self.event_q.push(Reverse(event));
+    }
+
+    fn run(&mut self) {
+        while !self.event_q.is_empty() {
+            let ev = self.event_q.pop().unwrap().0;
+
+            if ev.timestamp() < self.clock {
+                panic!("An event was earlier than the simulation clock");
+            }
+
+            self.clock = ev.timestamp();
+
+            // println!("{:?}", ev);
+
+            ev.trigger(self);
+        }
+    }
+}
+
+fn main() {
+    let mut ctx = Context::new();
+
+    let ev1 = SampleEvent::new(OrderedFloat(0.0001), 7);
+
+    ctx.add_event(EventType::SampleEvent(ev1));
+
+    ctx.add_event(EventType::SampleEvent(SampleEvent::new(
+        OrderedFloat(0.0),
+        1,
+    )));
+
+    ctx.add_event(EventType::SampleEvent(SampleEvent::new(
+        OrderedFloat(1.2),
+        2,
+    )));
+
+    ctx.add_event(EventType::SampleEvent(SampleEvent::new(
+        OrderedFloat(0.5),
+        3,
+    )));
+
+    ctx.add_event(EventType::TimerEvent(TimerEvent::new(OrderedFloat(0.8))));
+
+    println!("{:?}", ctx.event_q.clone().into_sorted_vec());
+
+    ctx.run();
+
+    println!("Finished with clock {}", ctx.clock)
 }
 
 #[derive(Debug, Eq, Clone, Copy)]
@@ -77,18 +102,18 @@ impl Event for EventType {
         event.timestamp()
     }
 
-    fn trigger(&self) {
+    fn trigger(&self, ctx: &mut Context) {
         let event: &dyn Event = match self {
             EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
         };
-        event.trigger()
+        event.trigger(ctx)
     }
 }
 
 trait Event {
     fn timestamp(&self) -> OrderedFloat<f64>;
-    fn trigger(&self);
+    fn trigger(&self, ctx: &mut Context);
 }
 
 // types
@@ -110,8 +135,8 @@ impl Event for SampleEvent {
         self.timestamp
     }
 
-    fn trigger(&self) {
-        println!("SampleEvent triggered with value {}!", self.value);
+    fn trigger(&self, ctx: &mut Context) {
+        println!("[{}]: SampleEvent triggered with value {}!", ctx.clock, self.value);
     }
 }
 
@@ -131,7 +156,7 @@ impl Event for TimerEvent {
         self.timestamp
     }
 
-    fn trigger(&self) {
-        println!("TimerEvent triggered!");
+    fn trigger(&self, ctx: &mut Context) {
+        println!("[{}] TimerEvent triggered!", ctx.clock);
     }
 }
