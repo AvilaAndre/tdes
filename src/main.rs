@@ -39,7 +39,7 @@ fn main() {
 
         // println!("{:?}", ev);
 
-        ev.run();
+        ev.trigger();
     }
 
     println!("Finished with clock {}", sim_clock)
@@ -77,18 +77,18 @@ impl Event for EventType {
         event.timestamp()
     }
 
-    fn run(&self) {
+    fn trigger(&self) {
         let event: &dyn Event = match self {
             EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
         };
-        event.run()
+        event.trigger()
     }
 }
 
 trait Event {
     fn timestamp(&self) -> OrderedFloat<f64>;
-    fn run(&self);
+    fn trigger(&self);
 }
 
 // types
@@ -110,7 +110,7 @@ impl Event for SampleEvent {
         self.timestamp
     }
 
-    fn run(&self) {
+    fn trigger(&self) {
         println!("SampleEvent triggered with value {}!", self.value);
     }
 }
@@ -131,7 +131,7 @@ impl Event for TimerEvent {
         self.timestamp
     }
 
-    fn run(&self) {
+    fn trigger(&self) {
         println!("TimerEvent triggered!");
     }
 }
