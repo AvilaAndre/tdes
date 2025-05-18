@@ -17,6 +17,10 @@ impl TimerEvent {
     pub fn new(timestamp: OrderedFloat<f64>) -> Self {
         Self { timestamp }
     }
+
+    pub fn create(timestamp: OrderedFloat<f64>) -> EventType {
+        EventType::TimerEvent(TimerEvent::new(timestamp))
+    }
 }
 
 impl Event for TimerEvent {
