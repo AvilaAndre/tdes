@@ -1,8 +1,10 @@
+pub mod message_delivery;
 pub mod sample;
 pub mod timer;
 
 use std::cmp::Ordering;
 
+use message_delivery::MessageDeliveryEvent;
 use ordered_float::OrderedFloat;
 use sample::SampleEvent;
 use timer::TimerEvent;
@@ -15,6 +17,7 @@ use super::Event;
 pub enum EventType {
     SampleEvent(SampleEvent),
     TimerEvent(TimerEvent),
+    MessageDeliveryEvent(MessageDeliveryEvent),
 }
 
 impl Ord for EventType {
@@ -39,6 +42,7 @@ impl Event for EventType {
         let event: &dyn Event = match self {
             EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
+            EventType::MessageDeliveryEvent(event) => event,
         };
         event.timestamp()
     }
@@ -47,6 +51,7 @@ impl Event for EventType {
         let event: &dyn Event = match self {
             EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
+            EventType::MessageDeliveryEvent(event) => event,
         };
         event.trigger(ctx)
     }
