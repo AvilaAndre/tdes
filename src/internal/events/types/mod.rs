@@ -2,6 +2,7 @@ pub mod message_delivery;
 pub mod sample;
 pub mod timer;
 
+use enum_dispatch::enum_dispatch;
 use std::cmp::Ordering;
 
 use message_delivery::MessageDeliveryEvent;
@@ -13,11 +14,12 @@ use crate::internal::context::Context;
 
 use super::Event;
 
+#[enum_dispatch(EventType)]
 #[derive(Debug, Eq, Clone, Copy)]
 pub enum EventType {
-    SampleEvent(SampleEvent),
-    TimerEvent(TimerEvent),
-    MessageDeliveryEvent(MessageDeliveryEvent),
+    SampleEvent,
+    TimerEvent,
+    MessageDeliveryEvent,
 }
 
 impl Ord for EventType {
