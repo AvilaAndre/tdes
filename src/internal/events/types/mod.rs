@@ -3,10 +3,10 @@ pub mod sample;
 pub mod timer;
 
 use enum_dispatch::enum_dispatch;
+use ordered_float::OrderedFloat;
 use std::cmp::Ordering;
 
 use message_delivery::MessageDeliveryEvent;
-use ordered_float::OrderedFloat;
 use sample::SampleEvent;
 use timer::TimerEvent;
 

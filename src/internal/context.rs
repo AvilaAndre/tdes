@@ -5,13 +5,13 @@ use ordered_float::OrderedFloat;
 use crate::EventType;
 use crate::internal::events::Event;
 
-use super::peer::Peer;
+use super::peer::CustomPeer;
 
 pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
     pub clock: OrderedFloat<f64>,
     // TODO: use sparse set if peers can be removed
-    pub peers: Vec<Peer>,
+    pub peers: Vec<Box<dyn CustomPeer>>,
 }
 
 impl Context {
@@ -27,17 +27,21 @@ impl Context {
         self.event_q.push(Reverse(event));
     }
 
-    pub fn add_peer(&mut self, mut peer: Peer) {
-        peer.id = Some(self.peers.len());
+    pub fn add_peer(&mut self, mut custom_peer: Box<dyn CustomPeer>) {
+        custom_peer.as_mut().get_peer_mut().id = Some(self.peers.len());
 
         println!(
             "Adding peer with id {:?} on position {:?}",
-            peer.id, peer.pos
+            custom_peer.get_peer().id,
+            custom_peer.get_peer().position
         );
-        self.peers.push(peer);
+        self.peers.push(custom_peer);
+
+        // TODO: Return id of new peer
     }
 
     pub fn run(&mut self) {
+        println!(">> STARTING SIMULATION");
         while !self.event_q.is_empty() {
             let ev = self.event_q.pop().unwrap().0;
 
@@ -51,5 +55,6 @@ impl Context {
 
             ev.trigger(self);
         }
+        println!(">> FINISHED SIMULATION");
     }
 }

@@ -13,16 +13,16 @@ pub struct MessageDeliveryEvent {
 }
 
 impl MessageDeliveryEvent {
-    pub fn new(timestamp: OrderedFloat<f64>, sender: usize, recepient: usize) -> Self {
+    pub fn new(timestamp: OrderedFloat<f64>, sender: usize, recipient: usize) -> Self {
         Self {
             timestamp,
             sender,
-            receiver: recepient,
+            receiver: recipient,
         }
     }
 
-    pub fn create(timestamp: OrderedFloat<f64>, sender: usize, recepient: usize) -> EventType {
-        EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(timestamp, sender, recepient))
+    pub fn create(timestamp: OrderedFloat<f64>, sender: usize, recipient: usize) -> EventType {
+        EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(timestamp, sender, recipient))
     }
 }
 
@@ -36,5 +36,13 @@ impl Event for MessageDeliveryEvent {
             "[{}] MessageDeliveryEvent from {} to {} triggered!",
             ctx.clock, self.sender, self.receiver
         );
+
+        let receiver = ctx.peers.get(self.receiver);
+
+        if receiver.is_some() {
+            (receiver.unwrap().get_peer().on_message_receive)(ctx, self.receiver)
+        } else {
+            // TODO: Log that the receiver does not exist
+        }
     }
 }
