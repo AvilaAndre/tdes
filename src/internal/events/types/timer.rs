@@ -28,7 +28,7 @@ impl Event for TimerEvent {
         self.timestamp
     }
 
-    fn process(&self, ctx: &mut Context) {
+    fn process(&mut self, ctx: &mut Context) {
         println!("[{}] TimerEvent triggered!", ctx.clock);
 
         ctx.add_event(EventType::SampleEvent(SampleEvent::new(

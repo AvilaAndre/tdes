@@ -15,7 +15,7 @@ use crate::internal::context::Context;
 use super::Event;
 
 #[enum_dispatch(EventType)]
-#[derive(Debug, Eq, Clone, Copy)]
+#[derive(Debug, Eq)]
 pub enum EventType {
     SampleEvent,
     TimerEvent,
@@ -49,8 +49,8 @@ impl Event for EventType {
         event.timestamp()
     }
 
-    fn process(&self, ctx: &mut Context) {
-        let event: &dyn Event = match self {
+    fn process(&mut self, ctx: &mut Context) {
+        let event: &mut dyn Event = match self {
             EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
             EventType::MessageDeliveryEvent(event) => event,

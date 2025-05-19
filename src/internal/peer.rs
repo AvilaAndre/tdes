@@ -1,17 +1,24 @@
 use ordered_float::OrderedFloat;
 
-use super::{context::Context, events::types::message_delivery::MessageDeliveryEvent};
+use super::{
+    context::Context, events::types::message_delivery::MessageDeliveryEvent, message::Message,
+};
+
+type OnMessageReceiveCallback =
+    fn(ctx: &mut Context, receiver_id: usize, msg: Option<Box<dyn Message>>) -> ();
 
 #[derive(Clone)]
 pub struct Peer {
     pub id: Option<usize>,
     pub position: (f64, f64, f64),
-    pub on_message_receive: fn(ctx: &mut Context, receiver_id: usize) -> (),
+    pub on_message_receive: OnMessageReceiveCallback,
 }
 
-fn default_on_message_receive(_ctx: &mut Context, _receiver_id: usize) {
-    // TODO: Remove this println
-    println!("Default on_message_receive called");
+fn default_on_message_receive(
+    _ctx: &mut Context,
+    _receiver_id: usize,
+    _msg: Option<Box<dyn Message>>,
+) {
 }
 
 impl Peer {
@@ -23,10 +30,7 @@ impl Peer {
         }
     }
 
-    pub fn with_on_message_receive(
-        mut self,
-        on_message_receive: fn(ctx: &mut Context, receiver_id: usize) -> (),
-    ) -> Self {
+    pub fn with_on_message_receive(mut self, on_message_receive: OnMessageReceiveCallback) -> Self {
         self.on_message_receive = on_message_receive;
         self
     }
@@ -41,6 +45,7 @@ impl Peer {
             OrderedFloat(5.0),
             sender_id,
             target_id,
+            None
         ));
 
         true

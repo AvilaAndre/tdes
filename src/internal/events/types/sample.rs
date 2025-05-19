@@ -25,7 +25,7 @@ impl Event for SampleEvent {
         self.timestamp
     }
 
-    fn process(&self, ctx: &mut Context) {
+    fn process(&mut self, ctx: &mut Context) {
         println!(
             "[{}]: SampleEvent triggered with value {}!",
             ctx.clock, self.value

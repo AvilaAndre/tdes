@@ -50,7 +50,7 @@ impl Context {
     pub fn run(&mut self) {
         println!(">> STARTING SIMULATION");
         while !self.event_q.is_empty() {
-            let ev = self.event_q.pop().unwrap().0;
+            let mut ev = self.event_q.pop().unwrap().0;
 
             if ev.timestamp() < self.clock {
                 panic!("An event was earlier than the simulation clock");

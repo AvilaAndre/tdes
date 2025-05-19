@@ -2,11 +2,19 @@ use crate::internal::{
     events::types::message_delivery::MessageDeliveryEvent, utils::distance_between_points,
 };
 
-use super::context::Context;
+use super::{context::Context, message::Message};
 
 // TODO: Custom messages
-pub fn send_message_to(ctx: &mut Context, from: usize, to: usize) -> bool {
-    println!("[{}] send_message_to by {:?} to {:?}", ctx.clock, from, to);
+pub fn send_message_to(
+    ctx: &mut Context,
+    from: usize,
+    to: usize,
+    msg: Option<Box<dyn Message>>,
+) -> bool {
+    println!(
+        "[{}] send_message_to from {:?} to {:?} with content",
+        ctx.clock, from, to
+    );
 
     let from_peer = ctx.peers.get(from);
     let to_peer = ctx.peers.get(to);
@@ -23,7 +31,7 @@ pub fn send_message_to(ctx: &mut Context, from: usize, to: usize) -> bool {
             to_peer.unwrap().get_peer().position,
         );
 
-    ctx.add_event(MessageDeliveryEvent::create(arrival_time, from, to));
+    ctx.add_event(MessageDeliveryEvent::create(arrival_time, from, to, msg));
 
     true
 }
