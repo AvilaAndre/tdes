@@ -4,7 +4,6 @@ use crate::internal::{
 
 use super::{context::Context, message::Message};
 
-// TODO: Custom messages
 pub fn send_message_to(
     ctx: &mut Context,
     from: usize,
