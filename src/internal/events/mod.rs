@@ -8,5 +8,5 @@ use crate::Context;
 #[enum_dispatch]
 pub trait Event {
     fn timestamp(&self) -> OrderedFloat<f64>;
-    fn trigger(&self, ctx: &mut Context);
+    fn process(&self, ctx: &mut Context);
 }

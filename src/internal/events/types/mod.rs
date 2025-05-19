@@ -49,12 +49,12 @@ impl Event for EventType {
         event.timestamp()
     }
 
-    fn trigger(&self, ctx: &mut Context) {
+    fn process(&self, ctx: &mut Context) {
         let event: &dyn Event = match self {
             EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
             EventType::MessageDeliveryEvent(event) => event,
         };
-        event.trigger(ctx)
+        event.process(ctx)
     }
 }

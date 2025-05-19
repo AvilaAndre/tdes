@@ -31,7 +31,7 @@ impl Event for MessageDeliveryEvent {
         self.timestamp
     }
 
-    fn trigger(&self, ctx: &mut Context) {
+    fn process(&self, ctx: &mut Context) {
         println!(
             "[{}] MessageDeliveryEvent from {} to {} triggered!",
             ctx.clock, self.sender, self.receiver

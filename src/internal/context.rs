@@ -27,8 +27,9 @@ impl Context {
         self.event_q.push(Reverse(event));
     }
 
-    pub fn add_peer(&mut self, mut custom_peer: Box<dyn CustomPeer>) {
-        custom_peer.as_mut().get_peer_mut().id = Some(self.peers.len());
+    pub fn add_peer(&mut self, mut custom_peer: Box<dyn CustomPeer>) -> usize {
+        let new_id = self.peers.len();
+        custom_peer.as_mut().get_peer_mut().id = Some(new_id);
 
         println!(
             "Adding peer with id {:?} on position {:?}",
@@ -37,7 +38,7 @@ impl Context {
         );
         self.peers.push(custom_peer);
 
-        // TODO: Return id of new peer
+        new_id
     }
 
     pub fn run(&mut self) {
@@ -53,7 +54,7 @@ impl Context {
 
             // println!("{:?}", ev);
 
-            ev.trigger(self);
+            ev.process(self);
         }
         println!(">> FINISHED SIMULATION");
     }
