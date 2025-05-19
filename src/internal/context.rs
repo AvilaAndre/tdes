@@ -1,6 +1,9 @@
 use std::{cmp::Reverse, collections::BinaryHeap};
 
+use rand::SeedableRng;
+
 use ordered_float::OrderedFloat;
+use rand_chacha::ChaCha8Rng;
 
 use crate::EventType;
 use crate::internal::events::Event;
@@ -12,6 +15,7 @@ pub struct Context {
     pub clock: OrderedFloat<f64>,
     // TODO: use sparse set if peers can be removed
     pub peers: Vec<Box<dyn CustomPeer>>,
+    pub rng: ChaCha8Rng,
 }
 
 impl Context {
@@ -20,6 +24,8 @@ impl Context {
             event_q: BinaryHeap::new(),
             clock: OrderedFloat(0.0),
             peers: Vec::new(),
+            // TODO: Change to use actual seed
+            rng: ChaCha8Rng::from_os_rng(),
         }
     }
 
