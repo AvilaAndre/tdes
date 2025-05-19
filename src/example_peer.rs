@@ -7,6 +7,7 @@ use crate::internal::{
 
 pub struct ExamplePeer {
     pub peer: Peer,
+    pub value: u64,
 }
 
 fn example_on_message_receive(
@@ -14,6 +15,16 @@ fn example_on_message_receive(
     receiver_id: usize,
     msg: Option<Box<dyn Message>>,
 ) {
+    let peer: &mut ExamplePeer;
+
+    // TODO: create macro to get peer
+    if let Some(this_peer) = ctx.peers[receiver_id].downcast_mut::<ExamplePeer>() {
+        peer = this_peer;
+    } else {
+        // TODO: Add error log that the receiving peer is of different type
+        return;
+    }
+
     if let Some(boxed_msg) = msg {
         if let Some(example_msg) = boxed_msg.downcast_ref::<ExampleMessage>() {
             let new_msg = Box::new(ExampleMessage {
@@ -21,7 +32,12 @@ fn example_on_message_receive(
                 sender: receiver_id,
             });
 
-            send_message_to(ctx, receiver_id, example_msg.sender, Some(new_msg));
+            peer.value += 1;
+            println!("peer with id {} has value {}", receiver_id, peer.value);
+
+            if peer.value < 5 {
+                send_message_to(ctx, receiver_id, example_msg.sender, Some(new_msg));
+            }
         }
     }
 }
@@ -34,6 +50,7 @@ impl ExamplePeer {
                 this.on_message_receive = example_on_message_receive;
                 this
             },
+            value: 0,
         }
     }
 }

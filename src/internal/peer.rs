@@ -1,3 +1,4 @@
+use downcast_rs::{Downcast, impl_downcast};
 use ordered_float::OrderedFloat;
 
 use super::{
@@ -45,14 +46,15 @@ impl Peer {
             OrderedFloat(5.0),
             sender_id,
             target_id,
-            None
+            None,
         ));
 
         true
     }
 }
 
-pub trait CustomPeer {
+pub trait CustomPeer: Downcast {
     fn get_peer(&self) -> &Peer;
     fn get_peer_mut(&mut self) -> &mut Peer;
 }
+impl_downcast!(CustomPeer);
