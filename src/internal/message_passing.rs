@@ -10,13 +10,6 @@ pub fn send_message_to(
     to: usize,
     msg: Option<Box<dyn Message>>,
 ) -> bool {
-    /*
-    println!(
-        "[{}] send_message_to from {:?} to {:?} with content",
-        ctx.clock, from, to
-    );
-    */
-
     let from_peer = ctx.peers.get(from);
     let to_peer = ctx.peers.get(to);
 
@@ -25,6 +18,7 @@ pub fn send_message_to(
         return false;
     }
 
+    // TODO: this could a custom method in ctx
     // calculate time between peers
     let arrival_time = ctx.clock
         + distance_between_points(
@@ -32,7 +26,7 @@ pub fn send_message_to(
             to_peer.unwrap().get_peer().position,
         );
 
-    ctx.add_event(MessageDeliveryEvent::create(arrival_time, from, to, msg));
+    ctx.add_event(MessageDeliveryEvent::create(arrival_time, to, msg));
 
     true
 }

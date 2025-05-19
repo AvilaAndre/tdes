@@ -11,7 +11,6 @@ use crate::internal::{
 #[derive(Debug)]
 pub struct MessageDeliveryEvent {
     timestamp: OrderedFloat<f64>,
-    sender: usize,
     receiver: usize,
     message: Option<Box<dyn Message>>,
 }
@@ -40,13 +39,11 @@ impl Eq for MessageDeliveryEvent {}
 impl MessageDeliveryEvent {
     pub fn new(
         timestamp: OrderedFloat<f64>,
-        sender: usize,
         receiver: usize,
         message: Option<Box<dyn Message>>,
     ) -> Self {
         Self {
             timestamp,
-            sender,
             receiver,
             message,
         }
@@ -54,13 +51,10 @@ impl MessageDeliveryEvent {
 
     pub fn create(
         timestamp: OrderedFloat<f64>,
-        sender: usize,
         recipient: usize,
         message: Option<Box<dyn Message>>,
     ) -> EventType {
-        EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(
-            timestamp, sender, recipient, message,
-        ))
+        EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(timestamp, recipient, message))
     }
 }
 
@@ -70,15 +64,14 @@ impl Event for MessageDeliveryEvent {
     }
 
     fn process(&mut self, ctx: &mut Context) {
-        println!(
-            "[{}] MessageDeliveryEvent from {} to {} triggered!",
-            ctx.clock, self.sender, self.receiver
-        );
-
         let receiver = ctx.peers.get(self.receiver);
 
         if receiver.is_some() {
-            (receiver.unwrap().get_peer().on_message_receive)(ctx, self.receiver, self.message.take())
+            (receiver.unwrap().get_peer().on_message_receive)(
+                ctx,
+                self.receiver,
+                self.message.take(),
+            )
         } else {
             // TODO: Log that the receiver does not exist
         }
