@@ -10,10 +10,12 @@ pub fn send_message_to(
     to: usize,
     msg: Option<Box<dyn Message>>,
 ) -> bool {
+    /*
     println!(
         "[{}] send_message_to from {:?} to {:?} with content",
         ctx.clock, from, to
     );
+    */
 
     let from_peer = ctx.peers.get(from);
     let to_peer = ctx.peers.get(to);

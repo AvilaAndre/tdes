@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use ordered_float::OrderedFloat;
 
 use crate::internal::{
@@ -6,20 +8,43 @@ use crate::internal::{
         Event,
         types::{EventType, sample::SampleEvent},
     },
+    message::Timer,
 };
 
-#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug)]
 pub struct TimerEvent {
     timestamp: OrderedFloat<f64>,
+    timer: Box<dyn Timer>,
 }
 
+// This compares only the timestamps
+impl PartialOrd for TimerEvent {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.timestamp.partial_cmp(&other.timestamp)
+    }
+}
+
+impl Ord for TimerEvent {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.timestamp.total_cmp(&other.timestamp)
+    }
+}
+
+impl PartialEq for TimerEvent {
+    fn eq(&self, other: &Self) -> bool {
+        self.timestamp == other.timestamp
+    }
+}
+
+impl Eq for TimerEvent {}
+
 impl TimerEvent {
-    pub fn new(timestamp: OrderedFloat<f64>) -> Self {
-        Self { timestamp }
+    pub fn new(timestamp: OrderedFloat<f64>, timer: Box<dyn Timer>) -> Self {
+        Self { timestamp, timer }
     }
 
-    pub fn create(timestamp: OrderedFloat<f64>) -> EventType {
-        EventType::TimerEvent(TimerEvent::new(timestamp))
+    pub fn create(timestamp: OrderedFloat<f64>, timer: Box<dyn Timer>) -> EventType {
+        EventType::TimerEvent(TimerEvent::new(timestamp, timer))
     }
 }
 
@@ -29,11 +54,6 @@ impl Event for TimerEvent {
     }
 
     fn process(&mut self, ctx: &mut Context) {
-        println!("[{}] TimerEvent triggered!", ctx.clock);
-
-        ctx.add_event(EventType::SampleEvent(SampleEvent::new(
-            ctx.clock + 1.0,
-            10,
-        )));
+        self.timer.fire(ctx);
     }
 }

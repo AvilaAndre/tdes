@@ -66,7 +66,7 @@ impl Context {
     pub fn run_for(&mut self, deadline: OrderedFloat<f64>) {
         println!(">> STARTING SIMULATION");
 
-        let has_deadline = deadline > OrderedFloat(0.0);
+        let has_deadline = deadline >= OrderedFloat(0.0);
 
         while !self.event_q.is_empty() {
             let mut ev = self.event_q.pop().unwrap().0;

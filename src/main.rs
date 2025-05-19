@@ -2,8 +2,12 @@ pub mod example_peer;
 pub mod flow_updating_peer;
 pub mod internal;
 
-use flow_updating_peer::{FlowUpdatingPairwiseMessage, FlowUpdatingPairwisePeer};
-use internal::{context::Context, events::types::EventType, message_passing::send_message_to};
+use flow_updating_peer::{FlowUpdatingPairwiseMessage, FlowUpdatingPairwisePeer, TickTimer};
+use internal::{
+    context::Context,
+    events::types::{EventType, timer::TimerEvent},
+    message_passing::send_message_to,
+};
 use ordered_float::OrderedFloat;
 use rand::{Rng, distr::Uniform};
 
@@ -20,11 +24,25 @@ fn main() {
     let peer2 = ctx.add_peer(Box::new(FlowUpdatingPairwisePeer::new(0.0, 1.0, 0.0, val2)));
     let peer3 = ctx.add_peer(Box::new(FlowUpdatingPairwisePeer::new(0.0, 0.3, 0.0, val3)));
 
+    for _ in 0..20 {
+        let rval = ctx.rng.sample(Uniform::new(0, 80).unwrap());
+        let (rx, ry) = (
+            ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
+            ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
+        );
+        let _ = ctx.add_peer(Box::new(FlowUpdatingPairwisePeer::new(rx, ry, 0.0, rval)));
+    }
+
     /*
     ctx.add_event(SampleEvent::create(OrderedFloat(0.0), 1));
     ctx.add_event(TimerEvent::create(OrderedFloat(0.8)));
     ctx.add_event(MessageDeliveryEvent::create(OrderedFloat(5.0), 0, 1));
     */
+
+    ctx.add_event(TimerEvent::create(
+        ctx.clock,
+        Box::new(TickTimer { interval: 0.1 }),
+    ));
 
     let msg1 = FlowUpdatingPairwiseMessage {
         sender: peer1,
@@ -46,9 +64,7 @@ fn main() {
     send_message_to(&mut ctx, peer1, peer3, Some(Box::new(msg2)));
     send_message_to(&mut ctx, peer2, peer3, Some(Box::new(msg3)));
 
-    // println!("{:?}", ctx.event_q.clone().into_sorted_vec());
-
-    ctx.run_for(OrderedFloat(5.0));
+    ctx.run_for(OrderedFloat(0.0));
 
     println!("Finished with clock {}", ctx.clock)
 }
