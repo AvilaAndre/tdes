@@ -1,15 +1,17 @@
-use std::cmp::Ordering;
+use std::{cmp::Ordering, fmt::Debug};
 
+use downcast_rs::{Downcast, impl_downcast};
 use ordered_float::OrderedFloat;
 
 use crate::internal::{
     context::Context,
-    events::{
-        Event,
-        types::{EventType, sample::SampleEvent},
-    },
-    message::Timer,
+    events::{Event, types::EventType},
 };
+
+pub trait Timer: Debug + Downcast {
+    fn fire(&self, ctx: &mut Context);
+}
+impl_downcast!(Timer);
 
 #[derive(Debug)]
 pub struct TimerEvent {

@@ -4,8 +4,8 @@ use crate::{
     get_peer_of_type,
     internal::{
         context::Context,
-        events::types::timer::TimerEvent,
-        message::{Message, Timer},
+        events::types::timer::{Timer, TimerEvent},
+        message::Message,
         message_passing::send_message_to,
         peer::{CustomPeer, Peer},
     },
