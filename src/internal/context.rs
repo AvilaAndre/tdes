@@ -19,13 +19,13 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new() -> Self {
+    pub fn new(seed: u64) -> Self {
         Self {
             event_q: BinaryHeap::new(),
             clock: OrderedFloat(0.0),
             peers: Vec::new(),
             // TODO: Change to use actual seed
-            rng: ChaCha8Rng::from_os_rng(),
+            rng: ChaCha8Rng::seed_from_u64(seed),
         }
     }
 
