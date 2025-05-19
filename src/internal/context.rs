@@ -1,6 +1,6 @@
 use std::{cmp::Reverse, collections::BinaryHeap};
 
-use rand::SeedableRng;
+use rand::{Rng, SeedableRng};
 
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
@@ -16,17 +16,29 @@ pub struct Context {
     // TODO: use sparse set if peers can be removed
     pub peers: Vec<Box<dyn CustomPeer>>,
     pub rng: ChaCha8Rng,
+    pub seed: u64,
 }
 
 impl Context {
-    pub fn new(seed: u64) -> Self {
+    pub fn new(seed_opt: Option<u64>) -> Self {
+
+        // Generate seed if none is provided
+        let seed: u64 = match seed_opt {
+            Some(s) => s,
+            None => ChaCha8Rng::from_os_rng().random::<u64>(),
+        };
+
         Self {
             event_q: BinaryHeap::new(),
             clock: OrderedFloat(0.0),
             peers: Vec::new(),
-            // TODO: Change to use actual seed
             rng: ChaCha8Rng::seed_from_u64(seed),
+            seed,
         }
+    }
+
+    pub fn seed(&self) -> u64 {
+        self.seed
     }
 
     pub fn add_event(&mut self, event: EventType) {
@@ -48,9 +60,23 @@ impl Context {
     }
 
     pub fn run(&mut self) {
+        self.run_for(OrderedFloat(-1.0));
+    }
+
+    pub fn run_for(&mut self, deadline: OrderedFloat<f64>) {
         println!(">> STARTING SIMULATION");
+
+        let has_deadline = deadline > OrderedFloat(0.0);
+
         while !self.event_q.is_empty() {
             let mut ev = self.event_q.pop().unwrap().0;
+
+            // Do not process events after the deadline
+            if has_deadline && ev.timestamp() > deadline {
+                self.clock = deadline;
+                println!("Simulation reached the deadline");
+                break;
+            }
 
             if ev.timestamp() < self.clock {
                 panic!("An event was earlier than the simulation clock");
@@ -58,10 +84,10 @@ impl Context {
 
             self.clock = ev.timestamp();
 
-            // println!("{:?}", ev);
-
             ev.process(self);
         }
+
+        println!("Finished simulation with seed \"{:?}\".", self.seed());
         println!(">> FINISHED SIMULATION");
     }
 }
