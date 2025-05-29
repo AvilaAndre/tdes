@@ -12,11 +12,21 @@ pub fn send_message_to(
     to: usize,
     msg: Option<Box<dyn Message>>,
 ) -> bool {
-    let arrival_time = ctx.clock + (ctx.message_delay_cb)(ctx, from, to);
-
-    ctx.add_event(MessageDeliveryEvent::create(arrival_time, to, msg));
-
-    true
+    if let Some(latency_opt) = ctx.links.get(from).and_then(|map| map.get(&to)) {
+        if let Some(latency) = latency_opt {
+            ctx.add_event(MessageDeliveryEvent::create(
+                ctx.clock + OrderedFloat(*latency),
+                to,
+                msg,
+            ));
+        } else {
+            let latency = (ctx.message_delay_cb)(ctx, from, to);
+            ctx.add_event(MessageDeliveryEvent::create(ctx.clock + latency, to, msg));
+        }
+        true
+    } else {
+        false
+    }
 }
 
 // default algorithm

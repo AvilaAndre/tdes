@@ -28,6 +28,13 @@ pub fn start(ctx: &mut Context) {
         let _ = ctx.add_peer(Box::new(FlowUpdatingPairwisePeer::new(rx, ry, 0.0, rval)));
     }
 
+    // full connection
+    for i in 0..20 {
+        for j in i+1..20 {
+            ctx.add_twoway_link(i, j, None);
+        }
+    }
+
     ctx.add_event(TimerEvent::create(
         ctx.clock,
         Box::new(TickTimer { interval: 0.1 }),

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::{cmp::Reverse, collections::BinaryHeap};
 
 use rand::{Rng, SeedableRng};
@@ -18,6 +19,7 @@ pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
     pub clock: OrderedFloat<f64>,
     pub peers: Vec<Box<dyn CustomPeer>>,
+    pub links: Vec<HashMap<usize, Option<f64>>>,
     pub rng: ChaCha8Rng,
     pub seed: u64,
     pub message_delay_cb: MessageDelayCallback,
@@ -36,6 +38,7 @@ impl Context {
             event_q: BinaryHeap::new(),
             clock: OrderedFloat(0.0),
             peers: Vec::new(),
+            links: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
             seed,
             message_delay_cb: distance_based_arrival_time,
@@ -56,7 +59,23 @@ impl Context {
         custom_peer.as_mut().get_peer_mut().id = Some(new_id);
 
         self.peers.push(custom_peer);
+        self.links.push(HashMap::new());
         new_id
+    }
+
+    // Adds a link to another peer.
+    // If latency is provided, that value will always be used,
+    // if not, the simulator will calculate it using "message_delay_cb".
+    pub fn add_oneway_link(&mut self, from: usize, to: usize, latency: Option<f64>) {
+        self.links[from].insert(to, latency);
+    }
+
+    // Adds two links between two neighbors with the same latency.
+    // If latency is provided, that value will always be used,
+    // if not, the simulator will calculate it using "message_delay_cb".
+    pub fn add_twoway_link(&mut self, from: usize, to: usize, latency: Option<f64>) {
+        self.links[from].insert(to, latency);
+        self.links[to].insert(from, latency);
     }
 
     pub fn run(&mut self) {
