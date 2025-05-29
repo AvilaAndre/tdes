@@ -1,5 +1,6 @@
 mod algorithms;
 mod callbacks;
+mod hooks;
 mod message;
 mod peer;
 mod timer;
@@ -16,6 +17,7 @@ use crate::internal::{
 
 pub fn start(ctx: &mut Context) {
     ctx.message_delay_cb = distance_based_arrival_time;
+    ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook);
 
     for _ in 0..20 {
         let rval = ctx.rng.sample(Uniform::new(0, 80).unwrap());

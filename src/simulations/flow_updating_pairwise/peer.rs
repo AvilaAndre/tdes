@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::internal::peer::{CustomPeer, Peer};
 
-use super::hooks;
+use super::callbacks;
 
 pub struct FlowUpdatingPairwisePeer {
     pub peer: Peer,
@@ -18,7 +18,7 @@ impl FlowUpdatingPairwisePeer {
         Self {
             peer: {
                 let mut this = Peer::new(x, y, z);
-                this.on_message_receive = hooks::example_on_message_receive;
+                this.on_message_receive = callbacks::example_on_message_receive;
                 this
             },
             value,

@@ -12,6 +12,7 @@ use super::message_passing::distance_based_arrival_time;
 use super::peer::CustomPeer;
 
 type MessageDelayCallback = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
+type CustomHook = fn(ctx: &Context) -> ();
 
 pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
@@ -20,6 +21,7 @@ pub struct Context {
     pub rng: ChaCha8Rng,
     pub seed: u64,
     pub message_delay_cb: MessageDelayCallback,
+    pub on_simulation_finish_hook: Option<CustomHook>,
 }
 
 impl Context {
@@ -37,6 +39,7 @@ impl Context {
             rng: ChaCha8Rng::seed_from_u64(seed),
             seed,
             message_delay_cb: distance_based_arrival_time,
+            on_simulation_finish_hook: None,
         }
     }
 
@@ -52,13 +55,7 @@ impl Context {
         let new_id = self.peers.len();
         custom_peer.as_mut().get_peer_mut().id = Some(new_id);
 
-        println!(
-            "Adding peer with id {:?} on position {:?}",
-            custom_peer.get_peer().id.unwrap(),
-            custom_peer.get_peer().position
-        );
         self.peers.push(custom_peer);
-
         new_id
     }
 
@@ -88,6 +85,10 @@ impl Context {
             self.clock = ev.timestamp();
 
             ev.process(self);
+        }
+
+        if let Some(hook) = self.on_simulation_finish_hook {
+            hook(self)
         }
 
         println!("Finished simulation with seed \"{:?}\".", self.seed());
