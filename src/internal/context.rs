@@ -8,7 +8,10 @@ use rand_chacha::ChaCha8Rng;
 use crate::EventType;
 use crate::internal::events::Event;
 
+use super::message_passing::distance_based_arrival_time;
 use super::peer::CustomPeer;
+
+type MessageDelayFn = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
 
 pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
@@ -17,11 +20,11 @@ pub struct Context {
     pub peers: Vec<Box<dyn CustomPeer>>,
     pub rng: ChaCha8Rng,
     pub seed: u64,
+    pub message_delay: MessageDelayFn,
 }
 
 impl Context {
     pub fn new(seed_opt: Option<u64>) -> Self {
-
         // Generate seed if none is provided
         let seed: u64 = match seed_opt {
             Some(s) => s,
@@ -34,6 +37,7 @@ impl Context {
             peers: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
             seed,
+            message_delay: distance_based_arrival_time,
         }
     }
 
