@@ -3,10 +3,7 @@ use crate::{
     internal::{context::Context, message::Message},
 };
 
-use super::{
-    algorithms,
-    peer::{FlowUpdatingPairwiseMessage, FlowUpdatingPairwisePeer},
-};
+use super::{algorithms, message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
 
 pub fn example_on_message_receive(
     ctx: &mut Context,

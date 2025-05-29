@@ -12,7 +12,7 @@ pub fn send_message_to(
     to: usize,
     msg: Option<Box<dyn Message>>,
 ) -> bool {
-    let arrival_time = ctx.clock + (ctx.message_delay)(ctx, from, to);
+    let arrival_time = ctx.clock + (ctx.message_delay_cb)(ctx, from, to);
 
     ctx.add_event(MessageDeliveryEvent::create(arrival_time, to, msg));
 

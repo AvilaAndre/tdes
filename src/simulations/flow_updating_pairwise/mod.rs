@@ -1,4 +1,5 @@
 mod algorithms;
+mod callbacks;
 mod message;
 mod peer;
 mod timer;
@@ -8,9 +9,14 @@ use peer::FlowUpdatingPairwisePeer;
 use rand::{Rng, distr::Uniform};
 use timer::TickTimer;
 
-use crate::internal::{context::Context, events::types::timer::TimerEvent};
+use crate::internal::{
+    context::Context, events::types::timer::TimerEvent,
+    message_passing::distance_based_arrival_time,
+};
 
 pub fn start(ctx: &mut Context) {
+    ctx.message_delay_cb = distance_based_arrival_time;
+
     for _ in 0..20 {
         let rval = ctx.rng.sample(Uniform::new(0, 80).unwrap());
         let (rx, ry) = (

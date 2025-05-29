@@ -1,2 +1,2 @@
 pub mod example;
-pub mod flow_updating_collectall;
+pub mod flow_updating_pairwise;

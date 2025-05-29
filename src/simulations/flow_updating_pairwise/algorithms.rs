@@ -3,17 +3,13 @@ use crate::{
     internal::{context::Context, message_passing::send_message_to},
 };
 
-use super::peer::{FlowUpdatingPairwiseMessage, FlowUpdatingPairwisePeer};
+use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
+
+const TICKS: u32 = 50;
 
 pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
     let peer: &mut FlowUpdatingPairwisePeer =
         get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer).expect("peer should exist");
-
-    // TODO: Delete this debug line
-    println!(
-        "[{}] peer with id {} has value {}, last_avg is {}",
-        ctx.clock, peer_id, peer.value, peer.last_avg
-    );
 
     // FIXME: only values from neighbors
     let flows_sum: f64 = peer.flows.values().sum();
@@ -61,8 +57,7 @@ pub fn tick(ctx: &mut Context, peer_id: usize) {
             .copied()
             .unwrap_or(0);
 
-        // TODO: make number of ticks a const
-        if neigh_ticks > 50 {
+        if neigh_ticks > TICKS {
             avg_and_send(ctx, peer_id, neigh_id);
         } else {
             peer.ticks_since_last_avg.insert(neigh_id, neigh_ticks + 1);

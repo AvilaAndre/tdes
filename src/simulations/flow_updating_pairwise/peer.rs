@@ -1,11 +1,8 @@
 use std::collections::HashMap;
 
-use crate::internal::{
-    message::Message,
-    peer::{CustomPeer, Peer},
-};
+use crate::internal::peer::{CustomPeer, Peer};
 
-use super::message::example_on_message_receive;
+use super::hooks;
 
 pub struct FlowUpdatingPairwisePeer {
     pub peer: Peer,
@@ -21,7 +18,7 @@ impl FlowUpdatingPairwisePeer {
         Self {
             peer: {
                 let mut this = Peer::new(x, y, z);
-                this.on_message_receive = example_on_message_receive;
+                this.on_message_receive = hooks::example_on_message_receive;
                 this
             },
             value,
@@ -42,11 +39,3 @@ impl CustomPeer for FlowUpdatingPairwisePeer {
         &mut self.peer
     }
 }
-
-#[derive(Debug, Clone)]
-pub struct FlowUpdatingPairwiseMessage {
-    pub sender: usize,
-    pub flow: f64,
-    pub estimate: f64,
-}
-impl Message for FlowUpdatingPairwiseMessage {}

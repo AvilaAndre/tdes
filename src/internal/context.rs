@@ -11,16 +11,15 @@ use crate::internal::events::Event;
 use super::message_passing::distance_based_arrival_time;
 use super::peer::CustomPeer;
 
-type MessageDelayFn = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
+type MessageDelayCallback = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
 
 pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
     pub clock: OrderedFloat<f64>,
-    // TODO: use sparse set if peers can be removed
     pub peers: Vec<Box<dyn CustomPeer>>,
     pub rng: ChaCha8Rng,
     pub seed: u64,
-    pub message_delay: MessageDelayFn,
+    pub message_delay_cb: MessageDelayCallback,
 }
 
 impl Context {
@@ -37,7 +36,7 @@ impl Context {
             peers: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
             seed,
-            message_delay: distance_based_arrival_time,
+            message_delay_cb: distance_based_arrival_time,
         }
     }
 
@@ -55,7 +54,7 @@ impl Context {
 
         println!(
             "Adding peer with id {:?} on position {:?}",
-            custom_peer.get_peer().id,
+            custom_peer.get_peer().id.unwrap(),
             custom_peer.get_peer().position
         );
         self.peers.push(custom_peer);
