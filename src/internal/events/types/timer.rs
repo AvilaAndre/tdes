@@ -22,7 +22,7 @@ pub struct TimerEvent {
 // This compares only the timestamps
 impl PartialOrd for TimerEvent {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.timestamp.partial_cmp(&other.timestamp)
+        Some(self.cmp(other))
     }
 }
 

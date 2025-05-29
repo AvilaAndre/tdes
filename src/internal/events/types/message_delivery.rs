@@ -18,7 +18,7 @@ pub struct MessageDeliveryEvent {
 // This compares only the timestamps
 impl PartialOrd for MessageDeliveryEvent {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.timestamp.partial_cmp(&other.timestamp)
+        Some(self.cmp(other))
     }
 }
 
@@ -64,14 +64,8 @@ impl Event for MessageDeliveryEvent {
     }
 
     fn process(&mut self, ctx: &mut Context) {
-        let receiver = ctx.peers.get(self.receiver);
-
-        if receiver.is_some() {
-            (receiver.unwrap().get_peer().on_message_receive)(
-                ctx,
-                self.receiver,
-                self.message.take(),
-            )
+        if let Some(receiver) = ctx.peers.get(self.receiver) {
+            (receiver.get_peer().on_message_receive)(ctx, self.receiver, self.message.take())
         } else {
             // TODO: Log that the receiver does not exist
         }

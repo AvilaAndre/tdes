@@ -45,7 +45,7 @@ pub fn tick(ctx: &mut Context, peer_id: usize) {
     //    if self.ticks_since_last_avg[neigh] < threshold:
     //        self.avg_and_send(neigh)
 
-    let size = ctx.peers.len().clone();
+    let size = ctx.peers.len();
 
     for neigh_id in 0..size {
         if neigh_id == peer_id {
