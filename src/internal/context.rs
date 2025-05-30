@@ -78,6 +78,18 @@ impl Context {
         self.links[to].insert(from, latency);
     }
 
+    // TODO: Move this out of Context struct
+    pub fn get_neighbors(&mut self, peer_id: usize) -> Option<Vec<usize>> {
+        Some(
+            self.links
+                .get(peer_id)?
+                .keys()
+                .into_iter()
+                .map(|k| *k)
+                .collect::<Vec<usize>>(),
+        )
+    }
+
     pub fn run(&mut self) {
         self.run_for(OrderedFloat(-1.0));
     }
