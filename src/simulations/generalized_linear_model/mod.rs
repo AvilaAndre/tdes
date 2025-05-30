@@ -8,6 +8,7 @@ mod family;
 mod generalized_linear_model;
 mod utils;
 
+use algorithms::peer_start;
 use faer::Mat;
 use ordered_float::OrderedFloat;
 use peer::GlmPeer;
@@ -42,10 +43,10 @@ fn model_data(m: &str) -> Result<ModelData, Box<dyn Error>> {
             .collect::<Result<Vec<f64>, _>>()?;
 
         if !float_row.is_empty() {
-            let (x, y) = float_row.split_last().unwrap();
+            let (y, x) = float_row.split_last().unwrap();
 
-            x_data.push(vec![*x]);
-            y_data.push(y.to_vec());
+            x_data.push(x.to_vec());
+            y_data.push(vec![*y]);
         }
     }
 
@@ -134,6 +135,10 @@ pub fn start(ctx: &mut Context) {
         for j in i + 1..n_peers {
             ctx.add_twoway_link(i, j, None);
         }
+    }
+
+    for i in 0..n_peers {
+        peer_start(ctx, i);
     }
 
     ctx.run_for(OrderedFloat(17.1));
