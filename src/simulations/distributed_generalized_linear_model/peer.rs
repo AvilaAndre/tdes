@@ -5,7 +5,7 @@ use faer::Mat;
 use crate::internal::peer::{CustomPeer, Peer};
 
 use super::{
-    ModelData,
+    ModelData, callbacks,
     family::FamilyEnum,
     generalized_linear_model::{self, GeneralizedLinearModel},
 };
@@ -13,7 +13,7 @@ use super::{
 pub struct GlmState {
     pub model: GeneralizedLinearModel,
     pub data: ModelData,
-    pub r_remotes: HashMap<usize, i32>,
+    pub r_remotes: HashMap<usize, usize>,
     pub total_nrow: usize,
     pub nodes: Vec<usize>,
     pub finished: bool,
@@ -44,13 +44,13 @@ impl GlmPeer {
 
         Self {
             peer: {
-                // TODO: implement message received callback
-                // this.on_message_receive = callbacks::example_on_message_receive;
-                Peer::new(pos_x, pos_y, 0.0)
+                let mut p = Peer::new(pos_x, pos_y, 0.0);
+                p.on_message_receive = callbacks::on_message_receive;
+                p
             },
 
             state: GlmState {
-                model: model,
+                model,
                 data: ModelData { x, y },
                 r_remotes: HashMap::new(),
                 total_nrow: r,

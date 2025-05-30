@@ -1,10 +1,8 @@
 use faer::Mat;
 
-use crate::simulations::generalized_linear_model::utils::{mul_elementwise, sqr_elemwise};
-
 use super::{
-    family::{FamilyEnum, binomial},
-    utils::{CatDim, div_elemwise, mat_cat, sqrt_elemwise},
+    family::{binomial, FamilyEnum},
+    utils::{div_elemwise, mat_cat, mul_elementwise, sqr_elemwise, sqrt_elemwise, CatDim},
 };
 
 pub struct GeneralizedLinearModel {
@@ -28,7 +26,7 @@ pub fn distributed_binomial_single_iter_n(x: Mat<f64>, y: Mat<f64>, beta: Mat<f6
     let z_tilde = &mul_elementwise(sqrt_w, &z);
 
     // r_local
-    mat_cat(&x_tilde, &z_tilde, CatDim::HORIZONTAL)
+    mat_cat(x_tilde, z_tilde, CatDim::HORIZONTAL)
         .qr()
         .R()
         .to_owned()

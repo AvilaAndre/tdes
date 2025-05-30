@@ -1,3 +1,3 @@
 pub mod example;
 pub mod flow_updating_pairwise;
-pub mod generalized_linear_model;
+pub mod distributed_generalized_linear_model;
