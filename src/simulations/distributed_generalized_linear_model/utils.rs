@@ -1,5 +1,3 @@
-use std::{iter, result};
-
 use faer::Mat;
 
 pub fn mat_div_elemwise(a: &Mat<f64>, b: &Mat<f64>) -> Mat<f64> {
@@ -18,10 +16,9 @@ pub fn mat_sqr_elemwise(a: &Mat<f64>) -> Mat<f64> {
 }
 
 pub fn mat_diag(a: &Mat<f64>) -> Mat<f64> {
-    let sz = a.nrows().max(a.ncols());
+    let sz = a.nrows().min(a.ncols());
     Mat::from_fn(sz, 1, |i, _| a.get(i, i).clone())
 }
-
 
 /*
  * This method also broadcasts if possible
