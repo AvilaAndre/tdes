@@ -84,8 +84,7 @@ impl Context {
             self.links
                 .get(peer_id)?
                 .keys()
-                .into_iter()
-                .map(|k| *k)
+                .copied()
                 .collect::<Vec<usize>>(),
         )
     }

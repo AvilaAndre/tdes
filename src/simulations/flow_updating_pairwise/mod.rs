@@ -19,7 +19,9 @@ pub fn start(ctx: &mut Context) {
     ctx.message_delay_cb = distance_based_arrival_time;
     ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook);
 
-    for _ in 0..20 {
+    let n_peers = 50;
+
+    for _ in 0..n_peers {
         let rval = ctx.rng.sample(Uniform::new(0, 80).unwrap());
         let (rx, ry) = (
             ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
@@ -29,8 +31,8 @@ pub fn start(ctx: &mut Context) {
     }
 
     // full connection
-    for i in 0..20 {
-        for j in i+1..20 {
+    for i in 0..n_peers {
+        for j in i + 1..n_peers {
             ctx.add_twoway_link(i, j, None);
         }
     }
@@ -40,5 +42,5 @@ pub fn start(ctx: &mut Context) {
         Box::new(TickTimer { interval: 0.1 }),
     ));
 
-    ctx.run_for(OrderedFloat(7.1));
+    ctx.run_for(OrderedFloat(17.1));
 }
