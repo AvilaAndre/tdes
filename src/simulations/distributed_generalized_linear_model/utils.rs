@@ -1,19 +1,27 @@
+use std::{iter, result};
+
 use faer::Mat;
 
-pub fn div_elemwise(a: &Mat<f64>, b: &Mat<f64>) -> Mat<f64> {
+pub fn mat_div_elemwise(a: &Mat<f64>, b: &Mat<f64>) -> Mat<f64> {
     assert_eq!(a.nrows(), b.nrows(), "Mismatched number of rows");
     assert_eq!(a.ncols(), b.ncols(), "Mismatched number of columns");
 
     Mat::from_fn(a.nrows(), a.ncols(), |i, j| a.get(i, j) / b.get(i, j))
 }
 
-pub fn sqrt_elemwise(a: &Mat<f64>) -> Mat<f64> {
+pub fn mat_sqrt_elemwise(a: &Mat<f64>) -> Mat<f64> {
     Mat::from_fn(a.nrows(), a.ncols(), |i, j| a.get(i, j).sqrt())
 }
 
-pub fn sqr_elemwise(a: &Mat<f64>) -> Mat<f64> {
+pub fn mat_sqr_elemwise(a: &Mat<f64>) -> Mat<f64> {
     Mat::from_fn(a.nrows(), a.ncols(), |i, j| a.get(i, j) * a.get(i, j))
 }
+
+pub fn mat_diag(a: &Mat<f64>) -> Mat<f64> {
+    let sz = a.nrows().max(a.ncols());
+    Mat::from_fn(sz, 1, |i, _| a.get(i, i).clone())
+}
+
 
 /*
  * This method also broadcasts if possible
@@ -50,6 +58,7 @@ pub fn mul_elementwise(a: &Mat<f64>, b: &Mat<f64>) -> Mat<f64> {
     }
 }
 
+#[derive(Copy, Clone)]
 pub enum CatDim {
     VERTICAL = 0,
     HORIZONTAL = 1,
@@ -89,4 +98,20 @@ pub fn mat_cat(a: &Mat<f64>, b: &Mat<f64>, dim: CatDim) -> Mat<f64> {
             out
         }
     }
+}
+
+pub fn mat_cat_vec(mats: Vec<Mat<f64>>, dim: CatDim) -> Mat<f64> {
+    assert!(
+        mats.get(0).is_some(),
+        "mat_cat_vec must receive at least one matrix"
+    );
+
+    let mut iterator = mats.iter();
+    let mut result = iterator.next().unwrap().clone();
+
+    for mat in iterator {
+        result = mat_cat(&result, mat, dim);
+    }
+
+    result
 }
