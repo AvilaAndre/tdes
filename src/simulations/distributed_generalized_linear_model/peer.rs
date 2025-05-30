@@ -13,7 +13,8 @@ use super::{
 pub struct GlmState {
     pub model: GeneralizedLinearModel,
     pub data: ModelData,
-    pub r_remotes: HashMap<usize, usize>,
+    pub r_n_rows: HashMap<usize, usize>, // how many rows remotes have
+    pub r_remotes: HashMap<usize, HashMap<usize, Mat<f64>>>,
     pub total_nrow: usize,
     pub nodes: Vec<usize>,
     pub finished: bool,
@@ -36,8 +37,8 @@ impl GlmPeer {
         );
 
         let model = GeneralizedLinearModel {
-            r_local,
-            coefficients: beta,
+            r_local: r_local.clone(),
+            coefficients: beta.clone(),
             family: FamilyEnum::BINOMIAL,
             iter: 0,
         };
@@ -52,6 +53,7 @@ impl GlmPeer {
             state: GlmState {
                 model,
                 data: ModelData { x, y },
+                r_n_rows: HashMap::new(),
                 r_remotes: HashMap::new(),
                 total_nrow: r,
                 nodes: Vec::new(),

@@ -21,4 +21,3 @@ pub fn variance(mu: &Mat<f64>) -> Mat<f64> {
         x * (1.0 - x)
     })
 }
-
