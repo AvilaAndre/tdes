@@ -1,5 +1,6 @@
 mod algorithms;
 mod callbacks;
+mod hooks;
 mod message;
 mod peer;
 mod timer;
@@ -100,6 +101,8 @@ fn chunk_nx(mat: Mat<f64>, n: usize) -> Vec<Mat<f64>> {
 }
 
 pub fn start(ctx: &mut Context) {
+    ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook);
+
     let data: ModelData = match model_data("glm") {
         Ok(d) => d,
         Err(e) => panic!("Failed to load model_data: {}", e),
@@ -109,6 +112,8 @@ pub fn start(ctx: &mut Context) {
         Ok(b) => b,
         Err(e) => panic!("Failed to load model_beta: {}", e),
     };
+
+    println!("_beta {:?}", _beta);
 
     let n_peers: usize = 7;
 
