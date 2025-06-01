@@ -13,7 +13,7 @@ use super::message_passing::distance_based_arrival_time;
 use super::peer::CustomPeer;
 
 type MessageDelayCallback = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
-type CustomHook = fn(ctx: &Context) -> ();
+pub type CustomHook = Box<dyn Fn(&Context)>;
 
 pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
@@ -117,7 +117,7 @@ impl Context {
             ev.process(self);
         }
 
-        if let Some(hook) = self.on_simulation_finish_hook {
+        if let Some(hook) = &self.on_simulation_finish_hook {
             hook(self)
         }
 

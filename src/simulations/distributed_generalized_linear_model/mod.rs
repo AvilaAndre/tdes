@@ -101,19 +101,22 @@ fn chunk_nx(mat: Mat<f64>, n: usize) -> Vec<Mat<f64>> {
 }
 
 pub fn start(ctx: &mut Context) {
-    ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook);
-
     let data: ModelData = match model_data("glm") {
         Ok(d) => d,
         Err(e) => panic!("Failed to load model_data: {}", e),
     };
 
-    let _beta = match model_beta("glm") {
+    let beta = match model_beta("glm") {
         Ok(b) => b,
         Err(e) => panic!("Failed to load model_beta: {}", e),
     };
 
-    println!("_beta {:?}", _beta);
+    let beta_mat = Mat::from_fn(beta.get(0).map_or(0, |v| v.len()), beta.len(), |i, j| {
+        *beta.get(j).unwrap().get(i).unwrap()
+    });
+
+    ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook(beta_mat));
+    println!("_beta {:?}", beta);
 
     let n_peers: usize = 7;
 

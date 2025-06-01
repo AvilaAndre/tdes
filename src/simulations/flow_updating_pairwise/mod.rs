@@ -17,7 +17,7 @@ use crate::internal::{
 
 pub fn start(ctx: &mut Context) {
     ctx.message_delay_cb = distance_based_arrival_time;
-    ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook);
+    ctx.on_simulation_finish_hook = Some(Box::new(hooks::on_simulation_finish_hook));
 
     let n_peers = 50;
 
