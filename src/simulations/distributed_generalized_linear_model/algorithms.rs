@@ -72,7 +72,7 @@ pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMe
     let peer: &mut GlmPeer = get_peer_of_type!(ctx, peer_id, GlmPeer).expect("peer should exist");
 
     if !peer.state.r_remotes.contains_key(&msg.origin) {
-        // INFO: replaced r_remotes with iters
+        // INFO: replaced r_remotes with r_n_rows
         peer.state.r_n_rows.insert(msg.origin, msg.nrows);
 
         if peer.state.nodes.len() == peer.state.r_n_rows.keys().len() {
