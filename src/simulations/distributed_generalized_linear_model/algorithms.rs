@@ -16,7 +16,6 @@ use super::{
 };
 
 pub fn peer_start(ctx: &mut Context, peer_id: usize) {
-    println!("{} start", peer_id);
     broadcast_sum_rows(ctx, peer_id)
 }
 
@@ -96,16 +95,14 @@ pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMes
 fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f64>, iter: usize) {
     let peer: &mut GlmPeer = get_peer_of_type!(ctx, peer_id, GlmPeer).expect("peer should exist");
 
-    if !peer.state.r_remotes.contains_key(&iter)
-        || peer
+    if peer.state.r_remotes.contains_key(&iter)
+        && !peer
             .state
             .r_remotes
             .get(&iter)
             .unwrap()
             .contains_key(&sender)
     {
-        // REFACTOR: this
-    } else {
         peer.state
             .r_remotes
             .get_mut(&iter)
@@ -126,15 +123,15 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
 
             let r_local_with_all_r_remotes = mat_cat_vec(all_r_remotes.clone(), CatDim::Vertical);
 
-            let (r_local, beta, stop) =
-                generalized_linear_model::distributed_binomial_single_solve_n(
-                    r_local_with_all_r_remotes,
-                    peer.state.model.coefficients.clone(),
-                    peer.state.total_nrow,
-                    generalized_linear_model::DEFAULT_MAXIT,
-                    generalized_linear_model::DEFAULT_TOL,
-                    peer.state.model.iter,
-                );
+            let (r_local, beta, stop) = generalized_linear_model::distributed_single_solve_n(
+                r_local_with_all_r_remotes,
+                peer.state.model.coefficients.clone(),
+                peer.state.model.family,
+                peer.state.total_nrow,
+                generalized_linear_model::DEFAULT_MAXIT,
+                generalized_linear_model::DEFAULT_TOL,
+                peer.state.model.iter,
+            );
 
             peer.state.model.r_local = r_local;
             peer.state.model.coefficients = beta.clone();
@@ -143,12 +140,12 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
 
             // INFO: Did not add branch where simulation stops
             if !stop {
-                peer.state.model.r_local =
-                    generalized_linear_model::distributed_binomial_single_iter_n(
-                        peer.state.data.x.clone(),
-                        peer.state.data.y.clone(),
-                        beta,
-                    );
+                peer.state.model.r_local = generalized_linear_model::distributed_single_iter_n(
+                    peer.state.model.family,
+                    peer.state.data.x.clone(),
+                    peer.state.data.y.clone(),
+                    beta,
+                );
 
                 broadcast_nodes(ctx, peer_id);
             }

@@ -30,16 +30,20 @@ impl GlmPeer {
         let (r, c) = x.shape();
         let beta: Mat<f64> = Mat::zeros(c, 1);
 
-        let r_local = generalized_linear_model::distributed_binomial_single_iter_n(
+        // INFO: Gaussian does not work
+        let family: FamilyEnum = FamilyEnum::Binomial;
+
+        let r_local = generalized_linear_model::distributed_single_iter_n(
+            family,
             x.clone(),
             y.clone(),
             beta.clone(),
         );
 
         let model = GeneralizedLinearModel {
-            r_local: r_local.clone(),
+            r_local,
             coefficients: beta.clone(),
-            family: FamilyEnum::Binomial,
+            family,
             iter: 0,
         };
 

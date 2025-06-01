@@ -4,7 +4,7 @@ use faer::{
 };
 
 use super::{
-    family::{FamilyEnum, binomial},
+    family::{FamilyEnum, binomial, gaussian},
     utils::{
         CatDim, mat_cat, mat_diag, mat_div_elemwise, mat_sqr_elemwise, mat_sqrt_elemwise,
         mul_elementwise,
@@ -57,13 +57,29 @@ fn stop(maxit: usize, tol: f64, iter: usize, diff: f64) -> bool {
     iter >= maxit || diff < tol
 }
 
-pub fn distributed_binomial_single_iter_n(x: Mat<f64>, y: Mat<f64>, beta: Mat<f64>) -> Mat<f64> {
+pub fn distributed_single_iter_n(
+    family: FamilyEnum,
+    x: Mat<f64>,
+    y: Mat<f64>,
+    beta: Mat<f64>,
+) -> Mat<f64> {
     let eta = x.clone() * beta;
 
-    let mu = binomial::linkinv(&eta);
-    let dmu = binomial::mu_eta(&eta);
+    let mu = match family {
+        FamilyEnum::Binomial => binomial::linkinv(&eta),
+        FamilyEnum::Gaussian => gaussian::linkinv(&eta),
+    };
+    let dmu = match family {
+        FamilyEnum::Binomial => binomial::mu_eta(&eta),
+        FamilyEnum::Gaussian => gaussian::mu_eta(&eta),
+    };
+
+    let variance = match family {
+        FamilyEnum::Binomial => binomial::variance(&mu),
+        FamilyEnum::Gaussian => gaussian::variance(&mu),
+    };
     let z = eta + mat_div_elemwise(&(y - mu.clone()), &dmu.clone());
-    let w = mat_div_elemwise(&mat_sqr_elemwise(&dmu.clone()), &binomial::variance(&mu));
+    let w = mat_div_elemwise(&mat_sqr_elemwise(&dmu.clone()), &variance);
 
     let sqrt_w = &mat_sqrt_elemwise(&w.clone());
     let x_tilde = &mul_elementwise(sqrt_w, &x);
@@ -76,9 +92,10 @@ pub fn distributed_binomial_single_iter_n(x: Mat<f64>, y: Mat<f64>, beta: Mat<f6
         .to_owned()
 }
 
-pub fn distributed_binomial_single_solve_n(
+pub fn distributed_single_solve_n(
     r_local_with_all_r_remotes: Mat<f64>,
     beta: Mat<f64>,
+    family: FamilyEnum,
     total_nrow: usize,
     maxit: usize,
     tol: f64,
@@ -88,7 +105,7 @@ pub fn distributed_binomial_single_solve_n(
 
     let (r_local, beta) = ols_n(r_local_with_all_r_remotes);
 
-    let vcov = vcov(r_local.clone(), FamilyEnum::Binomial, total_nrow);
+    let vcov = vcov(r_local.clone(), family, total_nrow);
     let delta = mat_div_elemwise(
         &(beta_old - beta.clone()),
         &mat_sqrt_elemwise(&mat_diag(&vcov)),
