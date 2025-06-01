@@ -57,12 +57,12 @@ pub fn mul_elementwise(a: &Mat<f64>, b: &Mat<f64>) -> Mat<f64> {
 
 #[derive(Copy, Clone)]
 pub enum CatDim {
-    VERTICAL = 0,
-    HORIZONTAL = 1,
+    Vertical = 0,
+    Horizontal = 1,
 }
 pub fn mat_cat(a: &Mat<f64>, b: &Mat<f64>, dim: CatDim) -> Mat<f64> {
     match dim {
-        CatDim::VERTICAL => {
+        CatDim::Vertical => {
             let ncols = a.ncols();
             let nrows_total = a.nrows() + b.nrows();
 
@@ -78,7 +78,7 @@ pub fn mat_cat(a: &Mat<f64>, b: &Mat<f64>, dim: CatDim) -> Mat<f64> {
                 .copy_from(b);
             out
         }
-        CatDim::HORIZONTAL => {
+        CatDim::Horizontal => {
             let nrows = a.nrows();
             let ncols_total = a.ncols() + b.ncols();
 

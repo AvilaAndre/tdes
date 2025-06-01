@@ -39,7 +39,7 @@ impl GlmPeer {
         let model = GeneralizedLinearModel {
             r_local: r_local.clone(),
             coefficients: beta.clone(),
-            family: FamilyEnum::BINOMIAL,
+            family: FamilyEnum::Binomial,
             iter: 0,
         };
 

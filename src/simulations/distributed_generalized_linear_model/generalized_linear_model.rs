@@ -30,8 +30,8 @@ fn vcov(r_local: Mat<f64>, family: FamilyEnum, total_nrow: usize) -> Mat<f64> {
     let inv_r = (r.clone().transpose() * r).partial_piv_lu().inverse();
 
     let dispersion = match family {
-        FamilyEnum::BINOMIAL => 1.0,
-        FamilyEnum::GAUSSIAN => rss * rss / (total_nrow - m) as f64,
+        FamilyEnum::Binomial => 1.0,
+        FamilyEnum::Gaussian => rss * rss / (total_nrow - m) as f64,
     };
 
     inv_r * dispersion
@@ -70,7 +70,7 @@ pub fn distributed_binomial_single_iter_n(x: Mat<f64>, y: Mat<f64>, beta: Mat<f6
     let z_tilde = &mul_elementwise(sqrt_w, &z);
 
     // r_local
-    mat_cat(x_tilde, z_tilde, CatDim::HORIZONTAL)
+    mat_cat(x_tilde, z_tilde, CatDim::Horizontal)
         .qr()
         .R()
         .to_owned()
@@ -88,7 +88,7 @@ pub fn distributed_binomial_single_solve_n(
 
     let (r_local, beta) = ols_n(r_local_with_all_r_remotes);
 
-    let vcov = vcov(r_local.clone(), FamilyEnum::BINOMIAL, total_nrow);
+    let vcov = vcov(r_local.clone(), FamilyEnum::Binomial, total_nrow);
     let delta = mat_div_elemwise(
         &(beta_old - beta.clone()),
         &mat_sqrt_elemwise(&mat_diag(&vcov)),

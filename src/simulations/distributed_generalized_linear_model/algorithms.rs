@@ -126,7 +126,7 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                 .collect::<Vec<Mat<f64>>>();
             all_r_remotes.push(peer.state.model.r_local.clone());
 
-            let r_local_with_all_r_remotes = mat_cat_vec(all_r_remotes.clone(), CatDim::VERTICAL);
+            let r_local_with_all_r_remotes = mat_cat_vec(all_r_remotes.clone(), CatDim::Vertical);
 
             let (r_local, beta, stop) =
                 generalized_linear_model::distributed_binomial_single_solve_n(
