@@ -111,12 +111,11 @@ pub fn start(ctx: &mut Context) {
         Err(e) => panic!("Failed to load model_beta: {}", e),
     };
 
-    let beta_mat = Mat::from_fn(beta.get(0).map_or(0, |v| v.len()), beta.len(), |i, j| {
-        *beta.get(j).unwrap().get(i).unwrap()
+    let beta_mat = Mat::from_fn(beta.len(), beta.get(0).map_or(0, |v| v.len()), |i, j| {
+        *beta.get(i).unwrap().get(j).unwrap()
     });
 
     ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook(beta_mat));
-    println!("_beta {:?}", beta);
 
     let n_peers: usize = 7;
 
