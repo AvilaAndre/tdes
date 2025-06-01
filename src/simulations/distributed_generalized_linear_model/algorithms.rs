@@ -76,7 +76,7 @@ pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMe
         peer.state.r_n_rows.insert(msg.origin, msg.nrows);
 
         if peer.state.nodes.len() == peer.state.r_n_rows.keys().len() {
-            peer.state.total_nrow += peer.state.r_n_rows.values().into_iter().sum::<usize>();
+            peer.state.total_nrow += peer.state.r_n_rows.values().sum::<usize>();
             peer.state.r_remotes = HashMap::new();
             // FIXME: Should r_remotes be reset too?
             broadcast_nodes(ctx, peer_id);
@@ -87,9 +87,8 @@ pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMe
 pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMessage) {
     let peer: &mut GlmPeer = get_peer_of_type!(ctx, peer_id, GlmPeer).expect("peer should exist");
 
-    if !peer.state.r_remotes.contains_key(&msg.iter) {
-        peer.state.r_remotes.insert(msg.iter, HashMap::new());
-    }
+    // if does not have key msg.iter then insert HashMap::new()
+    peer.state.r_remotes.entry(msg.iter).or_default();
 
     handle_iter(ctx, peer_id, msg.origin, msg.r_remote, msg.iter)
 }
@@ -105,7 +104,7 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
             .unwrap()
             .contains_key(&sender)
     {
-        return;
+        // REFACTOR: this
     } else {
         peer.state
             .r_remotes
@@ -121,8 +120,7 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                 .get(&iter)
                 .unwrap()
                 .values()
-                .into_iter()
-                .map(|val| val.clone())
+                .cloned()
                 .collect::<Vec<Mat<f64>>>();
             all_r_remotes.push(peer.state.model.r_local.clone());
 
@@ -157,4 +155,3 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
         }
     }
 }
-

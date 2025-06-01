@@ -17,7 +17,7 @@ pub fn mat_sqr_elemwise(a: &Mat<f64>) -> Mat<f64> {
 
 pub fn mat_diag(a: &Mat<f64>) -> Mat<f64> {
     let sz = a.nrows().min(a.ncols());
-    Mat::from_fn(sz, 1, |i, _| a.get(i, i).clone())
+    Mat::from_fn(sz, 1, |i, _| *a.get(i, i))
 }
 
 /*
@@ -99,7 +99,7 @@ pub fn mat_cat(a: &Mat<f64>, b: &Mat<f64>, dim: CatDim) -> Mat<f64> {
 
 pub fn mat_cat_vec(mats: Vec<Mat<f64>>, dim: CatDim) -> Mat<f64> {
     assert!(
-        mats.get(0).is_some(),
+        !mats.is_empty(),
         "mat_cat_vec must receive at least one matrix"
     );
 
@@ -134,5 +134,5 @@ pub fn mat_allclose(a: &Mat<f64>, b: &Mat<f64>, rtol: f64, atol: f64) -> bool {
 }
 
 pub fn mat_allclose_default(a: &Mat<f64>, b: &Mat<f64>) -> bool {
-    return mat_allclose(a, b, DEFAULT_RTOL, DEFAULT_ATOL);
+    mat_allclose(a, b, DEFAULT_RTOL, DEFAULT_ATOL)
 }

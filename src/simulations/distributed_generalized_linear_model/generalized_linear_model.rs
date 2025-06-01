@@ -50,7 +50,7 @@ fn ols_n(r_xy_or_xy: Mat<f64>) -> (Mat<f64>, Mat<f64>) {
     // FIXME: Investigate if get_global_parallelism() messes with random numbers
     solve_upper_triangular_in_place(r.as_ref(), theta.as_mut(), get_global_parallelism());
 
-    return (r_s.to_owned(), theta);
+    (r_s.to_owned(), theta)
 }
 
 fn stop(maxit: usize, tol: f64, iter: usize, diff: f64) -> bool {

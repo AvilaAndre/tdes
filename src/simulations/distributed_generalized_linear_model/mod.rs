@@ -111,7 +111,7 @@ pub fn start(ctx: &mut Context) {
         Err(e) => panic!("Failed to load model_beta: {}", e),
     };
 
-    let beta_mat = Mat::from_fn(beta.len(), beta.get(0).map_or(0, |v| v.len()), |i, j| {
+    let beta_mat = Mat::from_fn(beta.len(), beta.first().map_or(0, |v| v.len()), |i, j| {
         *beta.get(i).unwrap().get(j).unwrap()
     });
 
