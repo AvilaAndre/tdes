@@ -112,3 +112,27 @@ pub fn mat_cat_vec(mats: Vec<Mat<f64>>, dim: CatDim) -> Mat<f64> {
 
     result
 }
+
+const DEFAULT_RTOL: f64 = 1e-05;
+const DEFAULT_ATOL: f64 = 1e-08;
+
+pub fn mat_allclose(a: &Mat<f64>, b: &Mat<f64>, rtol: f64, atol: f64) -> bool {
+    if a.nrows() != b.nrows() || a.ncols() != b.ncols() {
+        return false;
+    }
+
+    for i in 0..a.nrows() {
+        for j in 0..a.ncols() {
+            let diff = (a.get(i, j) - b.get(i, j)).abs();
+            let tolerance = atol + rtol * b.get(i, j).abs();
+            if diff > tolerance {
+                return false;
+            }
+        }
+    }
+    true
+}
+
+pub fn mat_allclose_default(a: &Mat<f64>, b: &Mat<f64>) -> bool {
+    return mat_allclose(a, b, DEFAULT_RTOL, DEFAULT_ATOL);
+}
