@@ -1,3 +1,5 @@
+pub mod utils;
+
 use std::fs;
 
 use clap::{ArgGroup, Parser};
@@ -8,7 +10,7 @@ use super::core::{
     simulation::SimulationRegistry,
 };
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[command(
     version,
     about = "Discrete Event Simulator",

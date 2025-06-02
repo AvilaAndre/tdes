@@ -24,11 +24,11 @@ pub struct DistributedGeneralizedLinearModel;
 
 impl Simulation for DistributedGeneralizedLinearModel {
     fn name() -> &'static str {
-        "distributed_generalized_linear_model"
+        "dglm"
     }
 
     fn description() -> &'static str {
-        "A distributed implementation of generalized linear models."
+        "A distributed implementation of the generalized linear model."
     }
 
     fn start(ctx: &mut Context) {

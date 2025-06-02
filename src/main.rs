@@ -3,7 +3,7 @@ pub mod simulations;
 
 use clap::Parser;
 use internal::{
-    cli::{Args, get_config_from_args},
+    cli::{Args, get_config_from_args, utils::write_file_with_dirs},
     core::{Context, config::SimulationConfig, simulation::SimulationRegistry},
 };
 use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwise};
@@ -11,15 +11,13 @@ use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwi
 fn main() {
     let args = Args::parse();
 
-    println!("args {:?}", args);
-
     let mut registry = SimulationRegistry::default();
     registry
         .register::<DistributedGeneralizedLinearModel>()
         .register::<FlowUpdatingPairwise>()
         .register::<Example>();
 
-    let config: SimulationConfig = match get_config_from_args(args, &registry) {
+    let config: SimulationConfig = match get_config_from_args(args.clone(), &registry) {
         Ok(c_option) => match c_option {
             Some(c) => c,
             None => return,
@@ -39,5 +37,18 @@ fn main() {
     }
 
     let toml_str = toml::to_string(&config).expect("Failed to serialized configuration");
-    println!("\nConfiguration file:\n{toml_str}");
+    if let Some(outfile) = args.out {
+        match write_file_with_dirs(&outfile, &toml_str) {
+            Ok(_) => {
+                // TODO: Logger info
+                println!("Wrote configuration file to: {}", outfile);
+            }
+            Err(e) => {
+                // TODO: Logger warn
+                println!("Failed to write configuration file: {}", e);
+            }
+        }
+    } else {
+        println!("\nConfiguration file:\n{toml_str}");
+    }
 }
