@@ -17,8 +17,7 @@ use ordered_float::OrderedFloat;
 use peer::GlmPeer;
 use rand::{Rng, distr::Uniform};
 
-use crate::internal::core::context::Context;
-use crate::internal::core::simulation::Simulation;
+use crate::internal::core::{Context, builtins, simulation::Simulation};
 
 pub struct DistributedGeneralizedLinearModel;
 
@@ -69,11 +68,7 @@ impl Simulation for DistributedGeneralizedLinearModel {
         }
 
         // full connection
-        for i in 0..n_peers {
-            for j in i + 1..n_peers {
-                ctx.add_twoway_link(i, j, None);
-            }
-        }
+        builtins::topologies::full(ctx, n_peers);
 
         for i in 0..n_peers {
             peer_start(ctx, i);

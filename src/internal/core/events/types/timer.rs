@@ -4,7 +4,7 @@ use downcast_rs::{Downcast, impl_downcast};
 use ordered_float::OrderedFloat;
 
 use crate::internal::core::{
-    context::Context,
+    Context,
     events::{Event, types::EventType},
 };
 

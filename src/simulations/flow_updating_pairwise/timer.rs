@@ -1,6 +1,6 @@
 use crate::internal::core::{
-    context::Context,
-    events::types::timer::{Timer, TimerEvent},
+    Context,
+    events::{Timer, TimerEvent},
 };
 
 use super::algorithms;

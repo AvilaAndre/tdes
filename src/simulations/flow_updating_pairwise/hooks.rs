@@ -1,9 +1,7 @@
 use ordered_float::OrderedFloat;
 
-use crate::{
-    internal::core::context::Context,
-    simulations::flow_updating_pairwise::peer::FlowUpdatingPairwisePeer,
-};
+use crate::internal::core::Context;
+use super::FlowUpdatingPairwisePeer;
 
 pub fn on_simulation_finish_hook(ctx: &Context) {
     let avgs: Vec<OrderedFloat<f64>> = ctx

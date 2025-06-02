@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use ordered_float::OrderedFloat;
 
 use crate::internal::core::{
-    context::Context,
+    Context,
     events::{Event, types::EventType},
     message::Message,
 };

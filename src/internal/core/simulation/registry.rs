@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-use crate::internal::core::context::Context;
-
-use super::Simulation;
+use super::{Context, Simulation};
 
 // Type alias for simulation functions
 type SimulationFn = fn(&mut Context);

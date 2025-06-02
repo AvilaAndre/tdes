@@ -6,5 +6,6 @@ pub mod message;
 pub mod message_passing;
 pub mod peer;
 pub mod simulation;
+pub mod builtins;
 
 pub use context::Context;

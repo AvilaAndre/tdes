@@ -1,6 +1,6 @@
 mod registry;
 
-use super::context::Context;
+use super::Context;
 pub use registry::SimulationRegistry;
 
 pub trait Simulation {

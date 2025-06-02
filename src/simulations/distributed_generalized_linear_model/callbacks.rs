@@ -1,5 +1,5 @@
 use crate::{
-    internal::core::{context::Context, message::Message},
+    internal::core::{Context, message::Message},
     simulations::distributed_generalized_linear_model::algorithms::{receive_concat_r_msg, receive_sum_rows_msg},
 };
 

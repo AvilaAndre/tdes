@@ -10,8 +10,7 @@ use message_delivery::MessageDeliveryEvent;
 use sample::SampleEvent;
 use timer::TimerEvent;
 
-use super::super::context::Context;
-use super::Event;
+use super::{Context, Event};
 
 #[enum_dispatch(EventType)]
 #[derive(Debug, Eq)]
