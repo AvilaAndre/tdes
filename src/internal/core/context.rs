@@ -120,7 +120,12 @@ impl Context {
             hook(self)
         }
 
-        println!("Finished simulation with seed \"{:?}\".", self.seed());
+        // TODO: Format this with logger
         println!(">> FINISHED SIMULATION");
+        println!(
+            "[{}] Finished simulation with seed \"{:?}\".",
+            self.clock,
+            self.seed()
+        );
     }
 }

@@ -1,9 +1,11 @@
 pub mod internal;
 pub mod simulations;
 
-use std::io;
-
-use internal::core::{Context, simulation::SimulationRegistry};
+use internal::core::{
+    Context,
+    config::{Experiment, SimulationConfig},
+    simulation::SimulationRegistry,
+};
 use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwise};
 
 fn main() {
@@ -13,26 +15,29 @@ fn main() {
         .register::<FlowUpdatingPairwise>()
         .register::<Example>();
 
+    let config = SimulationConfig {
+        experiments: vec![
+            Experiment {
+                name: "experiment1".to_string(),
+                simulation: "distributed_generalized_linear_model".to_string(),
+                seed: Some(559464190120120835),
+            },
+            Experiment {
+                name: "experiment2".to_string(),
+                simulation: "distributed_generalized_linear_model".to_string(),
+                seed: None,
+            },
+        ],
+    };
 
-    let mut ctx = Context::new(Some(559464190120120835));
+    for experiment in config.experiments.iter() {
+        let mut exp_ctx = Context::new(experiment.seed);
 
-    let mut input = String::new();
-    println!("Please select one of the following:");
-    for sim in registry.list_simulations().iter() {
-        println!("> {} - {}", sim.0, sim.1)
+        if let Err(err) = registry.run_simulation(&experiment.simulation, &mut exp_ctx) {
+            println!("Simulation not run: {:?}", err);
+        }
     }
-    println!();
 
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Failed to read line");
-    input = input.trim().to_string();
-
-    println!("You entered: {}", input);
-
-    if let Err(err) = registry.run_simulation(&input, &mut ctx) {
-        println!("Simulation not run: {:?}", err);
-    }
-
-    println!("Finished with clock {}", ctx.clock)
+    let toml_str = toml::to_string(&config).expect("Failed to serialized configuration");
+    println!("\nConfiguration file:\n{toml_str}");
 }

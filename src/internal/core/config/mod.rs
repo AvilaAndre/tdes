@@ -1,3 +1,9 @@
+use serde::Serialize;
+mod experiment;
+
+pub use experiment::Experiment;
+
+#[derive(Serialize)]
 pub struct SimulationConfig {
-    pub seed: Option<u64>,
+    pub experiments: Vec<Experiment>,
 }
