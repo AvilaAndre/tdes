@@ -1,5 +1,5 @@
 use faer::{
-    Mat, get_global_parallelism,
+    Mat,
     linalg::{solvers::DenseSolveCore, triangular_solve::solve_upper_triangular_in_place},
 };
 
@@ -47,8 +47,7 @@ fn ols_n(r_xy_or_xy: Mat<f64>) -> (Mat<f64>, Mat<f64>) {
     let mut theta = r_s.submatrix(0, m - 1, n - 1, 1).to_owned();
 
     // this method modifies theta
-    // FIXME: Investigate if get_global_parallelism() messes with random numbers
-    solve_upper_triangular_in_place(r.as_ref(), theta.as_mut(), get_global_parallelism());
+    solve_upper_triangular_in_place(r.as_ref(), theta.as_mut(), faer::Par::Seq);
 
     (r_s.to_owned(), theta)
 }
