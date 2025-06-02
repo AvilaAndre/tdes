@@ -3,7 +3,7 @@ pub mod types;
 use enum_dispatch::enum_dispatch;
 use ordered_float::OrderedFloat;
 
-use crate::Context;
+use super::context::Context;
 
 #[enum_dispatch]
 pub trait Event {

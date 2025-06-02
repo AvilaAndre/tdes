@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::internal::peer::{CustomPeer, Peer};
+use crate::internal::core::peer::{CustomPeer, Peer};
 
 use super::callbacks;
 

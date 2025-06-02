@@ -10,7 +10,7 @@ use peer::FlowUpdatingPairwisePeer;
 use rand::{Rng, distr::Uniform};
 use timer::TickTimer;
 
-use crate::internal::{
+use crate::internal::core::{
     context::Context, events::types::timer::TimerEvent,
     message_passing::distance_based_arrival_time,
 };

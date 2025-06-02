@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use faer::Mat;
 
-use crate::internal::peer::{CustomPeer, Peer};
+use crate::internal::core::peer::{CustomPeer, Peer};
 
 use super::{
     ModelData, callbacks,

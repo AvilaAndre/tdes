@@ -1,4 +1,4 @@
-use crate::internal::{
+use crate::internal::core::{
     context::Context,
     events::types::timer::{Timer, TimerEvent},
 };

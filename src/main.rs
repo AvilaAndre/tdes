@@ -2,7 +2,7 @@ pub mod internal;
 
 pub mod simulations;
 
-use internal::{context::Context, events::types::EventType};
+use internal::core::context::Context;
 use simulations::distributed_generalized_linear_model;
 
 fn main() {

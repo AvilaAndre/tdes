@@ -15,7 +15,7 @@ use ordered_float::OrderedFloat;
 use peer::GlmPeer;
 use rand::{Rng, distr::Uniform};
 
-use crate::internal::context::Context;
+use crate::internal::core::context::Context;
 
 use csv::ReaderBuilder;
 use std::error::Error;

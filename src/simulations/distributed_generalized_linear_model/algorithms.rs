@@ -4,7 +4,7 @@ use faer::Mat;
 
 use crate::{
     get_peer_of_type,
-    internal::{context::Context, message_passing::send_message_to},
+    internal::core::{context::Context, message_passing::send_message_to},
     simulations::distributed_generalized_linear_model::message::GlmConcatMessage,
 };
 

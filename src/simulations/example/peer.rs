@@ -1,4 +1,4 @@
-use crate::internal::peer::{CustomPeer, Peer};
+use crate::internal::core::peer::{CustomPeer, Peer};
 
 use super::message::example_on_message_receive;
 

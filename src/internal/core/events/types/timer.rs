@@ -3,7 +3,7 @@ use std::{cmp::Ordering, fmt::Debug};
 use downcast_rs::{Downcast, impl_downcast};
 use ordered_float::OrderedFloat;
 
-use crate::internal::{
+use crate::internal::core::{
     context::Context,
     events::{Event, types::EventType},
 };

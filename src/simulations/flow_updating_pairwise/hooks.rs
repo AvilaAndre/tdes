@@ -1,7 +1,8 @@
 use ordered_float::OrderedFloat;
 
 use crate::{
-    internal::context::Context, simulations::flow_updating_pairwise::peer::FlowUpdatingPairwisePeer,
+    internal::core::context::Context,
+    simulations::flow_updating_pairwise::peer::FlowUpdatingPairwisePeer,
 };
 
 pub fn on_simulation_finish_hook(ctx: &Context) {

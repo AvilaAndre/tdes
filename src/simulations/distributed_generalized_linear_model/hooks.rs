@@ -1,7 +1,7 @@
 use faer::Mat;
 
 use crate::{
-    internal::context::CustomHook,
+    internal::core::context::CustomHook,
     simulations::distributed_generalized_linear_model::{
         peer::GlmPeer, utils::mat_allclose_default,
     },

@@ -4,7 +4,7 @@ mod peer;
 use message::ExampleMessage;
 use peer::ExamplePeer;
 
-use crate::internal::{context::Context, message_passing::send_message_to};
+use crate::internal::core::{context::Context, message_passing::send_message_to};
 
 pub fn start(ctx: &mut Context) {
     let peer1_idx = ctx.add_peer(Box::new(ExamplePeer::new(1.0, 1.0, 0.0)));

@@ -1,6 +1,6 @@
 use faer::Mat;
 
-use crate::internal::message::Message;
+use crate::internal::core::message::Message;
 
 #[derive(Debug, Clone)]
 pub struct GlmSumRowsMessage {

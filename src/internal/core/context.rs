@@ -6,9 +6,8 @@ use rand::{Rng, SeedableRng};
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
 
-use crate::EventType;
-use crate::internal::events::Event;
-
+use super::events::Event;
+use super::events::types::EventType;
 use super::message_passing::distance_based_arrival_time;
 use super::peer::CustomPeer;
 

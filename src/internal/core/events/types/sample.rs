@@ -1,7 +1,7 @@
 use ordered_float::OrderedFloat;
 
-use crate::internal::{context::Context, events::Event};
-
+use super::super::Context;
+use super::super::Event;
 use super::EventType;
 
 #[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Clone, Copy)]

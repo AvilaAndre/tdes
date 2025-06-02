@@ -10,8 +10,7 @@ use message_delivery::MessageDeliveryEvent;
 use sample::SampleEvent;
 use timer::TimerEvent;
 
-use crate::internal::context::Context;
-
+use super::super::context::Context;
 use super::Event;
 
 #[enum_dispatch(EventType)]
