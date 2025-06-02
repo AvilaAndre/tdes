@@ -6,10 +6,11 @@ use rand::{Rng, SeedableRng};
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
 
-use super::builtins;
-use super::events::Event;
-use super::events::EventType;
-use super::peer::CustomPeer;
+use super::{
+    builtins,
+    events::{Event, EventType},
+    peer::CustomPeer,
+};
 
 type MessageDelayCallback = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
 pub type CustomHook = Box<dyn Fn(&Context)>;

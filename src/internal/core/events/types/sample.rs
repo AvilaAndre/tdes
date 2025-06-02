@@ -1,8 +1,6 @@
 use ordered_float::OrderedFloat;
 
-use super::super::Context;
-use super::super::Event;
-use super::EventType;
+use super::{Context, Event, EventType};
 
 #[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Clone, Copy)]
 pub struct SampleEvent {

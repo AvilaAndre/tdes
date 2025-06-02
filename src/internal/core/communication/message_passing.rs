@@ -1,7 +1,9 @@
 use ordered_float::OrderedFloat;
 
-use super::super::{Context, events::MessageDeliveryEvent};
-use super::message::Message;
+use super::{
+    super::{Context, events::MessageDeliveryEvent},
+    message::Message,
+};
 
 pub fn send_message_to(
     ctx: &mut Context,
