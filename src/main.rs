@@ -1,33 +1,33 @@
 pub mod internal;
 pub mod simulations;
 
-use internal::core::{
-    Context,
-    config::{Experiment, SimulationConfig},
-    simulation::SimulationRegistry,
+use clap::Parser;
+use internal::{
+    cli::{Args, get_config_from_args},
+    core::{Context, config::SimulationConfig, simulation::SimulationRegistry},
 };
 use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwise};
 
 fn main() {
+    let args = Args::parse();
+
+    println!("args {:?}", args);
+
     let mut registry = SimulationRegistry::default();
     registry
         .register::<DistributedGeneralizedLinearModel>()
         .register::<FlowUpdatingPairwise>()
         .register::<Example>();
 
-    let config = SimulationConfig {
-        experiments: vec![
-            Experiment {
-                name: "experiment1".to_string(),
-                simulation: "distributed_generalized_linear_model".to_string(),
-                seed: Some(559464190120120835),
-            },
-            Experiment {
-                name: "experiment2".to_string(),
-                simulation: "distributed_generalized_linear_model".to_string(),
-                seed: None,
-            },
-        ],
+    let config: SimulationConfig = match get_config_from_args(args, &registry) {
+        Ok(c_option) => match c_option {
+            Some(c) => c,
+            None => return,
+        },
+        Err(e) => {
+            println!("Failed to load configuration file: {e}");
+            return;
+        }
     };
 
     for experiment in config.experiments.iter() {

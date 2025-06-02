@@ -1,9 +1,9 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 mod experiment;
 
 pub use experiment::Experiment;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct SimulationConfig {
     pub experiments: Vec<Experiment>,
 }
