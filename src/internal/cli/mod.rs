@@ -5,7 +5,7 @@ use std::error::Error;
 
 use super::core::{
     config::{Experiment, SimulationConfig},
-    simulation::{self, SimulationRegistry},
+    simulation::SimulationRegistry,
 };
 
 #[derive(Parser, Debug)]
@@ -70,11 +70,17 @@ pub fn get_config_from_args(
 
         return Ok(Some(config));
     } else if let Some(simulation_name) = args.simulation {
+        let seed: Option<u64> = args.seed.clone().and_then(|s| s.parse().ok());
+        if args.seed.is_some() && seed.is_none() {
+            // TODO: Logger warn
+            println!("Failed to parse provided seed: {}", args.seed.unwrap());
+        }
+
         let config = SimulationConfig {
             experiments: vec![Experiment {
                 name: "experiment_0".to_string(),
                 simulation: simulation_name,
-                seed: None, // TODO: Add seed from args
+                seed,
             }],
         };
 
