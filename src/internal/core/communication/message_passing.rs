@@ -1,6 +1,7 @@
 use ordered_float::OrderedFloat;
 
-use super::{Context, events::MessageDeliveryEvent, message::Message};
+use super::super::{Context, events::MessageDeliveryEvent};
+use super::message::Message;
 
 pub fn send_message_to(
     ctx: &mut Context,
@@ -8,6 +9,8 @@ pub fn send_message_to(
     to: usize,
     msg: Option<Box<dyn Message>>,
 ) -> bool {
+    // TODO: Add communication failures
+
     if let Some(latency_opt) = ctx.links.get(from).and_then(|map| map.get(&to)) {
         if let Some(latency) = latency_opt {
             ctx.add_event(MessageDeliveryEvent::create(

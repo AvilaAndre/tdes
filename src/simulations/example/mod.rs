@@ -4,7 +4,7 @@ mod peer;
 use message::ExampleMessage;
 use peer::ExamplePeer;
 
-use crate::internal::core::{Context, message_passing::send_message_to, simulation::Simulation};
+use crate::internal::core::{Context, communication::send_message_to, simulation::Simulation};
 
 pub struct Example {}
 

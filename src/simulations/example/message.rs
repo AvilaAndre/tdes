@@ -1,6 +1,6 @@
 use crate::{
     get_peer_of_type,
-    internal::core::{Context, message::Message, message_passing::send_message_to},
+    internal::core::{Context, Message, communication::send_message_to},
 };
 
 use super::peer::ExamplePeer;

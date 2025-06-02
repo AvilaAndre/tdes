@@ -1,6 +1,8 @@
 use crate::{
-    internal::core::{Context, message::Message},
-    simulations::distributed_generalized_linear_model::algorithms::{receive_concat_r_msg, receive_sum_rows_msg},
+    internal::core::{Context, Message},
+    simulations::distributed_generalized_linear_model::algorithms::{
+        receive_concat_r_msg, receive_sum_rows_msg,
+    },
 };
 
 use super::message::{GlmConcatMessage, GlmSumRowsMessage};

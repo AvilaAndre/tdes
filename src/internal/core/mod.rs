@@ -1,11 +1,11 @@
+pub mod builtins;
+pub mod communication;
 pub mod config;
 pub mod context;
 pub mod events;
 pub mod macros;
-pub mod message;
-pub mod message_passing;
 pub mod peer;
 pub mod simulation;
-pub mod builtins;
 
+pub use communication::Message;
 pub use context::Context;

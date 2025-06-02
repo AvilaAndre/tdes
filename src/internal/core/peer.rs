@@ -1,4 +1,4 @@
-use super::{Context, message::Message};
+use super::{Context, Message};
 use downcast_rs::{Downcast, impl_downcast};
 
 type OnMessageReceiveCallback =

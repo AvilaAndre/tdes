@@ -1,6 +1,6 @@
 use crate::{
     get_peer_of_type,
-    internal::core::{Context, message::Message},
+    internal::core::{Context, Message},
 };
 
 use super::{algorithms, message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
