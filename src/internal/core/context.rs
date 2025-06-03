@@ -134,7 +134,13 @@ impl Context {
             self.seed()
         ));
 
-        self.logger.close_file();
-        log::global_internal("Log file closed, will not be written anymore unless a new log file is specified.");
+        self.logger.close_log_file();
+        log::global_internal(
+            "Log file closed, will not be written anymore unless a new log file is specified.",
+        );
+        self.logger.close_metrics_file();
+        log::global_internal(
+            "Metrics file closed, will not be written anymore unless a new metrics file is specified.",
+        );
     }
 }

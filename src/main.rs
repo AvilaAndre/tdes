@@ -46,11 +46,17 @@ fn main() {
         let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
 
         if let Some(filepath) = &experiment.log_file {
-            if let Err(e) = exp_ctx.logger.set_file(filepath) {
+            if let Err(e) = exp_ctx.logger.set_log_file(filepath) {
                 log::global_error(format!("Failed to set log file to {filepath}: {e}"));
                 // Do not store log_file path as it was not used
                 experiment.log_file = None;
             }
+        }
+
+        // TODO: This
+        let filepath = "tmp/experiment.jsonl";
+        if let Err(e) = exp_ctx.logger.set_metrics_file(filepath) {
+            log::global_error(format!("Failed to set metrics file to {filepath}: {e}"));
         }
 
         exp_ctx.logger.set_flush_threshold(args.flush_threshold);

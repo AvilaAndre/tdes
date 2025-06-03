@@ -9,7 +9,7 @@ const TICKS: u32 = 50;
 
 pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
 
-    log::info(ctx, format!("avg_and_send on {peer_id}"));
+    log::debug(ctx, format!("avg_and_send on {peer_id}"));
 
     if let Some(neighbors) = ctx.get_neighbors(peer_id) {
         let peer: &mut FlowUpdatingPairwisePeer =

@@ -18,6 +18,7 @@ pub struct Args {
     #[arg(short, long)]
     pub config: Option<String>,
 
+    // FIXME: This is not working!
     /// Log verbosity level
     #[arg(long, requires = "simulation", value_enum, default_value = "info")]
     pub logger_level: Option<LoggerLevel>,

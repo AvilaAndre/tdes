@@ -1,6 +1,13 @@
-use crate::internal::core::{
-    Context,
-    events::{Timer, TimerEvent},
+use serde_json::json;
+
+use crate::{
+    get_peer_of_type,
+    internal::core::{
+        Context,
+        events::{Timer, TimerEvent},
+        log,
+    },
+    simulations::flow_updating_pairwise::peer::FlowUpdatingPairwisePeer,
 };
 
 use super::algorithms;
@@ -17,9 +24,18 @@ impl Timer for TickTimer {
             Box::new(self.clone()),
         ));
 
+        let mut avgs_metric = json!({});
+
         // call tick for every peer
         for peer_id in 0..ctx.peers.len() {
             algorithms::tick(ctx, peer_id);
+
+            let peer = get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer)
+                .expect("peer should exist");
+
+            avgs_metric[peer_id.to_string()] = peer.last_avg.into();
         }
+
+        log::metrics(ctx, "on_tick_avgs", avgs_metric);
     }
 }
