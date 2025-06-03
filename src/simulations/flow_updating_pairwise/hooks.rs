@@ -1,7 +1,7 @@
 use ordered_float::OrderedFloat;
 
-use crate::internal::core::Context;
 use super::FlowUpdatingPairwisePeer;
+use crate::internal::core::{Context, log};
 
 pub fn on_simulation_finish_hook(ctx: &Context) {
     let avgs: Vec<OrderedFloat<f64>> = ctx
@@ -24,13 +24,19 @@ pub fn on_simulation_finish_hook(ctx: &Context) {
 
     let total: OrderedFloat<f64> = avgs.iter().sum();
 
-    println!("{:?}", real_total);
-    println!(
-        "The resulting averages are the following {:?}\nshould_be: {:?}\navg: {:?}\nmax: {:?}\nmin: {:?}",
-        avgs,
-        real_total.iter().sum::<f64>() / real_total.len() as f64,
-        total / avgs.len() as f64,
-        avgs.iter().max().unwrap(),
-        avgs.iter().min().unwrap(),
-    )
+    log::info(ctx, format!("initial values {:?}", real_total));
+    log::info(
+        ctx,
+        format!("The resulting averages are the following {:?}", avgs,),
+    );
+    log::info(
+        ctx,
+        format!(
+            "should_be: {:?}",
+            real_total.iter().sum::<f64>() / real_total.len() as f64,
+        ),
+    );
+    log::info(ctx, format!("avg: {:?}", total / avgs.len() as f64,));
+    log::info(ctx, format!("max: {:?}", avgs.iter().max().unwrap(),));
+    log::info(ctx, format!("min: {:?}", avgs.iter().min().unwrap(),));
 }

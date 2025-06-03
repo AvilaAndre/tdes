@@ -1,6 +1,6 @@
 use crate::{
     get_peer_of_type,
-    internal::core::{Context, Message, communication::send_message_to},
+    internal::core::{Context, Message, communication::send_message_to, log},
 };
 
 use super::peer::ExamplePeer;
@@ -26,9 +26,12 @@ pub fn example_on_message_receive(
             });
 
             peer.value += 1;
-            println!("peer with id {} has value {}", receiver_id, peer.value);
+            let val = peer.value;
 
-            if peer.value < 5 {
+            let log_msg = format!("peer with id {} has value {}", receiver_id, peer.value);
+            log::info(ctx, log_msg);
+
+            if val < 5 {
                 send_message_to(ctx, receiver_id, example_msg.sender, Some(new_msg));
             }
         }

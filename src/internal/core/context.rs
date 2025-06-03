@@ -6,6 +6,9 @@ use rand::{Rng, SeedableRng};
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
 
+use crate::internal::core::log;
+
+use super::log::Logger;
 use super::{
     builtins,
     events::{Event, EventType},
@@ -24,6 +27,7 @@ pub struct Context {
     pub seed: u64,
     pub message_delay_cb: MessageDelayCallback,
     pub on_simulation_finish_hook: Option<CustomHook>,
+    pub logger: Logger,
 }
 
 impl Context {
@@ -43,6 +47,7 @@ impl Context {
             seed,
             message_delay_cb: builtins::arrival_time::distance_based_arrival_time,
             on_simulation_finish_hook: None,
+            logger: Logger::default(),
         }
     }
 
@@ -94,7 +99,7 @@ impl Context {
     }
 
     pub fn run_for(&mut self, deadline: OrderedFloat<f64>) {
-        println!(">> STARTING SIMULATION");
+        log::global_internal("STARTING SIMULATION");
 
         let has_deadline = deadline >= OrderedFloat(0.0);
 
@@ -104,12 +109,12 @@ impl Context {
             // Do not process events after the deadline
             if has_deadline && ev.timestamp() > deadline {
                 self.clock = deadline;
-                println!("Simulation reached the deadline");
+                log::global_internal("The simulation reached the deadline");
                 break;
             }
 
             if ev.timestamp() < self.clock {
-                panic!("An event was earlier than the simulation clock");
+                log::global_error("An event was earlier than the simulation clock");
             }
 
             self.clock = ev.timestamp();
@@ -121,12 +126,10 @@ impl Context {
             hook(self)
         }
 
-        // TODO: Format this with logger
-        println!(">> FINISHED SIMULATION");
-        println!(
-            "[{}] Finished simulation with seed \"{:?}\".",
-            self.clock,
+        log::internal(self, "SIMULATION FINISHED");
+        log::global_internal(format!(
+            "FINISHED SIMULATION'S SEED IS \"{:?}\"",
             self.seed()
-        );
+        ));
     }
 }

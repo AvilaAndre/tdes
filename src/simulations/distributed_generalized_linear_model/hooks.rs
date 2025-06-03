@@ -1,7 +1,7 @@
 use faer::Mat;
 
 use crate::{
-    internal::core::context::CustomHook,
+    internal::core::{Context, context::CustomHook, log},
     simulations::distributed_generalized_linear_model::{
         peer::GlmPeer, utils::mat_allclose_default,
     },
@@ -18,14 +18,17 @@ pub fn on_simulation_finish_hook(central: Mat<f64>) -> CustomHook {
             })
             .collect();
 
-        check(central.clone(), coefficients);
+        check(ctx, central.clone(), coefficients);
     })
 }
 
-fn check(central: Mat<f64>, coefficients: Vec<Mat<f64>>) {
+fn check(ctx: &Context, central: Mat<f64>, coefficients: Vec<Mat<f64>>) {
     let res = coefficients
         .iter()
         .all(|coef| mat_allclose_default(coef, &central));
 
-    println!("Are the coefficients from every peer equal to central's? {res}");
+    log::info(
+        ctx,
+        format!("Are the coefficients from every peer equal to central's? {res}"),
+    );
 }

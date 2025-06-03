@@ -1,0 +1,4 @@
+[[experiments]]
+name = "experiment_0"
+simulation = "dglm"
+seed = 2374613245

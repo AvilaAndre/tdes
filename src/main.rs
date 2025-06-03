@@ -4,7 +4,7 @@ pub mod simulations;
 use clap::Parser;
 use internal::{
     cli::{Args, get_config_from_args, utils::write_file_with_dirs},
-    core::{Context, config::SimulationConfig, simulation::SimulationRegistry},
+    core::{Context, config::SimulationConfig, log, simulation::SimulationRegistry},
 };
 use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwise};
 
@@ -23,7 +23,7 @@ fn main() {
             None => return,
         },
         Err(e) => {
-            println!("Failed to load configuration file: {e}");
+            log::global_error(format!("Failed to load configuration file: {e}"));
             return;
         }
     };
@@ -32,7 +32,7 @@ fn main() {
         let mut exp_ctx = Context::new(experiment.seed);
 
         if let Err(err) = registry.run_simulation(&experiment.simulation, &mut exp_ctx) {
-            println!("Simulation not run: {:?}", err);
+            log::global_warn(format!("Simulation not run: {:?}", err));
         }
     }
 
@@ -40,12 +40,10 @@ fn main() {
     if let Some(outfile) = args.out {
         match write_file_with_dirs(&outfile, &toml_str) {
             Ok(_) => {
-                // TODO: Logger info
-                println!("Wrote configuration file to: {}", outfile);
+                log::global_info(format!("Wrote configuration file to: {}", outfile));
             }
             Err(e) => {
-                // TODO: Logger warn
-                println!("Failed to write configuration file: {}", e);
+                log::global_warn(format!("Failed to write configuration file: {}", e));
             }
         }
     } else {

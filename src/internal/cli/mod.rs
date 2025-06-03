@@ -5,6 +5,8 @@ use std::fs;
 use clap::{ArgGroup, Parser};
 use std::error::Error;
 
+use crate::internal::core::log;
+
 use super::core::{
     config::{Experiment, SimulationConfig},
     simulation::SimulationRegistry,
@@ -74,8 +76,10 @@ pub fn get_config_from_args(
     } else if let Some(simulation_name) = args.simulation {
         let seed: Option<u64> = args.seed.clone().and_then(|s| s.parse().ok());
         if args.seed.is_some() && seed.is_none() {
-            // TODO: Logger warn
-            println!("Failed to parse provided seed: {}", args.seed.unwrap());
+            log::global_warn(format!(
+                "Failed to parse provided seed: {}",
+                args.seed.unwrap()
+            ));
         }
 
         let config = SimulationConfig {

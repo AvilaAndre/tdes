@@ -1,5 +1,5 @@
 use crate::{
-    internal::core::{Context, Message},
+    internal::core::{Context, Message, log},
     simulations::distributed_generalized_linear_model::algorithms::{
         receive_concat_r_msg, receive_sum_rows_msg,
     },
@@ -18,6 +18,6 @@ pub fn on_message_receive(ctx: &mut Context, receiver_id: usize, msg: Option<Box
     } else if let Some(concat_msg) = msg.downcast_ref::<GlmConcatMessage>() {
         receive_concat_r_msg(ctx, receiver_id, concat_msg.clone());
     } else {
-        // TODO: Log that wrong message type was received
+        log::warn(ctx, format!("Wrong message type received {:?}", msg));
     }
 }

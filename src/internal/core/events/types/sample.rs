@@ -1,5 +1,7 @@
 use ordered_float::OrderedFloat;
 
+use crate::internal::core::log;
+
 use super::{Context, Event, EventType};
 
 #[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Clone, Copy)]
@@ -24,9 +26,9 @@ impl Event for SampleEvent {
     }
 
     fn process(&mut self, ctx: &mut Context) {
-        println!(
-            "[{}]: SampleEvent triggered with value {}!",
-            ctx.clock, self.value
+        log::debug(
+            ctx,
+            format!("SampleEvent triggered with value {}!", self.value),
         );
     }
 }

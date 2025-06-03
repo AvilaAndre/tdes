@@ -3,8 +3,7 @@ use std::cmp::Ordering;
 use ordered_float::OrderedFloat;
 
 use crate::internal::core::{
-    Context, Message,
-    events::{Event, types::EventType},
+    events::{types::EventType, Event}, log, Context, Message
 };
 
 #[derive(Debug)]
@@ -66,7 +65,7 @@ impl Event for MessageDeliveryEvent {
         if let Some(receiver) = ctx.peers.get(self.receiver) {
             (receiver.get_peer().on_message_receive)(ctx, self.receiver, self.message.take())
         } else {
-            // TODO: Log that the receiver does not exist
+            log::warn(ctx, format!("MessageDeliveryEvent receiver {} does not exist", self.receiver));
         }
     }
 }
