@@ -4,7 +4,7 @@ pub mod topology_registry;
 
 pub use topology_registry::TopologyRegistry;
 
-pub struct SimulationOptions {
+pub struct ExperimentOptions {
     pub n_peers: usize,
     pub topology: Option<String>,
 }

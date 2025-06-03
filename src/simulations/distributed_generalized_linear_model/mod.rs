@@ -19,7 +19,7 @@ use rand::{Rng, distr::Uniform};
 
 use crate::internal::core::{
     Context,
-    options::{SimulationOptions, TopologyRegistry},
+    options::{ExperimentOptions, TopologyRegistry},
     simulation::Simulation,
 };
 
@@ -34,7 +34,7 @@ impl Simulation for DistributedGeneralizedLinearModel {
         "A distributed implementation of the generalized linear model."
     }
 
-    fn start(ctx: &mut Context, topology_registry: &TopologyRegistry, opts: SimulationOptions) {
+    fn start(ctx: &mut Context, topology_registry: &TopologyRegistry, opts: ExperimentOptions) {
         let n_peers: usize = opts.n_peers;
 
         let data: ModelData = match model_data("glm") {

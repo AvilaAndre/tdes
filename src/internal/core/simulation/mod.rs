@@ -2,7 +2,7 @@ mod registry;
 
 use super::{
     Context,
-    options::{SimulationOptions, TopologyRegistry},
+    options::{ExperimentOptions, TopologyRegistry},
 };
 
 pub use registry::SimulationRegistry;
@@ -16,5 +16,5 @@ pub trait Simulation {
     where
         Self: Sized;
 
-    fn start(ctx: &mut Context, topology_registry: &TopologyRegistry, opts: SimulationOptions);
+    fn start(ctx: &mut Context, topology_registry: &TopologyRegistry, opts: ExperimentOptions);
 }

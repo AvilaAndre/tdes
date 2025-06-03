@@ -8,7 +8,7 @@ use internal::{
         Context,
         config::SimulationConfig,
         log,
-        options::{SimulationOptions, TopologyRegistry},
+        options::{ExperimentOptions, TopologyRegistry},
         simulation::SimulationRegistry,
     },
 };
@@ -19,7 +19,6 @@ fn main() {
 
     println!("{:?}", args);
 
-    // TODO: Rename to ScenatioRegistry
     let mut simulation_registry = SimulationRegistry::default();
     simulation_registry
         .register::<DistributedGeneralizedLinearModel>()
@@ -45,7 +44,7 @@ fn main() {
         // add generated seed to config
         experiment.seed = Some(exp_ctx.seed);
 
-        let opts = SimulationOptions {
+        let opts = ExperimentOptions {
             n_peers: args.n_peers.unwrap_or(5),
             topology: args.topology.clone(),
         };
