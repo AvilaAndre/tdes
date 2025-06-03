@@ -44,13 +44,16 @@ fn main() {
 
     for experiment in config.experiments.iter_mut() {
         let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
+
         // add generated seed to config
         experiment.seed = Some(exp_ctx.seed);
+        // if n_peers isn't specified it will be the default value of 5
+        experiment.n_peers = Some(experiment.n_peers.unwrap_or(5));
 
         let opts = ExperimentOptions {
-            n_peers: args.n_peers.unwrap_or(5),
-            topology: args.topology.clone(),
-            arrival_time: args.arrival_time.clone(),
+            n_peers: experiment.n_peers.unwrap_or(5),
+            topology: experiment.topology.clone(),
+            arrival_time: experiment.arrival_time.clone(),
         };
 
         if let Err(err) = simulation_registry.run_simulation(
