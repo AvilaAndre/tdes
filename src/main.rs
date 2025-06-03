@@ -53,6 +53,8 @@ fn main() {
             }
         }
 
+        exp_ctx.logger.set_flush_threshold(args.flush_threshold);
+
         // add generated seed to config
         experiment.seed = Some(exp_ctx.seed);
         // if n_peers isn't specified it will be the default value of 5

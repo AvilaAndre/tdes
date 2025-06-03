@@ -3,7 +3,7 @@ use paste::paste;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt::{self, Display, Formatter},
-    fs::{File, OpenOptions},
+    fs::{self, File, OpenOptions},
     io::{self, BufWriter, Write},
     path::Path,
 };
@@ -49,7 +49,16 @@ impl Logger {
         }
     }
 
+    pub fn set_flush_threshold(&mut self, new_threshold: usize) {
+        self.flush_threshold = new_threshold
+    }
+
     pub fn set_file<P: AsRef<Path>>(&mut self, file_path: P) -> io::Result<()> {
+        // Create parent directories if they don't exist
+        if let Some(parent) = file_path.as_ref().parent() {
+            fs::create_dir_all(parent)?;
+        }
+
         let file = OpenOptions::new()
             .create(true)
             .write(true)
@@ -64,6 +73,7 @@ impl Logger {
         if let Some(mut writer) = self.writer.take() {
             writer.flush().ok();
         }
+        self.unflushed_count = 0;
     }
 
     fn enabled(&self, level: LoggerLevel) -> bool {

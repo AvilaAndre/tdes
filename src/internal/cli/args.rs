@@ -58,6 +58,10 @@ pub struct Args {
     #[arg(long, requires = "simulation")]
     pub log_file: Option<String>,
 
+    /// The amount of logs needed to flush to file
+    #[arg(long, default_value= "200")]
+    pub flush_threshold: usize,
+
     // TODO: Change so that this is a folder
     /// Where to output the configuration file used (prints to console if not specified)
     #[arg(short, long)]

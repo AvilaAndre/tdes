@@ -133,5 +133,8 @@ impl Context {
             "FINISHED SIMULATION'S SEED IS \"{:?}\"",
             self.seed()
         ));
+
+        self.logger.close_file();
+        log::global_internal("Log file closed, will not be written anymore unless a new log file is specified.");
     }
 }
