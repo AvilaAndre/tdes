@@ -10,7 +10,7 @@ use crate::internal::core::log::LoggerLevel;
     group(
         ArgGroup::new("run_mode")
             .required(true)
-            .args(["config", "simulation", "list_simulations"])
+            .args(["config", "simulation", "list_simulations", "list_topologies"])
     )
 )]
 pub struct Args {
@@ -41,6 +41,10 @@ pub struct Args {
     /// The topology to use, must be registered in the simulator - can only be used if 'simulation' is set
     #[arg(long, requires = "simulation")]
     pub topology: Option<String>,
+
+    /// Which topologies can be selected
+    #[arg(long)]
+    pub list_topologies: bool,
 
     /// Where to output the configuration file used (prints to console if not specified)
     #[arg(short, long)]

@@ -29,7 +29,7 @@ fn main() {
     let topology_registry = TopologyRegistry::default();
 
     let mut config: SimulationConfig =
-        match get_config_from_args(args.clone(), &simulation_registry) {
+        match get_config_from_args(args.clone(), &simulation_registry, &topology_registry) {
             Ok(c_option) => match c_option {
                 Some(c) => c,
                 None => return,

@@ -11,6 +11,7 @@ use crate::internal::core::log;
 use super::core::{
     config::{Experiment, SimulationConfig},
     log::LoggerLevel,
+    options::TopologyRegistry,
     simulation::SimulationRegistry,
 };
 
@@ -22,6 +23,7 @@ use super::core::{
 pub fn get_config_from_args(
     args: Args,
     registry: &SimulationRegistry,
+    topology_registry: &TopologyRegistry,
 ) -> Result<Option<SimulationConfig>, Box<dyn Error>> {
     // Add a new line every execution
     println!();
@@ -29,6 +31,13 @@ pub fn get_config_from_args(
         println!("Available simulations:");
         for sim in registry.list_simulations().iter() {
             println!("> {} - {}", sim.0, sim.1);
+        }
+        println!();
+        return Ok(None);
+    } else if args.list_topologies {
+        println!("Available topologies:");
+        for topology in topology_registry.list_topologies().iter() {
+            println!("> {}", topology);
         }
         println!();
         return Ok(None);

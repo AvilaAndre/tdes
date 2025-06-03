@@ -25,11 +25,10 @@ impl TopologyRegistry {
     }
 
     pub fn list_topologies(&self) -> Vec<&str> {
-        // FIXME: use keys
         self.topologies
-            .iter()
-            .map(|(name, _)| name.as_str())
-            .collect()
+            .keys()
+            .map(|val| val.as_str())
+            .collect::<Vec<&str>>()
     }
 
     pub fn connect_peers(&self, topology_opt: Option<String>, ctx: &mut Context, n_peers: usize) {
