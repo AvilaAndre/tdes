@@ -1,5 +1,7 @@
 use ordered_float::OrderedFloat;
 
+use crate::internal::core::log;
+
 use super::{
     super::{Context, events::MessageDeliveryEvent},
     message::Message,
@@ -26,6 +28,7 @@ pub fn send_message_to(
         }
         true
     } else {
+        log::warn(ctx, format!("Failed to send message from peer {from} to {to} because they are not connected"));
         false
     }
 }

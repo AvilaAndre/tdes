@@ -10,7 +10,9 @@ use peer::FlowUpdatingPairwisePeer;
 use rand::{Rng, distr::Uniform};
 use timer::TickTimer;
 
-use crate::internal::core::{Context, builtins, events::TimerEvent, simulation::Simulation};
+use crate::internal::core::{
+    builtins, events::TimerEvent, options::{SimulationOptions, TopologyRegistry}, simulation::Simulation, Context
+};
 
 pub struct FlowUpdatingPairwise {}
 
@@ -29,7 +31,7 @@ impl Simulation for FlowUpdatingPairwise {
         "An implementation of the flow updating pairwise algorithm."
     }
 
-    fn start(ctx: &mut Context) {
+    fn start(ctx: &mut Context, _topology_registry: &TopologyRegistry, _opts: SimulationOptions) {
         ctx.message_delay_cb = builtins::arrival_time::distance_based_arrival_time;
         ctx.on_simulation_finish_hook = Some(Box::new(hooks::on_simulation_finish_hook));
 

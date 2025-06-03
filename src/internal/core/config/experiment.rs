@@ -13,6 +13,8 @@ pub struct Experiment {
     )]
     pub seed: Option<u64>,
     pub logger_level: LoggerLevel,
+    pub n_peers: Option<usize>,
+    pub topology: Option<String>,
 }
 
 fn option_u64_as_str<S>(opt: &Option<u64>, s: S) -> Result<S::Ok, S::Error>

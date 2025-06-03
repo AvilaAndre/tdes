@@ -17,7 +17,11 @@ use ordered_float::OrderedFloat;
 use peer::GlmPeer;
 use rand::{Rng, distr::Uniform};
 
-use crate::internal::core::{Context, builtins, simulation::Simulation};
+use crate::internal::core::{
+    Context,
+    options::{SimulationOptions, TopologyRegistry},
+    simulation::Simulation,
+};
 
 pub struct DistributedGeneralizedLinearModel;
 
@@ -30,24 +34,22 @@ impl Simulation for DistributedGeneralizedLinearModel {
         "A distributed implementation of the generalized linear model."
     }
 
-    fn start(ctx: &mut Context) {
+    fn start(ctx: &mut Context, topology_registry: &TopologyRegistry, opts: SimulationOptions) {
+        let n_peers: usize = opts.n_peers;
+
         let data: ModelData = match model_data("glm") {
             Ok(d) => d,
             Err(e) => panic!("Failed to load model_data: {}", e),
         };
-
         let beta = match model_beta("glm") {
             Ok(b) => b,
             Err(e) => panic!("Failed to load model_beta: {}", e),
         };
-
         let beta_mat = Mat::from_fn(beta.len(), beta.first().map_or(0, |v| v.len()), |i, j| {
             *beta.get(i).unwrap().get(j).unwrap()
         });
 
         ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook(beta_mat));
-
-        let n_peers: usize = 7;
 
         let y_len = data.y.nrows();
         let ncols = data.x.ncols();
@@ -67,8 +69,7 @@ impl Simulation for DistributedGeneralizedLinearModel {
             let _ = ctx.add_peer(Box::new(GlmPeer::new(rx, ry, x, y)));
         }
 
-        // full connection
-        builtins::topologies::full(ctx, n_peers);
+        topology_registry.connect_peers(opts.topology, ctx, n_peers);
 
         for i in 0..n_peers {
             peer_start(ctx, i);

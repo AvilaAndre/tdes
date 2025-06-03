@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use super::{Context, Simulation};
+use super::super::options::SimulationOptions;
+use super::{Context, Simulation, TopologyRegistry};
 
 // Type alias for simulation functions
-type SimulationFn = fn(&mut Context);
+type SimulationFn = fn(&mut Context, &TopologyRegistry, SimulationOptions);
 
 pub struct SimulationRegistry {
     simulations: HashMap<String, (SimulationFn, &'static str)>,
@@ -23,10 +24,16 @@ impl SimulationRegistry {
         self
     }
 
-    pub fn run_simulation(&self, name: &str, ctx: &mut Context) -> Result<(), String> {
+    pub fn run_simulation(
+        &self,
+        name: &str,
+        ctx: &mut Context,
+        topology_registry: &TopologyRegistry,
+        opts: SimulationOptions,
+    ) -> Result<(), String> {
         match self.simulations.get(name) {
             Some((simulation_fn, _)) => {
-                simulation_fn(ctx);
+                simulation_fn(ctx, topology_registry, opts);
                 Ok(())
             }
             None => Err(format!("Simulation '{}' not found", name)),

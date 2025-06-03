@@ -1,8 +1,9 @@
+pub mod args;
 pub mod utils;
 
 use std::fs;
 
-use clap::{ArgGroup, Parser};
+pub use args::Args;
 use std::error::Error;
 
 use crate::internal::core::log;
@@ -12,43 +13,6 @@ use super::core::{
     log::LoggerLevel,
     simulation::SimulationRegistry,
 };
-
-#[derive(Parser, Debug, Clone)]
-#[command(
-    version,
-    about = "Discrete Event Simulator",
-    long_about = None,
-    group(
-        ArgGroup::new("run_mode")
-            .required(true)
-            .args(["config", "simulation", "list_simulations"])
-    )
-)]
-pub struct Args {
-    /// Location of the configuration file to use
-    #[arg(short, long)]
-    pub config: Option<String>,
-
-    /// Log verbosity level
-    #[arg(long, requires = "simulation", value_enum, default_value = "info")]
-    pub logger_level: Option<LoggerLevel>,
-
-    /// Which simulation should be run
-    #[arg(short, long)]
-    pub simulation: Option<String>,
-
-    /// Which simulations can be run
-    #[arg(long)]
-    pub list_simulations: bool,
-
-    /// The simulation seed - can only be used if 'simulation' is set
-    #[arg(long, requires = "simulation")]
-    pub seed: Option<String>,
-
-    /// Where to output the configuration file used (prints to console if not specified)
-    #[arg(short, long)]
-    pub out: Option<String>,
-}
 
 /*
  * Retrieves configuration from command line arguments.
@@ -89,6 +53,8 @@ pub fn get_config_from_args(
                 simulation: simulation_name,
                 seed,
                 logger_level: args.logger_level.unwrap_or(LoggerLevel::Info),
+                n_peers: args.n_peers,
+                topology: args.topology,
             }],
         };
 
