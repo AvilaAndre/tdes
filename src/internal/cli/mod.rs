@@ -1,7 +1,7 @@
 pub mod args;
 pub mod utils;
 
-use std::fs;
+use std::{fs, path::Path};
 
 pub use args::Args;
 use std::error::Error;
@@ -52,7 +52,18 @@ pub fn get_config_from_args(
     }
 
     if let Some(config_file) = args.config {
-        let config: SimulationConfig = toml::from_str(&fs::read_to_string(config_file)?)?;
+        let path = Path::new(&config_file);
+
+        let mut config: SimulationConfig = toml::from_str(&fs::read_to_string(&config_file)?)?;
+
+        if let Some(config_dir) = path.parent().map(|v| v.to_string_lossy().to_string()) {
+            log::global_internal(format!("Reading configuration file from '{}'", config_dir));
+            config.dir = Some(config_dir);
+        } else {
+            log::global_error("Failed to get configuration file folder. Aborting execution.");
+            return Ok(None);
+        }
+        config.should_write_config = args.write_config;
 
         return Ok(Some(config));
     } else if let Some(simulation_name) = args.simulation {
@@ -66,14 +77,16 @@ pub fn get_config_from_args(
 
         let config = SimulationConfig {
             experiments: vec![Experiment {
+                name: args.name.unwrap_or("unnamed_experiment".to_string()),
                 simulation: simulation_name,
                 seed,
                 logger_level: args.logger_level.unwrap_or(LoggerLevel::Info),
                 n_peers: args.n_peers,
                 topology: args.topology,
                 arrival_time: args.arrival_time,
-                log_file: args.log_file,
             }],
+            dir: args.dir,
+            should_write_config: true,
         };
 
         return Ok(Some(config));

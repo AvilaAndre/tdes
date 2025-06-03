@@ -1,6 +1,7 @@
 pub mod internal;
 pub mod simulations;
 
+use chrono::Local;
 use clap::Parser;
 use internal::{
     cli::{Args, get_config_from_args, utils::write_file_with_dirs},
@@ -45,18 +46,29 @@ fn main() {
     for experiment in config.experiments.iter_mut() {
         let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
 
-        if let Some(filepath) = &experiment.log_file {
-            if let Err(e) = exp_ctx.logger.set_log_file(filepath) {
-                log::global_error(format!("Failed to set log file to {filepath}: {e}"));
-                // Do not store log_file path as it was not used
-                experiment.log_file = None;
+        if let Some(directory) = &config.dir {
+            let log_file_path = format!(
+                "{}/{}/{}/{}.log",
+                directory,
+                experiment.name,
+                Local::now().timestamp(),
+                experiment.name,
+            );
+            let metrics_file_path = format!(
+                "{}/{}/{}/{}.jsonl",
+                directory,
+                experiment.name,
+                Local::now().timestamp(),
+                experiment.name,
+            );
+            if let Err(e) = exp_ctx.logger.set_log_file(&log_file_path) {
+                log::global_error(format!("Failed to set log file to {log_file_path}: {e}"));
             }
-        }
-
-        // TODO: This
-        let filepath = "tmp/experiment.jsonl";
-        if let Err(e) = exp_ctx.logger.set_metrics_file(filepath) {
-            log::global_error(format!("Failed to set metrics file to {filepath}: {e}"));
+            if let Err(e) = exp_ctx.logger.set_metrics_file(&metrics_file_path) {
+                log::global_error(format!(
+                    "Failed to set metrics file to {metrics_file_path}: {e}"
+                ));
+            }
         }
 
         exp_ctx.logger.set_flush_threshold(args.flush_threshold);
@@ -84,16 +96,25 @@ fn main() {
     }
 
     let toml_str = toml::to_string(&config).expect("Failed to serialized configuration");
-    if let Some(outfile) = args.out {
-        match write_file_with_dirs(&outfile, &toml_str) {
-            Ok(_) => {
-                log::global_info(format!("Wrote configuration file to: {}", outfile));
+
+    if config.should_write_config {
+        if let Some(dir) = config.dir {
+            let outfile = format!("{}/config.toml", dir);
+            match write_file_with_dirs(&outfile, &toml_str) {
+                Ok(_) => {
+                    log::global_info(format!("Wrote configuration file to: {}", outfile));
+                }
+                Err(e) => {
+                    log::global_warn(format!(
+                        "Failed to write configuration file: {}\nto: {}",
+                        e, outfile
+                    ));
+                }
             }
-            Err(e) => {
-                log::global_warn(format!("Failed to write configuration file: {}", e));
-            }
+        } else {
+            println!("\nConfiguration file:\n{toml_str}");
         }
     } else {
-        println!("\nConfiguration file:\n{toml_str}");
+            println!("\nThe parsed configuration file is:\n{toml_str}");
     }
 }

@@ -4,6 +4,7 @@ use crate::internal::core::log::LoggerLevel;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Experiment {
+    pub name: String,
     pub simulation: String,
     #[serde(
         default,
@@ -15,7 +16,6 @@ pub struct Experiment {
     pub n_peers: Option<usize>,
     pub topology: Option<String>,
     pub arrival_time: Option<String>,
-    pub log_file: Option<String>,
 }
 
 fn option_u64_as_str<S>(opt: &Option<u64>, s: S) -> Result<S::Ok, S::Error>

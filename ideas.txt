@@ -1,0 +1,4 @@
+allow the creation of a json with metrics
+message interference
+make simulation a single method call `simulator`
+create registry for all registries

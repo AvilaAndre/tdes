@@ -31,6 +31,10 @@ pub struct Args {
     #[arg(long)]
     pub list_simulations: bool,
 
+    /// Names a experiment - can only be used if 'simulation' is set
+    #[arg(long, requires = "simulation")]
+    pub name: Option<String>,
+
     /// The simulation seed - can only be used if 'simulation' is set
     #[arg(long, requires = "simulation")]
     pub seed: Option<String>,
@@ -55,16 +59,15 @@ pub struct Args {
     #[arg(long)]
     pub list_arrival_times: bool,
 
-    /// The path for the log file which the experiment's logs will be output to
-    #[arg(long, requires = "simulation")]
-    pub log_file: Option<String>,
-
     /// The amount of logs needed to flush to file
-    #[arg(long, default_value= "200")]
+    #[arg(long, default_value = "200")]
     pub flush_threshold: usize,
 
-    // TODO: Change so that this is a folder
-    /// Where to output the configuration file used (prints to console if not specified)
-    #[arg(short, long)]
-    pub out: Option<String>,
+    /// Where the configuration and logs should be stored (prints to console if not specified)
+    #[arg(short, long, requires = "simulation")]
+    pub dir: Option<String>,
+
+    /// Overwrites the provided a configuration file
+    #[arg(short, long, requires = "config")]
+    pub write_config: bool,
 }
