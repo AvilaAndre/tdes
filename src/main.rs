@@ -17,7 +17,7 @@ fn main() {
         .register::<FlowUpdatingPairwise>()
         .register::<Example>();
 
-    let config: SimulationConfig = match get_config_from_args(args.clone(), &registry) {
+    let mut config: SimulationConfig = match get_config_from_args(args.clone(), &registry) {
         Ok(c_option) => match c_option {
             Some(c) => c,
             None => return,
@@ -28,11 +28,13 @@ fn main() {
         }
     };
 
-    for experiment in config.experiments.iter() {
-        let mut exp_ctx = Context::new(experiment.seed);
+    for experiment in config.experiments.iter_mut() {
+        let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
+        // add generated seed to config
+        experiment.seed = Some(exp_ctx.seed);
 
         if let Err(err) = registry.run_simulation(&experiment.simulation, &mut exp_ctx) {
-            log::global_warn(format!("Simulation not run: {:?}", err));
+            log::global_error(format!("Simulation not run: {:?}", err));
         }
     }
 

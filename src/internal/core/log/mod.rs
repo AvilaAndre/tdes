@@ -1,10 +1,12 @@
+use clap::ValueEnum;
 use paste::paste;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
 
 use super::Context;
 
-#[derive(PartialEq, PartialOrd, Clone, Copy)]
-enum LoggerLevel {
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, ValueEnum, Serialize, Deserialize)]
+pub enum LoggerLevel {
     Debug = 0,
     Info = 1,
     Warn = 2,
@@ -29,11 +31,9 @@ pub struct Logger {
     level: LoggerLevel,
 }
 
-impl Default for Logger {
-    fn default() -> Self {
-        Self {
-            level: LoggerLevel::Info,
-        }
+impl Logger {
+    pub fn new(level: LoggerLevel) -> Self {
+        Self { level }
     }
 }
 
@@ -41,6 +41,16 @@ impl Logger {
     fn enabled(&self, level: LoggerLevel) -> bool {
         self.level <= level
     }
+}
+
+fn ctx_log(ctx: &Context, level: LoggerLevel, text: impl AsRef<str>) {
+    if ctx.logger.enabled(level) {
+        println!("[{}] [{}] {}", ctx.clock, level, text.as_ref());
+    }
+}
+
+fn global_log(level: LoggerLevel, text: impl AsRef<str>) {
+    println!("[GLOBAL] [{}] {}", level, text.as_ref());
 }
 
 macro_rules! define_log_fn {
@@ -62,13 +72,3 @@ define_log_fn!(info, LoggerLevel::Info);
 define_log_fn!(warn, LoggerLevel::Warn);
 define_log_fn!(error, LoggerLevel::Error);
 define_log_fn!(internal, LoggerLevel::Internal);
-
-fn ctx_log(ctx: &Context, level: LoggerLevel, text: impl AsRef<str>) {
-    if ctx.logger.enabled(level) {
-        println!("[{}] [{}] {}", ctx.clock, level, text.as_ref());
-    }
-}
-
-fn global_log(level: LoggerLevel, text: impl AsRef<str>) {
-    println!("[GLOBAL] [{}] {}", level, text.as_ref());
-}

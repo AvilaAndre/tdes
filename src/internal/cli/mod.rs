@@ -9,6 +9,7 @@ use crate::internal::core::log;
 
 use super::core::{
     config::{Experiment, SimulationConfig},
+    log::LoggerLevel,
     simulation::SimulationRegistry,
 };
 
@@ -24,21 +25,25 @@ use super::core::{
     )
 )]
 pub struct Args {
-    /// Location of the configuration file
+    /// Location of the configuration file to use
     #[arg(short, long)]
     pub config: Option<String>,
+
+    /// Log verbosity level
+    #[arg(long, requires = "simulation", value_enum, default_value = "info")]
+    pub logger_level: Option<LoggerLevel>,
 
     /// Which simulation should be run
     #[arg(short, long)]
     pub simulation: Option<String>,
 
-    /// The simulation seed - can only be used if 'simulation' is set
-    #[arg(long, requires = "simulation")]
-    pub seed: Option<String>,
-
     /// Which simulations can be run
     #[arg(long)]
     pub list_simulations: bool,
+
+    /// The simulation seed - can only be used if 'simulation' is set
+    #[arg(long, requires = "simulation")]
+    pub seed: Option<String>,
 
     /// Where to output the configuration file used (prints to console if not specified)
     #[arg(short, long)]
@@ -66,11 +71,7 @@ pub fn get_config_from_args(
     }
 
     if let Some(config_file) = args.config {
-        let toml_str = fs::read_to_string(config_file)
-            .map_err(|e| format!("Configuration file not found: {e}"))?;
-
-        let config: SimulationConfig = toml::from_str(&toml_str)
-            .map_err(|e| format!("Failed to load configuration file: {e}"))?;
+        let config: SimulationConfig = toml::from_str(&fs::read_to_string(config_file)?)?;
 
         return Ok(Some(config));
     } else if let Some(simulation_name) = args.simulation {
@@ -87,6 +88,7 @@ pub fn get_config_from_args(
                 name: "experiment_0".to_string(),
                 simulation: simulation_name,
                 seed,
+                logger_level: args.logger_level.unwrap_or(LoggerLevel::Info),
             }],
         };
 

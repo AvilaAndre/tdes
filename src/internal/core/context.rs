@@ -8,7 +8,7 @@ use rand_chacha::ChaCha8Rng;
 
 use crate::internal::core::log;
 
-use super::log::Logger;
+use super::log::{Logger, LoggerLevel};
 use super::{
     builtins,
     events::{Event, EventType},
@@ -31,7 +31,7 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(seed_opt: Option<u64>) -> Self {
+    pub fn new(seed_opt: Option<u64>, logger_level: LoggerLevel) -> Self {
         // Generate seed if none is provided
         let seed: u64 = match seed_opt {
             Some(s) => s,
@@ -47,7 +47,7 @@ impl Context {
             seed,
             message_delay_cb: builtins::arrival_time::distance_based_arrival_time,
             on_simulation_finish_hook: None,
-            logger: Logger::default(),
+            logger: Logger::new(logger_level),
         }
     }
 
