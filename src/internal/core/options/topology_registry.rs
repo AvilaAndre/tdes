@@ -37,8 +37,7 @@ impl TopologyRegistry {
             match self.topologies.get(&name) {
                 Some(connect_fn) => {
                     log::global_info(format!("Connecting peers using the {name} topology."));
-                    // FIXME: n_peers must be the same or less than the number of peers available.
-                    connect_fn(ctx, n_peers);
+                    connect_fn(ctx, n_peers.min(ctx.peers.len()));
                 }
                 None => {
                     log::global_warn(format!("Topology '{}' not found", name));
