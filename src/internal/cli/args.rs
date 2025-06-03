@@ -54,6 +54,11 @@ pub struct Args {
     #[arg(long)]
     pub list_arrival_times: bool,
 
+    /// The path for the log file which the experiment's logs will be output to
+    #[arg(long, requires = "simulation")]
+    pub log_file: Option<String>,
+
+    // TODO: Change so that this is a folder
     /// Where to output the configuration file used (prints to console if not specified)
     #[arg(short, long)]
     pub out: Option<String>,

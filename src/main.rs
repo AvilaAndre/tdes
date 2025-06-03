@@ -43,7 +43,16 @@ fn main() {
     };
 
     for experiment in config.experiments.iter_mut() {
+        println!("{:?}", experiment.log_file);
         let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
+
+        if let Some(filepath) = &experiment.log_file {
+            if let Err(e) = exp_ctx.logger.set_file(filepath) {
+                log::global_error(format!("Failed to set log file to {filepath}: {e}"));
+                // Do not store log_file path as it was not used
+                experiment.log_file = None;
+            }
+        }
 
         // add generated seed to config
         experiment.seed = Some(exp_ctx.seed);

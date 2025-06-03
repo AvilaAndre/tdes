@@ -17,8 +17,8 @@ use super::core::{
 
 /*
  * Retrieves configuration from command line arguments.
- * If no config is created, it returns None meaning that a simulation
- * should not be run.
+ * If no config is created, it returns None meaning
+ * that a simulation should not be run.
  */
 pub fn get_config_from_args(
     args: Args,
@@ -66,13 +66,13 @@ pub fn get_config_from_args(
 
         let config = SimulationConfig {
             experiments: vec![Experiment {
-                name: "experiment_0".to_string(),
                 simulation: simulation_name,
                 seed,
                 logger_level: args.logger_level.unwrap_or(LoggerLevel::Info),
                 n_peers: args.n_peers,
                 topology: args.topology,
                 arrival_time: args.arrival_time,
+                log_file: args.log_file,
             }],
         };
 

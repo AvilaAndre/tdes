@@ -31,7 +31,7 @@ define_custom_arrival_time_callback!(DistanceBasedArrivalTime, "distance", |ctx,
 
     let dist = distance_between_points(from_peer.get_peer().position, to_peer.get_peer().position);
 
-    OrderedFloat(dist / 10000.0)
+    OrderedFloat(dist / 1000.0)
 });
 
 fn distance_between_points(a: (f64, f64, f64), b: (f64, f64, f64)) -> f64 {

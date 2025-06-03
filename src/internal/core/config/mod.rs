@@ -3,7 +3,7 @@ mod experiment;
 
 pub use experiment::Experiment;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SimulationConfig {
     pub experiments: Vec<Experiment>,
 }

@@ -3,7 +3,7 @@ use ordered_float::OrderedFloat;
 use super::FlowUpdatingPairwisePeer;
 use crate::internal::core::{Context, log};
 
-pub fn on_simulation_finish_hook(ctx: &Context) {
+pub fn on_simulation_finish_hook(ctx: &mut Context) {
     let avgs: Vec<OrderedFloat<f64>> = ctx
         .peers
         .iter()

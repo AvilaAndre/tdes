@@ -17,7 +17,7 @@ use super::{
 };
 
 type MessageDelayCallback = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
-pub type CustomHook = Box<dyn Fn(&Context)>;
+pub type CustomHook = Box<dyn Fn(&mut Context)>;
 
 pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
@@ -101,6 +101,7 @@ impl Context {
 
     pub fn run_for(&mut self, deadline: OrderedFloat<f64>) {
         log::global_internal("STARTING SIMULATION");
+        log::internal(self, "SIMULATION STARTED");
 
         let has_deadline = deadline >= OrderedFloat(0.0);
 
@@ -123,7 +124,7 @@ impl Context {
             ev.process(self);
         }
 
-        if let Some(hook) = &self.on_simulation_finish_hook {
+        if let Some(hook) = self.on_simulation_finish_hook.take() {
             hook(self)
         }
 
