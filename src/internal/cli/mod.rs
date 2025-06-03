@@ -11,7 +11,7 @@ use crate::internal::core::log;
 use super::core::{
     config::{Experiment, SimulationConfig},
     log::LoggerLevel,
-    options::TopologyRegistry,
+    options::{TopologyRegistry, arrival_time_registry::ArrivalTimeRegistry},
     simulation::SimulationRegistry,
 };
 
@@ -24,6 +24,7 @@ pub fn get_config_from_args(
     args: Args,
     registry: &SimulationRegistry,
     topology_registry: &TopologyRegistry,
+    arrival_time_registry: &ArrivalTimeRegistry,
 ) -> Result<Option<SimulationConfig>, Box<dyn Error>> {
     // Add a new line every execution
     println!();
@@ -36,8 +37,15 @@ pub fn get_config_from_args(
         return Ok(None);
     } else if args.list_topologies {
         println!("Available topologies:");
-        for topology in topology_registry.list_topologies().iter() {
+        for topology in topology_registry.list().iter() {
             println!("> {}", topology);
+        }
+        println!();
+        return Ok(None);
+    } else if args.list_arrival_times {
+        println!("Available arrival time callbacks:");
+        for name in arrival_time_registry.list().iter() {
+            println!("> {}", name);
         }
         println!();
         return Ok(None);
@@ -64,6 +72,7 @@ pub fn get_config_from_args(
                 logger_level: args.logger_level.unwrap_or(LoggerLevel::Info),
                 n_peers: args.n_peers,
                 topology: args.topology,
+                arrival_time: args.arrival_time,
             }],
         };
 

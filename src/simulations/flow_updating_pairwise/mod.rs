@@ -11,7 +11,10 @@ use rand::{Rng, distr::Uniform};
 use timer::TickTimer;
 
 use crate::internal::core::{
-    builtins, events::TimerEvent, options::{ExperimentOptions, TopologyRegistry}, simulation::Simulation, Context
+    Context, builtins,
+    events::TimerEvent,
+    options::{ArrivalTimeCallback, ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
+    simulation::Simulation,
 };
 
 pub struct FlowUpdatingPairwise {}
@@ -31,11 +34,16 @@ impl Simulation for FlowUpdatingPairwise {
         "An implementation of the flow updating pairwise algorithm."
     }
 
-    fn start(ctx: &mut Context, _topology_registry: &TopologyRegistry, _opts: ExperimentOptions) {
-        ctx.message_delay_cb = builtins::arrival_time::distance_based_arrival_time;
+    fn start(
+        ctx: &mut Context,
+        topology_registry: &TopologyRegistry,
+        arrival_time_registry: &ArrivalTimeRegistry,
+        opts: ExperimentOptions,
+    ) {
+        ctx.message_delay_cb = builtins::arrival_time::DistanceBasedArrivalTime::callback;
         ctx.on_simulation_finish_hook = Some(Box::new(hooks::on_simulation_finish_hook));
 
-        let n_peers = 50;
+        let n_peers = opts.n_peers;
 
         for _ in 0..n_peers {
             let rval = ctx.rng.sample(Uniform::new(0, 80).unwrap());
@@ -46,12 +54,8 @@ impl Simulation for FlowUpdatingPairwise {
             let _ = ctx.add_peer(Box::new(FlowUpdatingPairwisePeer::new(rx, ry, 0.0, rval)));
         }
 
-        // full connection
-        for i in 0..n_peers {
-            for j in i + 1..n_peers {
-                ctx.add_twoway_link(i, j, None);
-            }
-        }
+        topology_registry.connect_peers(opts.topology, ctx, n_peers);
+        ctx.message_delay_cb = arrival_time_registry.get_callback(opts.arrival_time);
 
         ctx.add_event(TimerEvent::create(
             ctx.clock,

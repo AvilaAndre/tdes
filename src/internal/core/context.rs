@@ -9,6 +9,7 @@ use rand_chacha::ChaCha8Rng;
 use crate::internal::core::log;
 
 use super::log::{Logger, LoggerLevel};
+use super::options::ArrivalTimeCallback;
 use super::{
     builtins,
     events::{Event, EventType},
@@ -45,7 +46,7 @@ impl Context {
             links: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
             seed,
-            message_delay_cb: builtins::arrival_time::distance_based_arrival_time,
+            message_delay_cb: builtins::arrival_time::ConstantArrivalTime::callback,
             on_simulation_finish_hook: None,
             logger: Logger::new(logger_level),
         }

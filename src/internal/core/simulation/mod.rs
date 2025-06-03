@@ -2,7 +2,7 @@ mod registry;
 
 use super::{
     Context,
-    options::{ExperimentOptions, TopologyRegistry},
+    options::{ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
 };
 
 pub use registry::SimulationRegistry;
@@ -16,5 +16,10 @@ pub trait Simulation {
     where
         Self: Sized;
 
-    fn start(ctx: &mut Context, topology_registry: &TopologyRegistry, opts: ExperimentOptions);
+    fn start(
+        ctx: &mut Context,
+        topology_registry: &TopologyRegistry,
+        arrival_time_registry: &ArrivalTimeRegistry,
+        opts: ExperimentOptions,
+    );
 }

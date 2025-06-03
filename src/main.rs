@@ -8,7 +8,7 @@ use internal::{
         Context,
         config::SimulationConfig,
         log,
-        options::{ExperimentOptions, TopologyRegistry},
+        options::{ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
         simulation::SimulationRegistry,
     },
 };
@@ -17,8 +17,6 @@ use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwi
 fn main() {
     let args = Args::parse();
 
-    println!("{:?}", args);
-
     let mut simulation_registry = SimulationRegistry::default();
     simulation_registry
         .register::<DistributedGeneralizedLinearModel>()
@@ -26,18 +24,23 @@ fn main() {
         .register::<Example>();
 
     let topology_registry = TopologyRegistry::default();
+    let arrival_time_registry = ArrivalTimeRegistry::default();
 
-    let mut config: SimulationConfig =
-        match get_config_from_args(args.clone(), &simulation_registry, &topology_registry) {
-            Ok(c_option) => match c_option {
-                Some(c) => c,
-                None => return,
-            },
-            Err(e) => {
-                log::global_error(format!("Failed to load configuration file: {e}"));
-                return;
-            }
-        };
+    let mut config: SimulationConfig = match get_config_from_args(
+        args.clone(),
+        &simulation_registry,
+        &topology_registry,
+        &arrival_time_registry,
+    ) {
+        Ok(c_option) => match c_option {
+            Some(c) => c,
+            None => return,
+        },
+        Err(e) => {
+            log::global_error(format!("Failed to load configuration file: {e}"));
+            return;
+        }
+    };
 
     for experiment in config.experiments.iter_mut() {
         let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
@@ -47,12 +50,14 @@ fn main() {
         let opts = ExperimentOptions {
             n_peers: args.n_peers.unwrap_or(5),
             topology: args.topology.clone(),
+            arrival_time: args.arrival_time.clone(),
         };
 
         if let Err(err) = simulation_registry.run_simulation(
             &experiment.simulation,
             &mut exp_ctx,
             &topology_registry,
+            &arrival_time_registry,
             opts,
         ) {
             log::global_error(format!("Simulation not run: {:?}", err));

@@ -10,7 +10,7 @@ use crate::internal::core::log::LoggerLevel;
     group(
         ArgGroup::new("run_mode")
             .required(true)
-            .args(["config", "simulation", "list_simulations", "list_topologies"])
+            .args(["config", "simulation", "list_simulations", "list_topologies", "list_arrival_times"])
     )
 )]
 pub struct Args {
@@ -45,6 +45,14 @@ pub struct Args {
     /// Which topologies can be selected
     #[arg(long)]
     pub list_topologies: bool,
+
+    /// The arrival time callback to use, must be registered in the simulator - can only be used if 'simulation' is set
+    #[arg(long, requires = "simulation")]
+    pub arrival_time: Option<String>,
+
+    /// Which arrival time callbacks can be selected
+    #[arg(long)]
+    pub list_arrival_times: bool,
 
     /// Where to output the configuration file used (prints to console if not specified)
     #[arg(short, long)]

@@ -19,7 +19,7 @@ use rand::{Rng, distr::Uniform};
 
 use crate::internal::core::{
     Context,
-    options::{ExperimentOptions, TopologyRegistry},
+    options::{ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
     simulation::Simulation,
 };
 
@@ -34,7 +34,12 @@ impl Simulation for DistributedGeneralizedLinearModel {
         "A distributed implementation of the generalized linear model."
     }
 
-    fn start(ctx: &mut Context, topology_registry: &TopologyRegistry, opts: ExperimentOptions) {
+    fn start(
+        ctx: &mut Context,
+        topology_registry: &TopologyRegistry,
+        arrival_time_registry: &ArrivalTimeRegistry,
+        opts: ExperimentOptions,
+    ) {
         let n_peers: usize = opts.n_peers;
 
         let data: ModelData = match model_data("glm") {
@@ -70,6 +75,7 @@ impl Simulation for DistributedGeneralizedLinearModel {
         }
 
         topology_registry.connect_peers(opts.topology, ctx, n_peers);
+        ctx.message_delay_cb = arrival_time_registry.get_callback(opts.arrival_time);
 
         for i in 0..n_peers {
             peer_start(ctx, i);

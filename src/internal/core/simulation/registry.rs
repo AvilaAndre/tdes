@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 
+use crate::internal::core::options::ArrivalTimeRegistry;
+
 use super::super::options::ExperimentOptions;
 use super::{Context, Simulation, TopologyRegistry};
 
 // Type alias for simulation functions
-type ScenarioFn = fn(&mut Context, &TopologyRegistry, ExperimentOptions);
+type ScenarioFn = fn(&mut Context, &TopologyRegistry, &ArrivalTimeRegistry, ExperimentOptions);
 
 pub struct SimulationRegistry {
     simulations: HashMap<String, (ScenarioFn, &'static str)>,
@@ -29,11 +31,12 @@ impl SimulationRegistry {
         name: &str,
         ctx: &mut Context,
         topology_registry: &TopologyRegistry,
+        arrival_time_registry: &ArrivalTimeRegistry,
         opts: ExperimentOptions,
     ) -> Result<(), String> {
         match self.simulations.get(name) {
             Some((simulation_fn, _)) => {
-                simulation_fn(ctx, topology_registry, opts);
+                simulation_fn(ctx, topology_registry, arrival_time_registry, opts);
                 Ok(())
             }
             None => Err(format!("Simulation '{}' not found", name)),

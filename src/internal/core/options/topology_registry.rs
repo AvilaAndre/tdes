@@ -24,7 +24,7 @@ impl TopologyRegistry {
         self
     }
 
-    pub fn list_topologies(&self) -> Vec<&str> {
+    pub fn list(&self) -> Vec<&str> {
         self.topologies
             .keys()
             .map(|val| val.as_str())
