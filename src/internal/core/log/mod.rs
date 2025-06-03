@@ -35,6 +35,8 @@ impl Display for LoggerLevel {
 pub struct Logger {
     level: LoggerLevel,
     writer: Option<BufWriter<File>>,
+    flush_threshold: usize,
+    unflushed_count: usize,
 }
 
 impl Logger {
@@ -42,20 +44,9 @@ impl Logger {
         Self {
             level,
             writer: None,
+            flush_threshold: 200,
+            unflushed_count: 0,
         }
-    }
-
-    pub fn with_file<P: AsRef<Path>>(level: LoggerLevel, file_path: P) -> io::Result<Self> {
-        let file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(file_path)?;
-
-        Ok(Self {
-            level,
-            writer: Some(BufWriter::new(file)),
-        })
     }
 
     pub fn set_file<P: AsRef<Path>>(&mut self, file_path: P) -> io::Result<()> {
@@ -79,12 +70,20 @@ impl Logger {
         self.level <= level
     }
 
-    fn write_to_file(&mut self, message: &str) {
+    fn write_to_file(&mut self, message: &str, level: LoggerLevel) {
         if let Some(ref mut writer) = self.writer {
             if writeln!(writer, "{}", message).is_ok() {
-                // TODO: Choose when to flush
-                // Flush on important messages or periodically
-                writer.flush().ok();
+                self.unflushed_count += 1;
+
+                let should_flush_immediately =
+                    matches!(level, LoggerLevel::Error | LoggerLevel::Internal);
+
+                let should_flush_threshold = self.unflushed_count >= self.flush_threshold;
+
+                if should_flush_immediately || should_flush_threshold {
+                    writer.flush().ok();
+                    self.unflushed_count = 0;
+                }
             }
         }
     }
@@ -93,9 +92,11 @@ impl Logger {
 fn ctx_log(ctx: &mut Context, level: LoggerLevel, text: impl AsRef<str>) {
     if ctx.logger.enabled(level) {
         let message = format!("[{}] [{}] {}", ctx.clock, level, text.as_ref());
-        println!("{}", message);
 
-        ctx.logger.write_to_file(&message);
+        match ctx.logger.writer {
+            Some(_) => ctx.logger.write_to_file(&message, level),
+            None => println!("{}", message),
+        };
     }
 }
 

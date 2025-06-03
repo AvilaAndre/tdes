@@ -43,7 +43,6 @@ fn main() {
     };
 
     for experiment in config.experiments.iter_mut() {
-        println!("{:?}", experiment.log_file);
         let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
 
         if let Some(filepath) = &experiment.log_file {

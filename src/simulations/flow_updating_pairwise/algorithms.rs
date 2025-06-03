@@ -1,6 +1,6 @@
 use crate::{
     get_peer_of_type,
-    internal::core::{Context, communication::send_message_to},
+    internal::core::{communication::send_message_to, log, Context},
 };
 
 use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
@@ -8,6 +8,9 @@ use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer
 const TICKS: u32 = 50;
 
 pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
+
+    log::info(ctx, format!("avg_and_send on {peer_id}"));
+
     if let Some(neighbors) = ctx.get_neighbors(peer_id) {
         let peer: &mut FlowUpdatingPairwisePeer =
             get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer).expect("peer should exist");

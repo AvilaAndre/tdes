@@ -1,8 +1,0 @@
-[[experiments]]
-name = "experiment_0"
-simulation = "dglm"
-seed = "17315481265234492786"
-logger_level = "Info"
-n_peers = 30
-topology = "full"
-arrival_time = "distance"

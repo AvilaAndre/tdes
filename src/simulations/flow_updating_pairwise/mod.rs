@@ -62,6 +62,7 @@ impl Simulation for FlowUpdatingPairwise {
             Box::new(TickTimer { interval: 0.1 }),
         ));
 
+        // TODO: This should be an argument
         ctx.run_for(OrderedFloat(17.1));
     }
 }
