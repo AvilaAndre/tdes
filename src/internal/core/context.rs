@@ -32,7 +32,7 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(seed_opt: Option<u64>, logger_level: LoggerLevel) -> Self {
+    pub fn new(seed_opt: Option<u64>, logger_level: Option<LoggerLevel>) -> Self {
         // Generate seed if none is provided
         let seed: u64 = match seed_opt {
             Some(s) => s,

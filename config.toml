@@ -1,8 +1,8 @@
 [[experiments]]
 name = "experiment1"
-simulation = "distributed_generalized_linear_model"
-seed = 559464190120120835
+simulation = "dglm"
+seed = "559464190120120835"
 
 [[experiments]]
 name = "experiment2"
-simulation = "distributed_generalized_linear_model"
+simulation = "dglm"

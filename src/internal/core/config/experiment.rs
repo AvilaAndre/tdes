@@ -12,7 +12,7 @@ pub struct Experiment {
         deserialize_with = "option_u64_from_str"
     )]
     pub seed: Option<u64>,
-    pub logger_level: LoggerLevel,
+    pub logger_level: Option<LoggerLevel>,
     pub n_peers: Option<usize>,
     pub topology: Option<String>,
     pub arrival_time: Option<String>,

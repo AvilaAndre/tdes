@@ -10,7 +10,6 @@ use crate::internal::core::log;
 
 use super::core::{
     config::{Experiment, SimulationConfig},
-    log::LoggerLevel,
     options::{TopologyRegistry, arrival_time_registry::ArrivalTimeRegistry},
     simulation::SimulationRegistry,
 };
@@ -80,7 +79,7 @@ pub fn get_config_from_args(
                 name: args.name.unwrap_or("unnamed_experiment".to_string()),
                 simulation: simulation_name,
                 seed,
-                logger_level: args.logger_level.unwrap_or(LoggerLevel::Info),
+                logger_level: args.logger_level,
                 n_peers: args.n_peers,
                 topology: args.topology,
                 arrival_time: args.arrival_time,

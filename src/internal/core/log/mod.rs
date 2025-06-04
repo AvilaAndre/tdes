@@ -1,4 +1,5 @@
 use clap::ValueEnum;
+use ordered_float::OrderedFloat;
 use paste::paste;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -42,9 +43,9 @@ pub struct Logger {
 }
 
 impl Logger {
-    pub fn new(level: LoggerLevel) -> Self {
+    pub fn new(level: Option<LoggerLevel>) -> Self {
         Self {
-            level,
+            level: level.unwrap_or(LoggerLevel::Info),
             log_writer: None,
             metrics_writer: None,
             flush_threshold: 200,
@@ -128,15 +129,22 @@ impl Logger {
     }
 }
 
-fn ctx_log(ctx: &mut Context, level: LoggerLevel, text: impl AsRef<str>) {
-    if ctx.logger.enabled(level) {
-        let message = format!("[{}] [{}] {}", ctx.clock, level, text.as_ref());
+fn log_format(clock: OrderedFloat<f64>, level: LoggerLevel, text: impl AsRef<str>) -> String {
+    format!("[{}] [{}] {}", clock, level, text.as_ref())
+}
 
-        match ctx.logger.log_writer {
-            Some(_) => ctx.logger.write_to_log_file(&message, level),
-            None => println!("{}", message),
-        };
-    }
+fn ctx_log(ctx: &mut Context, level: LoggerLevel, text: impl AsRef<str>) {
+    // outputs logs to file independently of the logger_level
+    match ctx.logger.log_writer {
+        Some(_) => ctx
+            .logger
+            .write_to_log_file(&log_format(ctx.clock, level, &text), level),
+        None => {
+            if ctx.logger.enabled(level) {
+                println!("{}", &log_format(ctx.clock, level, &text))
+            }
+        }
+    };
 }
 
 fn global_log(level: LoggerLevel, text: impl AsRef<str>) {
