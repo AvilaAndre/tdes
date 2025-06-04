@@ -96,6 +96,7 @@ pub fn get_config_from_args(
                 seed,
                 arrival_time: args.arrival_time,
                 topology: TopologyInfo::from_args(args.n_peers, args.topology),
+                deadline: args.deadline,
             }],
             dir: args.dir,
             should_write_config: true,

@@ -1,5 +1,5 @@
-use crate::internal::core::options::ScenarioRegistry;
 use crate::internal::core::options::Scenario;
+use crate::internal::core::options::ScenarioRegistry;
 
 use super::cli::{Args, get_config_from_args, utils::write_file_with_dirs};
 use super::core::{
@@ -99,6 +99,7 @@ impl Simulator {
             let opts = ExperimentOptions {
                 topology: experiment.topology.clone(),
                 arrival_time: experiment.arrival_time.clone(),
+                deadline: experiment.deadline,
             };
 
             if let Err(err) =

@@ -5,7 +5,6 @@ mod message;
 mod peer;
 mod timer;
 
-use ordered_float::OrderedFloat;
 use peer::FlowUpdatingPairwisePeer;
 use rand::{Rng, distr::Uniform};
 use timer::TickTimer;
@@ -61,7 +60,6 @@ impl Scenario for FlowUpdatingPairwise {
             Box::new(TickTimer { interval: 0.1 }),
         ));
 
-        // TODO: This should be an argument
-        ctx.run_for(OrderedFloat(17.1));
+        ctx.run(opts.deadline);
     }
 }

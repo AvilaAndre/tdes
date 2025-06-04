@@ -58,6 +58,10 @@ pub struct Args {
     #[arg(long)]
     pub list_arrival_times: bool,
 
+    /// Optional value which tells the simulator when to stop (it may stop earlier if there are no events to process)
+    #[arg(long)]
+    pub deadline: Option<f64>,
+
     /// The amount of logs needed to flush to file
     #[arg(long, default_value = "200")]
     pub flush_threshold: usize,

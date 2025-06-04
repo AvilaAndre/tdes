@@ -80,7 +80,9 @@ impl Context {
         if from < self.links.len() && to < self.links.len() {
             self.links[from].insert(to, latency);
         } else {
-            log::global_warn(format!("Failed to create a one way link between peers {from} and {to} because at least one of them does not exist."));
+            log::global_warn(format!(
+                "Failed to create a one way link between peers {from} and {to} because at least one of them does not exist."
+            ));
         }
     }
 
@@ -92,7 +94,9 @@ impl Context {
             self.links[from].insert(to, latency);
             self.links[to].insert(from, latency);
         } else {
-            log::global_warn(format!("Failed to create a two way link between peers {from} and {to} because at least one of them does not exist."));
+            log::global_warn(format!(
+                "Failed to create a two way link between peers {from} and {to} because at least one of them does not exist."
+            ));
         }
     }
 
@@ -107,15 +111,14 @@ impl Context {
         )
     }
 
-    pub fn run(&mut self) {
-        self.run_for(OrderedFloat(-1.0));
-    }
-
-    pub fn run_for(&mut self, deadline: OrderedFloat<f64>) {
+    pub fn run(&mut self, deadline_opt: Option<f64>) {
         log::global_internal("STARTING SIMULATION");
         log::internal(self, "SIMULATION STARTED");
 
-        let has_deadline = deadline >= OrderedFloat(0.0);
+        let (has_deadline, deadline) = match deadline_opt {
+            Some(dedln) => (dedln >= 0.0, OrderedFloat(dedln)),
+            None => (false, OrderedFloat(0.0)),
+        };
 
         while !self.event_q.is_empty() {
             // TODO: Deal with this unwrap

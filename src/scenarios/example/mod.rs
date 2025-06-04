@@ -50,6 +50,6 @@ impl Scenario for Example {
 
         send_message_to(ctx, 0, 1, Some(Box::new(ExampleMessage { sender: 0 })));
 
-        ctx.run();
+        ctx.run(opts.deadline);
     }
 }

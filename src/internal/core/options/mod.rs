@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 pub struct ExperimentOptions {
     pub topology: TopologyInfo,
     pub arrival_time: Option<String>,
+    pub deadline: Option<f64>
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

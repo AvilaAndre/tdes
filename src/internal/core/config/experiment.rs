@@ -9,4 +9,5 @@ pub struct Experiment {
     pub seed: Option<u64>,
     pub arrival_time: Option<String>,
     pub topology: TopologyInfo,
+    pub deadline: Option<f64>,
 }

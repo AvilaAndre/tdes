@@ -13,7 +13,6 @@ mod utils;
 use algorithms::peer_start;
 use data::{ModelData, chunk_nx, model_beta, model_data};
 use faer::Mat;
-use ordered_float::OrderedFloat;
 use peer::GlmPeer;
 use rand::{Rng, distr::Uniform};
 
@@ -84,6 +83,6 @@ impl Scenario for DistributedGeneralizedLinearModel {
             peer_start(ctx, i);
         }
 
-        ctx.run_for(OrderedFloat(17.1));
+        ctx.run(opts.deadline);
     }
 }
