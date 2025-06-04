@@ -22,18 +22,16 @@ pub fn send_message_to(
                 to,
                 msg,
             ));
+        } else if let Some(latency) = (ctx.message_delay_cb)(ctx, from, to) {
+            ctx.add_event(MessageDeliveryEvent::create(ctx.clock + latency, to, msg));
         } else {
-            if let Some(latency) = (ctx.message_delay_cb)(ctx, from, to) {
-                ctx.add_event(MessageDeliveryEvent::create(ctx.clock + latency, to, msg));
-            } else {
-                log::warn(
-                    ctx,
-                    format!(
-                        "Failed to send message from peer {from} to {to} because latency couldn't be calculated"
-                    ),
-                );
-                return false;
-            }
+            log::warn(
+                ctx,
+                format!(
+                    "Failed to send message from peer {from} to {to} because latency couldn't be calculated"
+                ),
+            );
+            return false;
         }
         true
     } else {

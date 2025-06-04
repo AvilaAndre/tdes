@@ -19,6 +19,7 @@ fn default_on_message_receive(
 }
 
 impl Peer {
+    #[must_use]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self {
             id: None,
@@ -27,6 +28,7 @@ impl Peer {
         }
     }
 
+    #[must_use]
     pub fn with_on_message_receive(mut self, on_message_receive: OnMessageReceiveCallback) -> Self {
         self.on_message_receive = on_message_receive;
         self

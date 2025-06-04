@@ -19,6 +19,7 @@ pub struct Simulator {
 }
 
 impl Simulator {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             simulation_registry: SimulationRegistry::new(),
@@ -56,7 +57,7 @@ impl Simulator {
             }
         };
 
-        for experiment in config.experiments.iter_mut() {
+        for experiment in &mut config.experiments {
             // Print new line before each experiment
             println!();
             log::global_internal(format!("EXPERIMENT '{}'", experiment.name));
@@ -107,23 +108,23 @@ impl Simulator {
                 self,
                 opts,
             ) {
-                log::global_error(format!("Simulation not run: {:?}", err));
+                log::global_error(format!("Simulation not run: {err:?}"));
             }
         }
 
+        // TODO: Deal with this as it may panic
         let toml_str = toml::to_string(&config).expect("Failed to serialized configuration");
 
         if config.should_write_config {
             if let Some(dir) = config.dir {
-                let outfile = format!("{}/config.toml", dir);
+                let outfile = format!("{dir}/config.toml");
                 match write_file_with_dirs(&outfile, &toml_str) {
-                    Ok(_) => {
-                        log::global_info(format!("Wrote configuration file to: {}", outfile));
+                    Ok(()) => {
+                        log::global_info(format!("Wrote configuration file to: {outfile}"));
                     }
                     Err(e) => {
                         log::global_warn(format!(
-                            "Failed to write configuration file: {}\nto: {}",
-                            e, outfile
+                            "Failed to write configuration file: {e}\nto: {outfile}"
                         ));
                     }
                 }

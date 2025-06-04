@@ -41,10 +41,12 @@ impl PartialEq for TimerEvent {
 impl Eq for TimerEvent {}
 
 impl TimerEvent {
+    #[must_use]
     pub fn new(timestamp: OrderedFloat<f64>, timer: Box<dyn Timer>) -> Self {
         Self { timestamp, timer }
     }
 
+    #[must_use]
     pub fn create(timestamp: OrderedFloat<f64>, timer: Box<dyn Timer>) -> EventType {
         EventType::TimerEvent(TimerEvent::new(timestamp, timer))
     }

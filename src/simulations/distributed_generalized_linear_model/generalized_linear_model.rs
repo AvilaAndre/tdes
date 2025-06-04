@@ -21,7 +21,7 @@ pub struct GeneralizedLinearModel {
     pub iter: usize,
 }
 
-fn vcov(r_local: Mat<f64>, family: FamilyEnum, total_nrow: usize) -> Mat<f64> {
+fn vcov(r_local: &Mat<f64>, family: FamilyEnum, total_nrow: usize) -> Mat<f64> {
     let (n, m) = r_local.shape();
 
     let r = r_local.submatrix(0, 0, n - 1, m - 1).to_owned();
@@ -37,7 +37,7 @@ fn vcov(r_local: Mat<f64>, family: FamilyEnum, total_nrow: usize) -> Mat<f64> {
     inv_r * dispersion
 }
 
-fn ols_n(r_xy_or_xy: Mat<f64>) -> (Mat<f64>, Mat<f64>) {
+fn ols_n(r_xy_or_xy: &Mat<f64>) -> (Mat<f64>, Mat<f64>) {
     let qr = r_xy_or_xy.qr();
 
     let r_s = qr.R();
@@ -58,8 +58,8 @@ fn stop(maxit: usize, tol: f64, iter: usize, diff: f64) -> bool {
 
 pub fn distributed_single_iter_n(
     family: FamilyEnum,
-    x: Mat<f64>,
-    y: Mat<f64>,
+    x: &Mat<f64>,
+    y: &Mat<f64>,
     beta: Mat<f64>,
 ) -> Mat<f64> {
     let eta = x.clone() * beta;
@@ -81,7 +81,7 @@ pub fn distributed_single_iter_n(
     let w = mat_div_elemwise(&mat_sqr_elemwise(&dmu.clone()), &variance);
 
     let sqrt_w = &mat_sqrt_elemwise(&w.clone());
-    let x_tilde = &mul_elementwise(sqrt_w, &x);
+    let x_tilde = &mul_elementwise(sqrt_w, x);
     let z_tilde = &mul_elementwise(sqrt_w, &z);
 
     // r_local
@@ -92,8 +92,8 @@ pub fn distributed_single_iter_n(
 }
 
 pub fn distributed_single_solve_n(
-    r_local_with_all_r_remotes: Mat<f64>,
-    beta: Mat<f64>,
+    r_local_with_all_r_remotes: &Mat<f64>,
+    beta: &Mat<f64>,
     family: FamilyEnum,
     total_nrow: usize,
     maxit: usize,
@@ -104,7 +104,7 @@ pub fn distributed_single_solve_n(
 
     let (r_local, beta) = ols_n(r_local_with_all_r_remotes);
 
-    let vcov = vcov(r_local.clone(), family, total_nrow);
+    let vcov = vcov(&r_local, family, total_nrow);
     let delta = mat_div_elemwise(
         &(beta_old - beta.clone()),
         &mat_sqrt_elemwise(&mat_diag(&vcov)),

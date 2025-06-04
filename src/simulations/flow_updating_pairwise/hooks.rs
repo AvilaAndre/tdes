@@ -18,16 +18,16 @@ pub fn on_simulation_finish_hook(ctx: &mut Context) {
         .iter()
         .filter_map(|p| {
             p.downcast_ref::<FlowUpdatingPairwisePeer>()
-                .map(|peer| peer.value as f64)
+                .map(|peer| f64::from(peer.value))
         })
         .collect();
 
     let total: OrderedFloat<f64> = avgs.iter().sum();
 
-    log::info(ctx, format!("initial values {:?}", real_total));
+    log::info(ctx, format!("initial values {real_total:?}"));
     log::info(
         ctx,
-        format!("The resulting averages are the following {:?}", avgs,),
+        format!("The resulting averages are the following {avgs:?}"),
     );
     log::info(
         ctx,

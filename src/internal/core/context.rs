@@ -34,6 +34,7 @@ pub struct Context {
 }
 
 impl Context {
+    #[must_use]
     pub fn new(seed_opt: Option<u64>, logger_level: Option<LoggerLevel>) -> Self {
         // Generate seed if none is provided
         let seed: u64 = match seed_opt {
@@ -54,6 +55,7 @@ impl Context {
         }
     }
 
+    #[must_use]
     pub fn seed(&self) -> u64 {
         self.seed
     }
@@ -108,6 +110,7 @@ impl Context {
         let has_deadline = deadline >= OrderedFloat(0.0);
 
         while !self.event_q.is_empty() {
+            // TODO: Deal with this unwrap
             let mut ev = self.event_q.pop().unwrap().0;
 
             // Do not process events after the deadline
@@ -127,7 +130,7 @@ impl Context {
         }
 
         if let Some(hook) = self.on_simulation_finish_hook.take() {
-            hook(self)
+            hook(self);
         }
 
         log::internal(self, "SIMULATION FINISHED");

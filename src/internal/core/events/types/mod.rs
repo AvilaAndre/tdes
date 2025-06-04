@@ -53,6 +53,6 @@ impl Event for EventType {
             EventType::TimerEvent(event) => event,
             EventType::MessageDeliveryEvent(event) => event,
         };
-        event.process(ctx)
+        event.process(ctx);
     }
 }

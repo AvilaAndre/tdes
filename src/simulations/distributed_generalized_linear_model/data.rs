@@ -10,7 +10,7 @@ pub struct ModelData {
 }
 
 pub fn model_data(m: &str) -> Result<ModelData, Box<dyn Error>> {
-    let path = format!("./resources/generalized_linear_model/{}_mm.csv", m);
+    let path = format!("./resources/generalized_linear_model/{m}_mm.csv");
     let path = Path::new(&path).canonicalize()?;
 
     let mut x_data: Vec<Vec<f64>> = Vec::new();
@@ -22,7 +22,7 @@ pub fn model_data(m: &str) -> Result<ModelData, Box<dyn Error>> {
         let record = result?;
         let float_row: Vec<f64> = record
             .iter()
-            .map(|s| s.parse::<f64>())
+            .map(str::parse::<f64>)
             .collect::<Result<Vec<f64>, _>>()?;
 
         if !float_row.is_empty() {
@@ -40,7 +40,7 @@ pub fn model_data(m: &str) -> Result<ModelData, Box<dyn Error>> {
 }
 
 pub fn model_beta(m: &str) -> Result<Vec<Vec<f64>>, Box<dyn Error>> {
-    let path = format!("./resources/generalized_linear_model/{}_beta.csv", m);
+    let path = format!("./resources/generalized_linear_model/{m}_beta.csv");
     let path = Path::new(&path).canonicalize()?;
 
     let mut result: Vec<Vec<f64>> = Vec::new();

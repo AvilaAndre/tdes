@@ -97,7 +97,7 @@ pub fn mat_cat(a: &Mat<f64>, b: &Mat<f64>, dim: CatDim) -> Mat<f64> {
     }
 }
 
-pub fn mat_cat_vec(mats: Vec<Mat<f64>>, dim: CatDim) -> Mat<f64> {
+pub fn mat_cat_vec(mats: &[Mat<f64>], dim: CatDim) -> Mat<f64> {
     assert!(
         !mats.is_empty(),
         "mat_cat_vec must receive at least one matrix"

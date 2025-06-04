@@ -1,6 +1,6 @@
 use crate::{
     get_peer_of_type,
-    internal::core::{communication::send_message_to, log, Context},
+    internal::core::{Context, communication::send_message_to, log},
 };
 
 use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
@@ -8,7 +8,6 @@ use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer
 const TICKS: u32 = 50;
 
 pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
-
     log::debug(ctx, format!("avg_and_send on {peer_id}"));
 
     if let Some(neighbors) = ctx.get_neighbors(peer_id) {
@@ -19,7 +18,7 @@ pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
             .into_iter()
             .map(|idx| *peer.flows.get(&idx).unwrap_or(&0.0))
             .sum();
-        let estimate = (peer.value as f64) - flows_sum;
+        let estimate = f64::from(peer.value) - flows_sum;
         let avg = (peer.estimates.get(&neigh_id).copied().unwrap_or(0.0) + estimate) / 2.0;
 
         peer.last_avg = avg;

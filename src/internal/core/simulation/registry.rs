@@ -14,6 +14,7 @@ pub struct SimulationRegistry {
 }
 
 impl SimulationRegistry {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             simulations: HashMap::new(),
@@ -35,7 +36,7 @@ impl SimulationRegistry {
         opts: ExperimentOptions,
     ) -> Result<(), String> {
         match &opts.topology {
-            Some(t) => log::global_info(format!("Topology selected from configuration: {}", t)),
+            Some(t) => log::global_info(format!("Topology selected from configuration: {t}")),
             None => log::global_warn("No topology selected from configuration."),
         }
         match &opts.arrival_time {
@@ -50,11 +51,12 @@ impl SimulationRegistry {
                 simulation_fn(ctx, simulator, opts);
                 Ok(())
             }
-            None => Err(format!("Simulation '{}' not found", name)),
+            None => Err(format!("Simulation '{name}' not found")),
         }
     }
 
-    pub fn list_simulations(&self) -> Vec<(&str, &str)> {
+    #[must_use]
+    pub fn list(&self) -> Vec<(&str, &str)> {
         self.simulations
             .iter()
             .map(|(name, (_, desc))| (name.as_str(), *desc))

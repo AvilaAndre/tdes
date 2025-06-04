@@ -38,15 +38,17 @@ impl Simulation for DistributedGeneralizedLinearModel {
 
         let data: ModelData = match model_data("glm") {
             Ok(d) => d,
-            Err(e) => panic!("Failed to load model_data: {}", e),
+            Err(e) => panic!("Failed to load model_data: {e}"),
         };
         let beta = match model_beta("glm") {
             Ok(b) => b,
-            Err(e) => panic!("Failed to load model_beta: {}", e),
+            Err(e) => panic!("Failed to load model_beta: {e}"),
         };
-        let beta_mat = Mat::from_fn(beta.len(), beta.first().map_or(0, |v| v.len()), |i, j| {
-            *beta.get(i).unwrap().get(j).unwrap()
-        });
+        let beta_mat = Mat::from_fn(
+            beta.len(),
+            beta.first().map_or(0, std::vec::Vec::len),
+            |i, j| *beta.get(i).unwrap().get(j).unwrap(),
+        );
 
         ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook(beta_mat));
 

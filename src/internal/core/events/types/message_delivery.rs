@@ -3,7 +3,9 @@ use std::cmp::Ordering;
 use ordered_float::OrderedFloat;
 
 use crate::internal::core::{
-    events::{types::EventType, Event}, log, Context, Message
+    Context, Message,
+    events::{Event, types::EventType},
+    log,
 };
 
 #[derive(Debug)]
@@ -35,6 +37,7 @@ impl PartialEq for MessageDeliveryEvent {
 impl Eq for MessageDeliveryEvent {}
 
 impl MessageDeliveryEvent {
+    #[must_use]
     pub fn new(
         timestamp: OrderedFloat<f64>,
         receiver: usize,
@@ -47,6 +50,7 @@ impl MessageDeliveryEvent {
         }
     }
 
+    #[must_use]
     pub fn create(
         timestamp: OrderedFloat<f64>,
         recipient: usize,
@@ -63,9 +67,15 @@ impl Event for MessageDeliveryEvent {
 
     fn process(&mut self, ctx: &mut Context) {
         if let Some(receiver) = ctx.peers.get(self.receiver) {
-            (receiver.get_peer().on_message_receive)(ctx, self.receiver, self.message.take())
+            (receiver.get_peer().on_message_receive)(ctx, self.receiver, self.message.take());
         } else {
-            log::warn(ctx, format!("MessageDeliveryEvent receiver {} does not exist", self.receiver));
+            log::warn(
+                ctx,
+                format!(
+                    "MessageDeliveryEvent receiver {} does not exist",
+                    self.receiver
+                ),
+            );
         }
     }
 }

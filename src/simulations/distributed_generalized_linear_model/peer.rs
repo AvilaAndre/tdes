@@ -33,12 +33,8 @@ impl GlmPeer {
         // INFO: Gaussian does not work
         let family: FamilyEnum = FamilyEnum::Binomial;
 
-        let r_local = generalized_linear_model::distributed_single_iter_n(
-            family,
-            x.clone(),
-            y.clone(),
-            beta.clone(),
-        );
+        let r_local =
+            generalized_linear_model::distributed_single_iter_n(family, &x, &y, beta.clone());
 
         let model = GeneralizedLinearModel {
             r_local,

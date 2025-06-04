@@ -2,7 +2,7 @@ use faer::Mat;
 
 use crate::internal::core::Message;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct GlmSumRowsMessage {
     pub origin: usize,
     pub nrows: usize,

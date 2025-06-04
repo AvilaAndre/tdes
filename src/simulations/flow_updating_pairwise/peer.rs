@@ -16,11 +16,7 @@ pub struct FlowUpdatingPairwisePeer {
 impl FlowUpdatingPairwisePeer {
     pub fn new(x: f64, y: f64, z: f64, value: i32) -> Self {
         Self {
-            peer: {
-                let mut this = Peer::new(x, y, z);
-                this.on_message_receive = callbacks::example_on_message_receive;
-                this
-            },
+            peer: Peer::new(x, y, z).with_on_message_receive(callbacks::example_on_message_receive),
             value,
             flows: HashMap::new(),
             estimates: HashMap::new(),

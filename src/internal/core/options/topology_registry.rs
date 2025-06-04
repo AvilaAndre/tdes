@@ -12,6 +12,7 @@ pub struct TopologyRegistry {
 }
 
 impl TopologyRegistry {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             topologies: HashMap::new(),
@@ -24,10 +25,11 @@ impl TopologyRegistry {
         self
     }
 
+    #[must_use]
     pub fn list(&self) -> Vec<&str> {
         self.topologies
             .keys()
-            .map(|val| val.as_str())
+            .map(String::as_str)
             .collect::<Vec<&str>>()
     }
 
@@ -39,7 +41,7 @@ impl TopologyRegistry {
                     connect_fn(ctx, n_peers.min(ctx.peers.len()));
                 }
                 None => {
-                    log::global_warn(format!("Topology '{}' not found", name));
+                    log::global_warn(format!("Topology '{name}' not found"));
                 }
             }
         }

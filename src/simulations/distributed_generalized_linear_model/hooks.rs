@@ -18,14 +18,14 @@ pub fn on_simulation_finish_hook(central: Mat<f64>) -> CustomHook {
             })
             .collect();
 
-        check(ctx, central.clone(), coefficients);
+        check(ctx, &central, &coefficients);
     })
 }
 
-fn check(ctx: &mut Context, central: Mat<f64>, coefficients: Vec<Mat<f64>>) {
+fn check(ctx: &mut Context, central: &Mat<f64>, coefficients: &[Mat<f64>]) {
     let res = coefficients
         .iter()
-        .all(|coef| mat_allclose_default(coef, &central));
+        .all(|coef| mat_allclose_default(coef, central));
 
     log::info(
         ctx,

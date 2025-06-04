@@ -16,7 +16,7 @@ use super::{
 };
 
 pub fn peer_start(ctx: &mut Context, peer_id: usize) {
-    broadcast_sum_rows(ctx, peer_id)
+    broadcast_sum_rows(ctx, peer_id);
 }
 
 fn broadcast_sum_rows(ctx: &mut Context, peer_id: usize) {
@@ -89,7 +89,7 @@ pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMes
     // if does not have key msg.iter then insert HashMap::new()
     peer.state.r_remotes.entry(msg.iter).or_default();
 
-    handle_iter(ctx, peer_id, msg.origin, msg.r_remote, msg.iter)
+    handle_iter(ctx, peer_id, msg.origin, msg.r_remote, msg.iter);
 }
 
 fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f64>, iter: usize) {
@@ -121,11 +121,11 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                 .collect::<Vec<Mat<f64>>>();
             all_r_remotes.push(peer.state.model.r_local.clone());
 
-            let r_local_with_all_r_remotes = mat_cat_vec(all_r_remotes.clone(), CatDim::Vertical);
+            let r_local_with_all_r_remotes = mat_cat_vec(&all_r_remotes, CatDim::Vertical);
 
             let (r_local, beta, stop) = generalized_linear_model::distributed_single_solve_n(
-                r_local_with_all_r_remotes,
-                peer.state.model.coefficients.clone(),
+                &r_local_with_all_r_remotes,
+                &peer.state.model.coefficients,
                 peer.state.model.family,
                 peer.state.total_nrow,
                 generalized_linear_model::DEFAULT_MAXIT,
@@ -142,8 +142,8 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
             if !stop {
                 peer.state.model.r_local = generalized_linear_model::distributed_single_iter_n(
                     peer.state.model.family,
-                    peer.state.data.x.clone(),
-                    peer.state.data.y.clone(),
+                    &peer.state.data.x,
+                    &peer.state.data.y,
                     beta,
                 );
 

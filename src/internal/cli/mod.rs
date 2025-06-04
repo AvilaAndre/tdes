@@ -26,22 +26,23 @@ pub fn get_config_from_args(
     println!();
     if args.list_simulations {
         println!("Available simulations:");
-        for sim in simulator.simulation_registry.list_simulations().iter() {
-            println!("> {} - {}", sim.0, sim.1);
+        for sim in &simulator.simulation_registry.list() {
+            let (name, description) = sim;
+            println!("> {name} - {description}");
         }
         println!();
         return Ok(None);
     } else if args.list_topologies {
         println!("Available topologies:");
-        for topology in simulator.topology_registry.list().iter() {
-            println!("> {}", topology);
+        for topology in &simulator.topology_registry.list() {
+            println!("> {topology}");
         }
         println!();
         return Ok(None);
     } else if args.list_arrival_times {
         println!("Available arrival time callbacks:");
-        for name in simulator.arrival_time_registry.list().iter() {
-            println!("> {}", name);
+        for name in &simulator.arrival_time_registry.list() {
+            println!("> {name}");
         }
         println!();
         return Ok(None);
@@ -56,10 +57,7 @@ pub fn get_config_from_args(
             Ok(canonical_path) => {
                 if let Some(parent_dir) = canonical_path.parent() {
                     let config_dir = parent_dir.to_string_lossy().to_string();
-                    log::global_internal(format!(
-                        "Reading configuration file from '{}'",
-                        config_dir
-                    ));
+                    log::global_internal(format!("Reading configuration file from '{config_dir}'"));
                     config.dir = Some(config_dir);
                 } else {
                     log::global_error("Config file has no parent directory. Aborting execution.");
@@ -68,8 +66,7 @@ pub fn get_config_from_args(
             }
             Err(e) => {
                 log::global_error(format!(
-                    "Failed to resolve config file path: {}. Aborting execution.",
-                    e
+                    "Failed to resolve config file path: {e}. Aborting execution."
                 ));
                 return Ok(None);
             }
@@ -80,6 +77,7 @@ pub fn get_config_from_args(
         return Ok(Some(config));
     } else if let Some(simulation_name) = args.simulation {
         let seed: Option<u64> = args.seed.clone().and_then(|s| s.parse().ok());
+        // TODO: refactor this to avoid unwrap
         if args.seed.is_some() && seed.is_none() {
             log::global_warn(format!(
                 "Failed to parse provided seed: {}",

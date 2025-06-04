@@ -43,6 +43,7 @@ pub struct Logger {
 }
 
 impl Logger {
+    #[must_use]
     pub fn new(level: Option<LoggerLevel>) -> Self {
         Self {
             level: level.unwrap_or(LoggerLevel::Info),
@@ -54,10 +55,11 @@ impl Logger {
     }
 
     pub fn set_flush_threshold(&mut self, new_threshold: usize) {
-        self.flush_threshold = new_threshold
+        self.flush_threshold = new_threshold;
     }
 
-    fn open_file<P: AsRef<Path>>(&mut self, file_path: P) -> io::Result<File> {
+    // TODO: Move this elsewhere
+    fn open_file<P: AsRef<Path>>(file_path: P) -> io::Result<File> {
         // Create parent directories if they don't exist
         if let Some(parent) = file_path.as_ref().parent() {
             fs::create_dir_all(parent)?;
@@ -71,14 +73,14 @@ impl Logger {
     }
 
     pub fn set_log_file<P: AsRef<Path>>(&mut self, file_path: P) -> io::Result<()> {
-        let file = self.open_file(file_path)?;
+        let file = Self::open_file(file_path)?;
 
         self.log_writer = Some(BufWriter::new(file));
         Ok(())
     }
 
     pub fn set_metrics_file<P: AsRef<Path>>(&mut self, file_path: P) -> io::Result<()> {
-        let file = self.open_file(file_path)?;
+        let file = Self::open_file(file_path)?;
 
         self.metrics_writer = Some(BufWriter::new(file));
         Ok(())
@@ -104,7 +106,7 @@ impl Logger {
 
     fn write_to_log_file(&mut self, message: &str, level: LoggerLevel) {
         if let Some(ref mut writer) = self.log_writer {
-            if writeln!(writer, "{}", message).is_ok() {
+            if writeln!(writer, "{message}").is_ok() {
                 self.log_unflushed_count += 1;
 
                 let should_flush_immediately =
@@ -122,7 +124,7 @@ impl Logger {
 
     fn write_to_metrics_file(&mut self, metrics: &Value) {
         if let Some(ref mut metrics_writer) = self.metrics_writer {
-            if writeln!(metrics_writer, "{}", metrics).is_ok() {
+            if writeln!(metrics_writer, "{metrics}").is_ok() {
                 metrics_writer.flush().ok();
             }
         }
@@ -135,27 +137,26 @@ fn log_format(clock: OrderedFloat<f64>, level: LoggerLevel, text: impl AsRef<str
 
 fn ctx_log(ctx: &mut Context, level: LoggerLevel, text: impl AsRef<str>) {
     // outputs logs to file independently of the logger_level
-    match ctx.logger.log_writer {
-        Some(_) => ctx
-            .logger
-            .write_to_log_file(&log_format(ctx.clock, level, &text), level),
-        None => {
-            let msg = log_format(ctx.clock, level, &text);
-            if ctx.logger.enabled(level) {
-                match level {
-                    LoggerLevel::Warn | LoggerLevel::Error => eprintln!("{}", &msg),
-                    _ => println!("{}", &msg),
-                }
+
+    if ctx.logger.log_writer.is_some() {
+        ctx.logger
+            .write_to_log_file(&log_format(ctx.clock, level, &text), level);
+    } else {
+        let msg = log_format(ctx.clock, level, &text);
+        if ctx.logger.enabled(level) {
+            match level {
+                LoggerLevel::Warn | LoggerLevel::Error => eprintln!("{}", &msg),
+                _ => println!("{}", &msg),
             }
         }
-    };
+    }
 }
 
 fn global_log(level: LoggerLevel, text: impl AsRef<str>) {
     println!("[GLOBAL] [{}] {}", level, text.as_ref());
 }
 
-pub fn metrics(ctx: &mut Context, title: impl AsRef<str>, metrics: Value) {
+pub fn metrics(ctx: &mut Context, title: impl AsRef<str>, metrics: &Value) {
     let metrics_with_timestamp = json!({
         "title": title.as_ref(),
         "timestamp": *ctx.clock,

@@ -36,6 +36,6 @@ impl Timer for TickTimer {
             avgs_metric[peer_id.to_string()] = peer.last_avg.into();
         }
 
-        log::metrics(ctx, "on_tick_avgs", avgs_metric);
+        log::metrics(ctx, "on_tick_avgs", &avgs_metric);
     }
 }
