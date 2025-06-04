@@ -1,12 +1,16 @@
 use super::Context;
 
 pub mod arrival_time_registry;
+pub mod scenario_registry;
 pub mod topology_registry;
+mod traits;
 
 pub use arrival_time_registry::ArrivalTimeRegistry;
-use ordered_float::OrderedFloat;
-use serde::{Deserialize, Serialize};
+pub use scenario_registry::ScenarioRegistry;
 pub use topology_registry::TopologyRegistry;
+pub use traits::{ArrivalTimeCallback, Scenario, Topology};
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 pub struct ExperimentOptions {
@@ -34,24 +38,4 @@ impl TopologyInfo {
             positions: Vec::new(),
         }
     }
-}
-
-pub trait Topology {
-    fn name() -> &'static str
-    where
-        Self: Sized;
-
-    fn connect(
-        ctx: &mut Context,
-        n_peers: usize,
-        custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
-    );
-}
-
-pub trait ArrivalTimeCallback {
-    fn name() -> &'static str
-    where
-        Self: Sized;
-
-    fn callback(ctx: &mut Context, from: usize, to: usize) -> Option<OrderedFloat<f64>>;
 }

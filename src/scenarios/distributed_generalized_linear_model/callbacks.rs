@@ -1,11 +1,9 @@
-use crate::{
-    internal::core::{Context, Message, log},
-    simulations::distributed_generalized_linear_model::algorithms::{
-        receive_concat_r_msg, receive_sum_rows_msg,
-    },
-};
+use crate::internal::core::{Context, Message, log};
 
-use super::message::{GlmConcatMessage, GlmSumRowsMessage};
+use super::{
+    algorithms::{receive_concat_r_msg, receive_sum_rows_msg},
+    message::{GlmConcatMessage, GlmSumRowsMessage},
+};
 
 pub fn on_message_receive(ctx: &mut Context, receiver_id: usize, msg: Option<Box<dyn Message>>) {
     if msg.is_none() {

@@ -19,12 +19,15 @@ use rand::{Rng, distr::Uniform};
 
 use crate::internal::{
     Simulator,
-    core::{Context, options::ExperimentOptions, simulation::Simulation},
+    core::{
+        Context,
+        options::{ExperimentOptions, Scenario},
+    },
 };
 
 pub struct DistributedGeneralizedLinearModel;
 
-impl Simulation for DistributedGeneralizedLinearModel {
+impl Scenario for DistributedGeneralizedLinearModel {
     fn name() -> &'static str {
         "dglm"
     }

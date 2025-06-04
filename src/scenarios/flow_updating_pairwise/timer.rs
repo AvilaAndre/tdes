@@ -7,10 +7,9 @@ use crate::{
         events::{Timer, TimerEvent},
         log,
     },
-    simulations::flow_updating_pairwise::peer::FlowUpdatingPairwisePeer,
 };
 
-use super::algorithms;
+use super::{algorithms, peer::FlowUpdatingPairwisePeer};
 
 #[derive(Debug, Clone)]
 pub struct TickTimer {

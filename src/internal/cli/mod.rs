@@ -27,9 +27,9 @@ pub fn get_config_from_args(
 ) -> Result<Option<SimulationConfig>, Box<dyn Error>> {
     // Add a new line every execution
     println!();
-    if args.list_simulations {
-        println!("Available simulations:");
-        for sim in &simulator.simulation_registry.list() {
+    if args.list_scenarios {
+        println!("Available scenarios:");
+        for sim in &simulator.scenario_registry.list() {
             let (name, description) = sim;
             println!("> {name} - {description}");
         }
@@ -79,7 +79,7 @@ pub fn get_config_from_args(
         config.should_write_config = args.write_config;
 
         return Ok(Some(config));
-    } else if let Some(simulation_name) = args.simulation {
+    } else if let Some(scenario_name) = args.scenario {
         let seed: Option<u64> = args.seed.clone().and_then(|s| s.parse().ok());
         // TODO: refactor this to avoid unwrap
         if args.seed.is_some() && seed.is_none() {
@@ -92,7 +92,7 @@ pub fn get_config_from_args(
         let config = SimulationConfig {
             experiments: vec![Experiment {
                 name: args.name.unwrap_or("unnamed_experiment".to_string()),
-                simulation: simulation_name,
+                scenario: scenario_name,
                 seed,
                 arrival_time: args.arrival_time,
                 topology: TopologyInfo::from_args(args.n_peers, args.topology),

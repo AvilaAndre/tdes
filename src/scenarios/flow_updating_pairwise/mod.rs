@@ -12,12 +12,16 @@ use timer::TickTimer;
 
 use crate::internal::{
     Simulator,
-    core::{Context, events::TimerEvent, options::ExperimentOptions, simulation::Simulation},
+    core::{
+        Context,
+        events::TimerEvent,
+        options::{ExperimentOptions, Scenario},
+    },
 };
 
 pub struct FlowUpdatingPairwise {}
 
-impl Simulation for FlowUpdatingPairwise {
+impl Scenario for FlowUpdatingPairwise {
     fn name() -> &'static str
     where
         Self: Sized,

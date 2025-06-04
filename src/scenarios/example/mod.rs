@@ -7,13 +7,15 @@ use peer::ExamplePeer;
 use crate::internal::{
     Simulator,
     core::{
-        Context, communication::send_message_to, options::ExperimentOptions, simulation::Simulation,
+        Context,
+        communication::send_message_to,
+        options::{ExperimentOptions, Scenario},
     },
 };
 
 pub struct Example {}
 
-impl Simulation for Example {
+impl Scenario for Example {
     fn name() -> &'static str
     where
         Self: Sized,

@@ -1,13 +1,13 @@
 pub mod internal;
-pub mod simulations;
+mod scenarios;
 
 use internal::Simulator;
-use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwise};
+use scenarios::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwise};
 
 fn main() {
     Simulator::default()
-        .add_simulation::<Example>()
-        .add_simulation::<FlowUpdatingPairwise>()
-        .add_simulation::<DistributedGeneralizedLinearModel>()
+        .add_scenario::<Example>()
+        .add_scenario::<FlowUpdatingPairwise>()
+        .add_scenario::<DistributedGeneralizedLinearModel>()
         .start();
 }

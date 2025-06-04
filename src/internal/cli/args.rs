@@ -10,7 +10,7 @@ use crate::internal::core::log::LoggerLevel;
     group(
         ArgGroup::new("run_mode")
             .required(true)
-            .args(["config", "simulation", "list_simulations", "list_topologies", "list_arrival_times"])
+            .args(["config", "scenario", "list_scenarios", "list_topologies", "list_arrival_times"])
     )
 )]
 pub struct Args {
@@ -22,36 +22,36 @@ pub struct Args {
     #[arg(long, value_enum, default_value = "info")]
     pub logger_level: Option<LoggerLevel>,
 
-    /// Which simulation should be run
+    /// Which scenario should be run
     #[arg(short, long)]
-    pub simulation: Option<String>,
+    pub scenario: Option<String>,
 
-    /// Which simulations can be run
+    /// Which scenarios can be run
     #[arg(long)]
-    pub list_simulations: bool,
+    pub list_scenarios: bool,
 
-    /// Names a experiment - can only be used if 'simulation' is set
-    #[arg(long, requires = "simulation")]
+    /// Names a experiment - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario")]
     pub name: Option<String>,
 
-    /// The simulation seed - can only be used if 'simulation' is set
-    #[arg(long, requires = "simulation")]
+    /// The scenario seed - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario")]
     pub seed: Option<String>,
 
-    /// The amount of peers to instantiate - can only be used if 'simulation' is set
-    #[arg(long, requires = "simulation", default_value = "5")]
+    /// The amount of peers to instantiate - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario", default_value = "5")]
     pub n_peers: Option<usize>,
 
-    /// The topology to use, must be registered in the simulator - can only be used if 'simulation' is set
-    #[arg(long, requires = "simulation")]
+    /// The topology to use, must be registered in the simulator - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario")]
     pub topology: Option<String>,
 
     /// Which topologies can be selected
     #[arg(long)]
     pub list_topologies: bool,
 
-    /// The arrival time callback to use, must be registered in the simulator - can only be used if 'simulation' is set
-    #[arg(long, requires = "simulation")]
+    /// The arrival time callback to use, must be registered in the simulator - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario")]
     pub arrival_time: Option<String>,
 
     /// Which arrival time callbacks can be selected
@@ -63,7 +63,7 @@ pub struct Args {
     pub flush_threshold: usize,
 
     /// Where the configuration and logs should be stored (prints to console if not specified)
-    #[arg(short, long, requires = "simulation")]
+    #[arg(short, long, requires = "scenario")]
     pub dir: Option<String>,
 
     /// Overwrites the provided a configuration file

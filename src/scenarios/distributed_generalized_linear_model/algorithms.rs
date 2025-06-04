@@ -5,12 +5,11 @@ use faer::Mat;
 use crate::{
     get_peer_of_type,
     internal::core::{Context, communication::send_message_to},
-    simulations::distributed_generalized_linear_model::message::GlmConcatMessage,
 };
 
 use super::{
     generalized_linear_model,
-    message::GlmSumRowsMessage,
+    message::{GlmConcatMessage, GlmSumRowsMessage},
     peer::GlmPeer,
     utils::{CatDim, mat_cat_vec},
 };

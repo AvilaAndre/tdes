@@ -1,3 +1,6 @@
+use crate::internal::core::options::ScenarioRegistry;
+use crate::internal::core::options::Scenario;
+
 use super::cli::{Args, get_config_from_args, utils::write_file_with_dirs};
 use super::core::{
     Context,
@@ -6,14 +9,13 @@ use super::core::{
     options::{
         ArrivalTimeCallback, ArrivalTimeRegistry, ExperimentOptions, Topology, TopologyRegistry,
     },
-    simulation::{Simulation, SimulationRegistry},
 };
 use chrono::Local;
 use clap::Parser;
 
 #[derive(Default)]
 pub struct Simulator {
-    pub simulation_registry: SimulationRegistry,
+    pub scenario_registry: ScenarioRegistry,
     pub topology_registry: TopologyRegistry,
     pub arrival_time_registry: ArrivalTimeRegistry,
 }
@@ -22,14 +24,14 @@ impl Simulator {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            simulation_registry: SimulationRegistry::new(),
+            scenario_registry: ScenarioRegistry::new(),
             topology_registry: TopologyRegistry::new(),
             arrival_time_registry: ArrivalTimeRegistry::new(),
         }
     }
 
-    pub fn add_simulation<S: Simulation>(&mut self) -> &mut Self {
-        self.simulation_registry.register::<S>();
+    pub fn add_scenario<S: Scenario>(&mut self) -> &mut Self {
+        self.scenario_registry.register::<S>();
         self
     }
 
@@ -99,13 +101,11 @@ impl Simulator {
                 arrival_time: experiment.arrival_time.clone(),
             };
 
-            if let Err(err) = self.simulation_registry.run_simulation(
-                &experiment.simulation,
-                &mut exp_ctx,
-                self,
-                opts,
-            ) {
-                log::global_error(format!("Simulation not run: {err:?}"));
+            if let Err(err) =
+                self.scenario_registry
+                    .run_scenario(&experiment.scenario, &mut exp_ctx, self, opts)
+            {
+                log::global_error(format!("Scenario not run: {err:?}"));
             }
         }
 

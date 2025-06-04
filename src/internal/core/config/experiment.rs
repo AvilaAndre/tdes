@@ -5,7 +5,7 @@ use crate::internal::core::options::TopologyInfo;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Experiment {
     pub name: String,
-    pub simulation: String,
+    pub scenario: String,
     pub seed: Option<u64>,
     pub arrival_time: Option<String>,
     pub topology: TopologyInfo,
