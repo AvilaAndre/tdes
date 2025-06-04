@@ -1,3 +1,6 @@
 message interference
-make simulation a single method call `simulator`
-create registry for all registries
+bandwidth
+inform where logs are located
+allow custom arguments
+distributions
+add positions to peers right away
