@@ -1,4 +1,4 @@
-use crate::internal::core::{Context, log, options::Topology};
+use crate::internal::core::{Context, engine, log, options::Topology};
 
 macro_rules! define_custom_topology {
     ($name:ident, $topology_name:expr, $connect_fn:path) => {
@@ -27,7 +27,7 @@ fn onewaycustomtopology(
 ) {
     if let Some(list) = custom_list {
         for (from, to, latency) in list {
-            ctx.add_oneway_link(from, to, latency);
+            engine::add_oneway_link(ctx, from, to, latency);
         }
     } else {
         log::global_warn(
@@ -43,7 +43,7 @@ fn twowaycustom_topology(
 ) {
     if let Some(list) = custom_list {
         for (from, to, latency) in list {
-            ctx.add_twoway_link(from, to, latency);
+            engine::add_twoway_link(ctx, from, to, latency);
         }
     } else {
         log::global_warn(
@@ -59,7 +59,7 @@ fn full_topology(
 ) {
     for i in 0..n_peers {
         for j in i + 1..n_peers {
-            ctx.add_twoway_link(i, j, None);
+            engine::add_twoway_link(ctx, i, j, None);
         }
     }
 }
@@ -71,7 +71,7 @@ fn star_topology(
 ) {
     let center_idx = 0;
     for i in 1..n_peers {
-        ctx.add_twoway_link(i, center_idx, None);
+        engine::add_twoway_link(ctx, i, center_idx, None);
     }
 }
 
@@ -81,9 +81,9 @@ fn ring_topology(
     _custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
 ) {
     for i in 1..n_peers {
-        ctx.add_twoway_link(i - 1, i, None);
+        engine::add_twoway_link(ctx, i - 1, i, None);
     }
-    ctx.add_twoway_link(n_peers - 1, 0, None);
+    engine::add_twoway_link(ctx, n_peers - 1, 0, None);
 }
 
 define_custom_topology!(OneWayCustomTopology, "onewaycustom", onewaycustomtopology);

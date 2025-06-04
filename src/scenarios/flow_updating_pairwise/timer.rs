@@ -3,7 +3,7 @@ use serde_json::json;
 use crate::{
     get_peer_of_type,
     internal::core::{
-        Context,
+        Context, engine,
         events::{Timer, TimerEvent},
         log,
     },
@@ -18,10 +18,10 @@ pub struct TickTimer {
 
 impl Timer for TickTimer {
     fn fire(&self, ctx: &mut Context) {
-        ctx.add_event(TimerEvent::create(
-            ctx.clock + self.interval,
-            Box::new(self.clone()),
-        ));
+        engine::add_event(
+            ctx,
+            TimerEvent::create(ctx.clock + self.interval, Box::new(self.clone())),
+        );
 
         let mut avgs_metric = json!({});
 

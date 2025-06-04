@@ -4,7 +4,7 @@ use faer::Mat;
 
 use crate::{
     get_peer_of_type,
-    internal::core::{Context, communication::send_message_to},
+    internal::core::{Context, engine},
 };
 
 use super::{
@@ -20,7 +20,7 @@ pub fn peer_start(ctx: &mut Context, peer_id: usize) {
 
 fn broadcast_sum_rows(ctx: &mut Context, peer_id: usize) {
     let mut nodes_filtered: Vec<usize> = Vec::new();
-    if let Some(neighbors) = ctx.get_neighbors(peer_id) {
+    if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
         for neigh_id in neighbors {
             if ctx.peers.get(neigh_id).is_some_and(|p| p.is::<GlmPeer>()) {
                 send_sum_rows(ctx, peer_id, neigh_id);
@@ -51,7 +51,7 @@ fn send_sum_rows(ctx: &mut Context, peer_id: usize, target_id: usize) {
         nrows: peer.state.total_nrow,
     };
 
-    send_message_to(ctx, peer_id, target_id, Some(Box::new(msg)));
+    engine::send_message_to(ctx, peer_id, target_id, Some(Box::new(msg)));
 }
 
 fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
@@ -63,7 +63,7 @@ fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
         iter: peer.state.model.iter,
     };
 
-    send_message_to(ctx, peer_id, target_id, Some(Box::new(msg)));
+    engine::send_message_to(ctx, peer_id, target_id, Some(Box::new(msg)));
 }
 
 pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMessage) {

@@ -1,6 +1,6 @@
 use crate::{
     get_peer_of_type,
-    internal::core::{Context, Message, communication::send_message_to, log},
+    internal::core::{Context, Message, engine, log},
 };
 
 use super::peer::ExamplePeer;
@@ -32,7 +32,7 @@ pub fn example_on_message_receive(
             log::info(ctx, log_msg);
 
             if val < 5 {
-                send_message_to(ctx, receiver_id, example_msg.sender, Some(new_msg));
+                engine::send_message_to(ctx, receiver_id, example_msg.sender, Some(new_msg));
             }
         }
     }

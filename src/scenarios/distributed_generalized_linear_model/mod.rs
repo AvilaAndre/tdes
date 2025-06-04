@@ -19,7 +19,7 @@ use rand::{Rng, distr::Uniform};
 use crate::internal::{
     Simulator,
     core::{
-        Context,
+        Context, engine,
         options::{ExperimentOptions, Scenario},
     },
 };
@@ -69,7 +69,7 @@ impl Scenario for DistributedGeneralizedLinearModel {
                 ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
             );
 
-            let _ = ctx.add_peer(Box::new(GlmPeer::new(rx, ry, x, y)));
+            engine::add_peer(ctx, Box::new(GlmPeer::new(rx, ry, x, y)));
         }
 
         simulator
@@ -83,6 +83,6 @@ impl Scenario for DistributedGeneralizedLinearModel {
             peer_start(ctx, i);
         }
 
-        ctx.run(opts.deadline);
+        engine::run(ctx, opts.deadline);
     }
 }

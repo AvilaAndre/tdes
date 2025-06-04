@@ -1,6 +1,6 @@
 use crate::{
     get_peer_of_type,
-    internal::core::{Context, communication::send_message_to, log},
+    internal::core::{Context, engine, log},
 };
 
 use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
@@ -10,7 +10,7 @@ const TICKS: u32 = 50;
 pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
     log::debug(ctx, format!("avg_and_send on {peer_id}"));
 
-    if let Some(neighbors) = ctx.get_neighbors(peer_id) {
+    if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
         let peer: &mut FlowUpdatingPairwisePeer =
             get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer).expect("peer should exist");
 
@@ -37,12 +37,12 @@ pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
             estimate: avg,
         });
 
-        send_message_to(ctx, peer_id, neigh_id, Some(payload));
+        engine::send_message_to(ctx, peer_id, neigh_id, Some(payload));
     }
 }
 
 pub fn tick(ctx: &mut Context, peer_id: usize) {
-    if let Some(neighbors) = ctx.get_neighbors(peer_id) {
+    if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
         for neigh_id in neighbors {
             let peer: &mut FlowUpdatingPairwisePeer =
                 get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer)
