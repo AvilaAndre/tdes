@@ -23,7 +23,7 @@ fn main() {
         .register::<FlowUpdatingPairwise>()
         .register::<Example>();
 
-    internal::run(
+    internal::start(
         args,
         &simulation_registry,
         &topology_registry,

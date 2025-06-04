@@ -13,7 +13,7 @@ use chrono::Local;
 use clap::Parser;
 use cli::{Args, get_config_from_args, utils::write_file_with_dirs};
 
-pub fn run(
+pub fn start(
     _args: Args,
     simulation_registry: &SimulationRegistry,
     topology_registry: &TopologyRegistry,
@@ -38,7 +38,11 @@ pub fn run(
     };
 
     for experiment in config.experiments.iter_mut() {
-        let mut exp_ctx = Context::new(experiment.seed, experiment.logger_level);
+        // Print new line before each experiment
+        println!();
+        log::global_internal(format!("EXPERIMENT '{}'", experiment.name));
+
+        let mut exp_ctx = Context::new(experiment.seed, args.logger_level);
 
         if let Some(directory) = &config.dir {
             let log_file_path = format!(

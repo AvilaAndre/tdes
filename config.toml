@@ -1,8 +1,0 @@
-[[experiments]]
-name = "experiment1"
-simulation = "dglm"
-seed = "559464190120120835"
-
-[[experiments]]
-name = "experiment2"
-simulation = "dglm"

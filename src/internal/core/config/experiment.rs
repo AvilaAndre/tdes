@@ -1,7 +1,5 @@
 use serde::{Deserialize, Deserializer, Serialize};
 
-use crate::internal::core::log::LoggerLevel;
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Experiment {
     pub name: String,
@@ -12,7 +10,6 @@ pub struct Experiment {
         deserialize_with = "option_u64_from_str"
     )]
     pub seed: Option<u64>,
-    pub logger_level: Option<LoggerLevel>,
     pub n_peers: Option<usize>,
     pub topology: Option<String>,
     pub arrival_time: Option<String>,

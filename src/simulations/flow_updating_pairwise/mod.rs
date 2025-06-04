@@ -40,9 +40,6 @@ impl Simulation for FlowUpdatingPairwise {
         arrival_time_registry: &ArrivalTimeRegistry,
         opts: ExperimentOptions,
     ) {
-        ctx.message_delay_cb = builtins::arrival_time::DistanceBasedArrivalTime::callback;
-        ctx.on_simulation_finish_hook = Some(Box::new(hooks::on_simulation_finish_hook));
-
         let n_peers = opts.n_peers;
 
         for _ in 0..n_peers {
@@ -56,6 +53,7 @@ impl Simulation for FlowUpdatingPairwise {
 
         topology_registry.connect_peers(opts.topology, ctx, n_peers);
         ctx.message_delay_cb = arrival_time_registry.get_callback(opts.arrival_time);
+        ctx.on_simulation_finish_hook = Some(Box::new(hooks::on_simulation_finish_hook));
 
         ctx.add_event(TimerEvent::create(
             ctx.clock,

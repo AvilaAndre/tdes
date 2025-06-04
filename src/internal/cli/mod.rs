@@ -55,13 +55,29 @@ pub fn get_config_from_args(
 
         let mut config: SimulationConfig = toml::from_str(&fs::read_to_string(&config_file)?)?;
 
-        if let Some(config_dir) = path.parent().map(|v| v.to_string_lossy().to_string()) {
-            log::global_internal(format!("Reading configuration file from '{}'", config_dir));
-            config.dir = Some(config_dir);
-        } else {
-            log::global_error("Failed to get configuration file folder. Aborting execution.");
-            return Ok(None);
+        match path.canonicalize() {
+            Ok(canonical_path) => {
+                if let Some(parent_dir) = canonical_path.parent() {
+                    let config_dir = parent_dir.to_string_lossy().to_string();
+                    log::global_internal(format!(
+                        "Reading configuration file from '{}'",
+                        config_dir
+                    ));
+                    config.dir = Some(config_dir);
+                } else {
+                    log::global_error("Config file has no parent directory. Aborting execution.");
+                    return Ok(None);
+                }
+            }
+            Err(e) => {
+                log::global_error(format!(
+                    "Failed to resolve config file path: {}. Aborting execution.",
+                    e
+                ));
+                return Ok(None);
+            }
         }
+
         config.should_write_config = args.write_config;
 
         return Ok(Some(config));
@@ -79,7 +95,6 @@ pub fn get_config_from_args(
                 name: args.name.unwrap_or("unnamed_experiment".to_string()),
                 simulation: simulation_name,
                 seed,
-                logger_level: args.logger_level,
                 n_peers: args.n_peers,
                 topology: args.topology,
                 arrival_time: args.arrival_time,
