@@ -8,10 +8,9 @@ use std::error::Error;
 
 use crate::internal::core::log;
 
-use super::core::{
-    config::{Experiment, SimulationConfig},
-    options::{TopologyRegistry, arrival_time_registry::ArrivalTimeRegistry},
-    simulation::SimulationRegistry,
+use super::{
+    core::config::{Experiment, SimulationConfig},
+    simulator::Simulator,
 };
 
 /*
@@ -21,29 +20,27 @@ use super::core::{
  */
 pub fn get_config_from_args(
     args: Args,
-    registry: &SimulationRegistry,
-    topology_registry: &TopologyRegistry,
-    arrival_time_registry: &ArrivalTimeRegistry,
+    simulator: &Simulator,
 ) -> Result<Option<SimulationConfig>, Box<dyn Error>> {
     // Add a new line every execution
     println!();
     if args.list_simulations {
         println!("Available simulations:");
-        for sim in registry.list_simulations().iter() {
+        for sim in simulator.simulation_registry.list_simulations().iter() {
             println!("> {} - {}", sim.0, sim.1);
         }
         println!();
         return Ok(None);
     } else if args.list_topologies {
         println!("Available topologies:");
-        for topology in topology_registry.list().iter() {
+        for topology in simulator.topology_registry.list().iter() {
             println!("> {}", topology);
         }
         println!();
         return Ok(None);
     } else if args.list_arrival_times {
         println!("Available arrival time callbacks:");
-        for name in arrival_time_registry.list().iter() {
+        for name in simulator.arrival_time_registry.list().iter() {
             println!("> {}", name);
         }
         println!();

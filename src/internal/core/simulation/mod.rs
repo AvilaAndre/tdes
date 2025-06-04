@@ -1,9 +1,8 @@
 mod registry;
 
-use super::{
-    Context,
-    options::{ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
-};
+use crate::internal::Simulator;
+
+use super::{Context, options::ExperimentOptions};
 
 pub use registry::SimulationRegistry;
 
@@ -16,10 +15,5 @@ pub trait Simulation {
     where
         Self: Sized;
 
-    fn start(
-        ctx: &mut Context,
-        topology_registry: &TopologyRegistry,
-        arrival_time_registry: &ArrivalTimeRegistry,
-        opts: ExperimentOptions,
-    );
+    fn start(ctx: &mut Context, simulator: &Simulator, opts: ExperimentOptions);
 }

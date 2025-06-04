@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use crate::internal::core::options::ArrivalTimeRegistry;
+use crate::internal::core::log;
+use crate::internal::simulator::Simulator;
 
 use super::super::options::ExperimentOptions;
-use super::{Context, Simulation, TopologyRegistry};
+use super::{Context, Simulation};
 
 // Type alias for simulation functions
-type ScenarioFn = fn(&mut Context, &TopologyRegistry, &ArrivalTimeRegistry, ExperimentOptions);
+type ScenarioFn = fn(&mut Context, &Simulator, ExperimentOptions);
 
 pub struct SimulationRegistry {
     simulations: HashMap<String, (ScenarioFn, &'static str)>,
@@ -30,16 +31,23 @@ impl SimulationRegistry {
         &self,
         name: &str,
         ctx: &mut Context,
-        topology_registry: &TopologyRegistry,
-        arrival_time_registry: &ArrivalTimeRegistry,
+        simulator: &Simulator,
         opts: ExperimentOptions,
     ) -> Result<(), String> {
+        match &opts.topology {
+            Some(t) => log::global_info(format!("Topology selected from configuration: {}", t)),
+            None => log::global_warn("No topology selected from configuration."),
+        }
+        match &opts.arrival_time {
+            Some(a) => log::global_info(format!(
+                "Arrival time callback selected from configuration: {a}",
+            )),
+            None => log::global_warn("No arrival time callback selected from configuration."),
+        }
 
-        // TODO: Inform user which topology and arrival_time were choosen
-            println!("opts {:?}", opts);
         match self.simulations.get(name) {
             Some((simulation_fn, _)) => {
-                simulation_fn(ctx, topology_registry, arrival_time_registry, opts);
+                simulation_fn(ctx, simulator, opts);
                 Ok(())
             }
             None => Err(format!("Simulation '{}' not found", name)),

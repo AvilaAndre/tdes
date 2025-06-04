@@ -17,10 +17,9 @@ use ordered_float::OrderedFloat;
 use peer::GlmPeer;
 use rand::{Rng, distr::Uniform};
 
-use crate::internal::core::{
-    Context,
-    options::{ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
-    simulation::Simulation,
+use crate::internal::{
+    Simulator,
+    core::{Context, options::ExperimentOptions, simulation::Simulation},
 };
 
 pub struct DistributedGeneralizedLinearModel;
@@ -34,12 +33,7 @@ impl Simulation for DistributedGeneralizedLinearModel {
         "A distributed implementation of the generalized linear model."
     }
 
-    fn start(
-        ctx: &mut Context,
-        topology_registry: &TopologyRegistry,
-        arrival_time_registry: &ArrivalTimeRegistry,
-        opts: ExperimentOptions,
-    ) {
+    fn start(ctx: &mut Context, simulator: &Simulator, opts: ExperimentOptions) {
         let n_peers: usize = opts.n_peers;
 
         let data: ModelData = match model_data("glm") {
@@ -74,8 +68,12 @@ impl Simulation for DistributedGeneralizedLinearModel {
             let _ = ctx.add_peer(Box::new(GlmPeer::new(rx, ry, x, y)));
         }
 
-        topology_registry.connect_peers(opts.topology, ctx, n_peers);
-        ctx.message_delay_cb = arrival_time_registry.get_callback(opts.arrival_time);
+        simulator
+            .topology_registry
+            .connect_peers(opts.topology, ctx, n_peers);
+        ctx.message_delay_cb = simulator
+            .arrival_time_registry
+            .get_callback(opts.arrival_time);
 
         for i in 0..n_peers {
             peer_start(ctx, i);
