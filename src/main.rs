@@ -6,8 +6,8 @@ use simulations::{DistributedGeneralizedLinearModel, Example, FlowUpdatingPairwi
 
 fn main() {
     Simulator::default()
-        .add_simulation::<DistributedGeneralizedLinearModel>()
-        .add_simulation::<FlowUpdatingPairwise>()
         .add_simulation::<Example>()
+        .add_simulation::<FlowUpdatingPairwise>()
+        .add_simulation::<DistributedGeneralizedLinearModel>()
         .start();
 }

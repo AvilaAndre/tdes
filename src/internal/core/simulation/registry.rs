@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::internal::core::log;
 use crate::internal::simulator::Simulator;
@@ -10,14 +10,14 @@ use super::{Context, Simulation};
 type ScenarioFn = fn(&mut Context, &Simulator, ExperimentOptions);
 
 pub struct SimulationRegistry {
-    simulations: HashMap<String, (ScenarioFn, &'static str)>,
+    simulations: IndexMap<String, (ScenarioFn, &'static str)>,
 }
 
 impl SimulationRegistry {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            simulations: HashMap::new(),
+            simulations: IndexMap::new(),
         }
     }
 

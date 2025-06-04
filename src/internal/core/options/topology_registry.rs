@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::internal::core::{
     Context,
@@ -15,14 +15,14 @@ use super::{Topology, TopologyInfo};
 type TopologyFn = fn(&mut Context, usize, Option<Vec<(usize, usize, Option<f64>)>>);
 
 pub struct TopologyRegistry {
-    topologies: HashMap<String, TopologyFn>,
+    topologies: IndexMap<String, TopologyFn>,
 }
 
 impl TopologyRegistry {
     #[must_use]
     pub fn new() -> Self {
         let mut registry = Self {
-            topologies: HashMap::new(),
+            topologies: IndexMap::new(),
         };
         registry.register::<OneWayCustomTopology>();
         registry.register::<TwoWayCustomTopology>();

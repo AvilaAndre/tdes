@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::internal::core::{
     builtins::{
@@ -12,14 +12,14 @@ use crate::internal::core::{
 use super::ArrivalTimeCallback;
 
 pub struct ArrivalTimeRegistry {
-    callbacks: HashMap<String, MessageDelayCallback>,
+    callbacks: IndexMap<String, MessageDelayCallback>,
 }
 
 impl ArrivalTimeRegistry {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            callbacks: HashMap::new(),
+            callbacks: IndexMap::new(),
         }
     }
 
