@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use std::{cmp::Reverse, collections::BinaryHeap};
 
+use indexmap::IndexMap;
 use rand::{Rng, SeedableRng};
 
 use ordered_float::OrderedFloat;
@@ -23,7 +23,8 @@ pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
     pub clock: OrderedFloat<f64>,
     pub peers: Vec<Box<dyn CustomPeer>>,
-    pub links: Vec<HashMap<usize, Option<f64>>>,
+    // Rust's HashMap is non-deterministic.
+    pub links: Vec<IndexMap<usize, Option<f64>>>,
     pub rng: ChaCha8Rng,
     pub seed: u64,
     pub message_delay_cb: MessageDelayCallback,
@@ -65,7 +66,7 @@ impl Context {
         custom_peer.as_mut().get_peer_mut().id = Some(new_id);
 
         self.peers.push(custom_peer);
-        self.links.push(HashMap::new());
+        self.links.push(IndexMap::new());
         new_id
     }
 
