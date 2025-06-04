@@ -33,7 +33,7 @@ impl Simulation for FlowUpdatingPairwise {
     }
 
     fn start(ctx: &mut Context, simulator: &Simulator, opts: ExperimentOptions) {
-        let n_peers = opts.n_peers;
+        let n_peers = opts.topology.n_peers;
 
         for _ in 0..n_peers {
             let rval = ctx.rng.sample(Uniform::new(0, 80).unwrap());
@@ -46,7 +46,7 @@ impl Simulation for FlowUpdatingPairwise {
 
         simulator
             .topology_registry
-            .connect_peers(ctx, opts.topology, n_peers);
+            .connect_peers(ctx, opts.topology);
         ctx.message_delay_cb = simulator
             .arrival_time_registry
             .get_callback(opts.arrival_time);

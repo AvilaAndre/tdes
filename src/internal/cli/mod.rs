@@ -54,7 +54,8 @@ pub fn get_config_from_args(
     if let Some(config_file) = args.config {
         let path = Path::new(&config_file);
 
-        let mut config: SimulationConfig = toml::from_str(&fs::read_to_string(&config_file)?)?;
+        let mut config: SimulationConfig =
+            serde_yaml::from_str(&fs::read_to_string(&config_file)?)?;
 
         match path.canonicalize() {
             Ok(canonical_path) => {
@@ -93,9 +94,8 @@ pub fn get_config_from_args(
                 name: args.name.unwrap_or("unnamed_experiment".to_string()),
                 simulation: simulation_name,
                 seed,
-                n_peers: args.n_peers,
                 arrival_time: args.arrival_time,
-                topology: TopologyInfo::from_args(args.topology),
+                topology: TopologyInfo::from_args(args.n_peers, args.topology),
             }],
             dir: args.dir,
             should_write_config: true,

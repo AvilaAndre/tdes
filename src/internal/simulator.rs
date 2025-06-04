@@ -93,11 +93,8 @@ impl Simulator {
 
             // add generated seed to config
             experiment.seed = Some(exp_ctx.seed);
-            // if n_peers isn't specified it will be the default value of 5
-            experiment.n_peers = Some(experiment.n_peers.unwrap_or(5));
 
             let opts = ExperimentOptions {
-                n_peers: experiment.n_peers.unwrap_or(5),
                 topology: experiment.topology.clone(),
                 arrival_time: experiment.arrival_time.clone(),
             };
@@ -113,12 +110,12 @@ impl Simulator {
         }
 
         // TODO: Deal with this as it may panic
-        let toml_str = toml::to_string(&config).expect("Failed to serialized configuration");
+        let yaml_str = serde_yaml::to_string(&config).expect("Failed to serialized configuration");
 
         if config.should_write_config {
             if let Some(dir) = config.dir {
-                let outfile = format!("{dir}/config.toml");
-                match write_file_with_dirs(&outfile, &toml_str) {
+                let outfile = format!("{dir}/config.yaml");
+                match write_file_with_dirs(&outfile, &yaml_str) {
                     Ok(()) => {
                         log::global_info(format!("Wrote configuration file to: {outfile}"));
                     }
@@ -129,10 +126,10 @@ impl Simulator {
                     }
                 }
             } else {
-                println!("\nConfiguration file:\n{toml_str}");
+                println!("\nConfiguration file:\n{yaml_str}");
             }
         } else {
-            println!("\nThe parsed configuration file is:\n{toml_str}");
+            println!("\nThe parsed configuration file is:\n{yaml_str}");
         }
     }
 }

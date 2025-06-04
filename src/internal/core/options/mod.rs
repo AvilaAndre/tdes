@@ -10,20 +10,25 @@ pub use topology_registry::TopologyRegistry;
 
 #[derive(Debug)]
 pub struct ExperimentOptions {
-    pub n_peers: usize,
-    pub topology: Option<TopologyInfo>,
+    pub topology: TopologyInfo,
     pub arrival_time: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TopologyInfo {
-    pub name: String,
+    pub n_peers: usize,
+    pub name: Option<String>,
     pub list: Option<Vec<(usize, usize, Option<f64>)>>,
 }
 
 impl TopologyInfo {
-    pub fn from_args(arg: Option<String>) -> Option<Self> {
-        arg.map(|name| Self { name, list: None })
+    pub fn from_args(n_peers: Option<usize>, name: Option<String>) -> Self {
+        Self {
+            // if n_peers isn't specified it will be the default value of 5
+            n_peers: n_peers.unwrap_or(5),
+            name,
+            list: None,
+        }
     }
 }
 

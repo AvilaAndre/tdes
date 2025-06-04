@@ -34,7 +34,7 @@ impl Simulation for DistributedGeneralizedLinearModel {
     }
 
     fn start(ctx: &mut Context, simulator: &Simulator, opts: ExperimentOptions) {
-        let n_peers: usize = opts.n_peers;
+        let n_peers: usize = opts.topology.n_peers;
 
         let data: ModelData = match model_data("glm") {
             Ok(d) => d,
@@ -72,7 +72,7 @@ impl Simulation for DistributedGeneralizedLinearModel {
 
         simulator
             .topology_registry
-            .connect_peers(ctx, opts.topology, n_peers);
+            .connect_peers(ctx, opts.topology);
         ctx.message_delay_cb = simulator
             .arrival_time_registry
             .get_callback(opts.arrival_time);

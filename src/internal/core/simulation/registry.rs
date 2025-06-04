@@ -35,10 +35,8 @@ impl SimulationRegistry {
         simulator: &Simulator,
         opts: ExperimentOptions,
     ) -> Result<(), String> {
-        match &opts.topology {
-            Some(t) => {
-                log::global_info(format!("Topology selected from configuration: {}", t.name))
-            }
+        match &opts.topology.name {
+            Some(name) => log::global_info(format!("Topology selected from configuration: {name}")),
             None => log::global_warn("No topology selected from configuration."),
         }
         match &opts.arrival_time {
