@@ -22,9 +22,12 @@ impl SimulationRegistry {
     }
 
     pub fn register<T: Simulation>(&mut self) -> &mut Self {
-        self.simulations
-            .insert(T::name().to_string(), (T::start, T::description()));
-
+        let name = T::name().to_string();
+        if !self.simulations.contains_key(&name) {
+            self.simulations.insert(name, (T::start, T::description()));
+        } else {
+            log::global_warn(format!("A simulation named {name} alreay exists"));
+        }
         self
     }
 

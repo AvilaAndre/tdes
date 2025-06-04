@@ -30,9 +30,12 @@ impl TopologyRegistry {
     }
 
     pub fn register<T: Topology>(&mut self) -> &mut Self {
-        // FIXME: Avoid having more than one topology of the same name
-        self.topologies.insert(T::name().to_string(), T::connect);
-
+        let name = T::name().to_string();
+        if !self.topologies.contains_key(&name) {
+            self.topologies.insert(name, T::connect);
+        } else {
+            log::global_warn(format!("A topology named {name} alreay exists"));
+        }
         self
     }
 

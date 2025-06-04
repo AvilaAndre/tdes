@@ -24,8 +24,14 @@ impl ArrivalTimeRegistry {
     }
 
     pub fn register<A: ArrivalTimeCallback>(&mut self) -> &mut Self {
-        self.callbacks.insert(A::name().to_string(), A::callback);
-
+        let name = A::name().to_string();
+        if !self.callbacks.contains_key(&name) {
+            self.callbacks.insert(name, A::callback);
+        } else {
+            log::global_warn(format!(
+                "A arrival time callback named {name} alreay exists"
+            ));
+        }
         self
     }
 
