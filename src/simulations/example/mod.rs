@@ -29,8 +29,14 @@ impl Simulation for Example {
     }
 
     fn start(ctx: &mut Context, simulator: &Simulator, opts: ExperimentOptions) {
-        let peer1_idx = ctx.add_peer(Box::new(ExamplePeer::new(1.0, 1.0, 0.0)));
-        let peer2_idx = ctx.add_peer(Box::new(ExamplePeer::new(-1.0, 1.0, 0.0)));
+        for i in 0..opts.topology.n_peers {
+            if i < opts.topology.positions.len() {
+                let (x, y, z) = opts.topology.positions[i];
+                ctx.add_peer(Box::new(ExamplePeer::new(x, y, z.unwrap_or(0.0))));
+            } else {
+                ctx.add_peer(Box::new(ExamplePeer::new(0.0, 0.0, 0.0)));
+            }
+        }
 
         simulator
             .topology_registry
@@ -40,12 +46,7 @@ impl Simulation for Example {
             .arrival_time_registry
             .get_callback(opts.arrival_time);
 
-        send_message_to(
-            ctx,
-            peer1_idx,
-            peer2_idx,
-            Some(Box::new(ExampleMessage { sender: peer1_idx })),
-        );
+        send_message_to(ctx, 0, 1, Some(Box::new(ExampleMessage { sender: 0 })));
 
         ctx.run();
     }

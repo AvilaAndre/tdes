@@ -18,7 +18,10 @@ pub struct ExperimentOptions {
 pub struct TopologyInfo {
     pub n_peers: usize,
     pub name: Option<String>,
-    pub list: Option<Vec<(usize, usize, Option<f64>)>>,
+    #[serde(default)]
+    pub connections: Option<Vec<(usize, usize, Option<f64>)>>,
+    #[serde(default)]
+    pub positions: Vec<(f64, f64, Option<f64>)>,
 }
 
 impl TopologyInfo {
@@ -27,7 +30,8 @@ impl TopologyInfo {
             // if n_peers isn't specified it will be the default value of 5
             n_peers: n_peers.unwrap_or(5),
             name,
-            list: None,
+            connections: None,
+            positions: Vec::new(),
         }
     }
 }

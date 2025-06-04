@@ -52,7 +52,7 @@ impl TopologyRegistry {
             match self.topologies.get(&name) {
                 Some(connect_fn) => {
                     log::global_info(format!("Connecting peers using the {name} topology."));
-                    connect_fn(ctx, topology.n_peers.min(ctx.peers.len()), topology.list);
+                    connect_fn(ctx, topology.n_peers.min(ctx.peers.len()), topology.connections);
                 }
                 None => {
                     log::global_warn(format!("Topology '{name}' not found"));
