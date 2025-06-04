@@ -9,7 +9,10 @@ use std::error::Error;
 use crate::internal::core::log;
 
 use super::{
-    core::config::{Experiment, SimulationConfig},
+    core::{
+        config::{Experiment, SimulationConfig},
+        options::TopologyInfo,
+    },
     simulator::Simulator,
 };
 
@@ -91,8 +94,8 @@ pub fn get_config_from_args(
                 simulation: simulation_name,
                 seed,
                 n_peers: args.n_peers,
-                topology: args.topology,
                 arrival_time: args.arrival_time,
+                topology: TopologyInfo::from_args(args.topology),
             }],
             dir: args.dir,
             should_write_config: true,

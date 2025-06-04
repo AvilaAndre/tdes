@@ -34,7 +34,7 @@ impl Simulation for Example {
 
         simulator
             .topology_registry
-            .connect_peers(opts.topology, ctx, opts.n_peers);
+            .connect_peers(ctx, opts.topology, opts.n_peers);
 
         ctx.message_delay_cb = simulator
             .arrival_time_registry

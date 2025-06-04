@@ -1,41 +1,93 @@
-use crate::internal::core::{Context, options::Topology};
+use crate::internal::core::{Context, log, options::Topology};
 
 macro_rules! define_custom_topology {
-    ($name:ident, $topology_name:expr, |$ctx:ident, $n_peers:ident| $connect_fn:block) => {
+    ($name:ident, $topology_name:expr, $connect_fn:path) => {
         pub struct $name;
 
         impl Topology for $name {
-            fn name() -> &'static str
-            where
-                Self: Sized,
-            {
+            fn name() -> &'static str {
                 $topology_name
             }
 
-            fn connect($ctx: &mut Context, $n_peers: usize) $connect_fn
+            fn connect(
+                ctx: &mut Context,
+                n_peers: usize,
+                custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+            ) {
+                $connect_fn(ctx, n_peers, custom_list);
+            }
         }
     };
 }
 
-define_custom_topology!(FullTopology, "full", |ctx, n_peers| {
+fn onewaycustomtopology(
+    ctx: &mut Context,
+    _n_peers: usize,
+    custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+) {
+    if let Some(list) = custom_list {
+        for (from, to, latency) in list {
+            ctx.add_oneway_link(from, to, latency);
+        }
+    } else {
+        log::global_warn(
+            "Cannot apply 'onewaycustom' topology because no 'custom_list' was supplied",
+        );
+    }
+}
+
+fn twowaycustom_topology(
+    ctx: &mut Context,
+    _n_peers: usize,
+    custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+) {
+    if let Some(list) = custom_list {
+        for (from, to, latency) in list {
+            ctx.add_twoway_link(from, to, latency);
+        }
+    } else {
+        log::global_warn(
+            "Cannot apply 'twowaycustom' topology because no 'custom_list' was supplied",
+        );
+    }
+}
+
+fn full_topology(
+    ctx: &mut Context,
+    n_peers: usize,
+    _custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+) {
     for i in 0..n_peers {
         for j in i + 1..n_peers {
             ctx.add_twoway_link(i, j, None);
         }
     }
-});
+}
 
-define_custom_topology!(StarTopology, "star", |ctx, n_peers| {
+fn star_topology(
+    ctx: &mut Context,
+    n_peers: usize,
+    _custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+) {
     let center_idx = 0;
     for i in 1..n_peers {
         ctx.add_twoway_link(i, center_idx, None);
     }
-});
+}
 
-define_custom_topology!(RingTopology, "ring", |ctx, n_peers| {
+fn ring_topology(
+    ctx: &mut Context,
+    n_peers: usize,
+    _custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+) {
     for i in 1..n_peers {
         ctx.add_twoway_link(i - 1, i, None);
     }
-
     ctx.add_twoway_link(n_peers - 1, 0, None);
-});
+}
+
+define_custom_topology!(OneWayCustomTopology, "onewaycustom", onewaycustomtopology);
+define_custom_topology!(TwoWayCustomTopology, "twowaycustom", twowaycustom_topology);
+define_custom_topology!(FullTopology, "full", full_topology);
+define_custom_topology!(StarTopology, "star", star_topology);
+define_custom_topology!(RingTopology, "ring", ring_topology);

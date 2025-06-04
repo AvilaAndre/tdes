@@ -44,12 +44,8 @@ impl GlmPeer {
         };
 
         Self {
-            peer: {
-                let mut p = Peer::new(pos_x, pos_y, 0.0);
-                p.on_message_receive = callbacks::on_message_receive;
-                p
-            },
-
+            peer: Peer::new(pos_x, pos_y, 0.0)
+                .with_on_message_receive(callbacks::on_message_receive),
             state: GlmState {
                 model,
                 data: ModelData { x, y },

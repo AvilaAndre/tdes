@@ -46,7 +46,7 @@ impl Simulation for FlowUpdatingPairwise {
 
         simulator
             .topology_registry
-            .connect_peers(opts.topology, ctx, n_peers);
+            .connect_peers(ctx, opts.topology, n_peers);
         ctx.message_delay_cb = simulator
             .arrival_time_registry
             .get_callback(opts.arrival_time);
