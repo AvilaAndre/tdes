@@ -27,5 +27,5 @@ pub trait ArrivalTimeCallback {
     where
         Self: Sized;
 
-    fn callback(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
+    fn callback(ctx: &mut Context, from: usize, to: usize) -> Option<OrderedFloat<f64>>;
 }

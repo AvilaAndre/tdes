@@ -16,7 +16,8 @@ use super::{
     peer::CustomPeer,
 };
 
-type MessageDelayCallback = fn(ctx: &mut Context, from: usize, to: usize) -> OrderedFloat<f64>;
+pub type MessageDelayCallback =
+    fn(ctx: &mut Context, from: usize, to: usize) -> Option<OrderedFloat<f64>>;
 pub type CustomHook = Box<dyn Fn(&mut Context)>;
 
 pub struct Context {

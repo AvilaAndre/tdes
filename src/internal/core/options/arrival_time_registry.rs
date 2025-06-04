@@ -1,23 +1,18 @@
 use std::collections::HashMap;
 
-use ordered_float::OrderedFloat;
-
 use crate::internal::core::{
-    Context,
     builtins::{
         self,
         arrival_time::{ConstantArrivalTime, DistanceBasedArrivalTime},
     },
+    context::MessageDelayCallback,
     log,
 };
 
 use super::ArrivalTimeCallback;
 
-// Type alias for topology functions
-type ArrivalTimeCallbackFn = fn(&mut Context, usize, usize) -> OrderedFloat<f64>;
-
 pub struct ArrivalTimeRegistry {
-    callbacks: HashMap<String, ArrivalTimeCallbackFn>,
+    callbacks: HashMap<String, MessageDelayCallback>,
 }
 
 impl ArrivalTimeRegistry {
@@ -40,7 +35,7 @@ impl ArrivalTimeRegistry {
             .collect::<Vec<&str>>()
     }
 
-    pub fn get_callback(&self, arrival_time_opt: Option<String>) -> ArrivalTimeCallbackFn {
+    pub fn get_callback(&self, arrival_time_opt: Option<String>) -> MessageDelayCallback {
         if let Some(name) = arrival_time_opt {
             match self.callbacks.get(&name) {
                 Some(callback_fn) => {
