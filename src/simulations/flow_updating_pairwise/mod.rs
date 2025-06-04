@@ -11,9 +11,9 @@ use rand::{Rng, distr::Uniform};
 use timer::TickTimer;
 
 use crate::internal::core::{
-    Context, builtins,
+    Context,
     events::TimerEvent,
-    options::{ArrivalTimeCallback, ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
+    options::{ArrivalTimeRegistry, ExperimentOptions, TopologyRegistry},
     simulation::Simulation,
 };
 

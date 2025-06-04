@@ -34,6 +34,9 @@ impl SimulationRegistry {
         arrival_time_registry: &ArrivalTimeRegistry,
         opts: ExperimentOptions,
     ) -> Result<(), String> {
+
+        // TODO: Inform user which topology and arrival_time were choosen
+            println!("opts {:?}", opts);
         match self.simulations.get(name) {
             Some((simulation_fn, _)) => {
                 simulation_fn(ctx, topology_registry, arrival_time_registry, opts);

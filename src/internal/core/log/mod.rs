@@ -140,8 +140,12 @@ fn ctx_log(ctx: &mut Context, level: LoggerLevel, text: impl AsRef<str>) {
             .logger
             .write_to_log_file(&log_format(ctx.clock, level, &text), level),
         None => {
+            let msg = log_format(ctx.clock, level, &text);
             if ctx.logger.enabled(level) {
-                println!("{}", &log_format(ctx.clock, level, &text))
+                match level {
+                    LoggerLevel::Warn | LoggerLevel::Error => eprintln!("{}", &msg),
+                    _ => println!("{}", &msg),
+                }
             }
         }
     };

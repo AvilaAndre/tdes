@@ -7,6 +7,7 @@ use ordered_float::OrderedFloat;
 pub use topology_registry::TopologyRegistry;
 pub use arrival_time_registry::ArrivalTimeRegistry;
 
+#[derive(Debug)]
 pub struct ExperimentOptions {
     pub n_peers: usize,
     pub topology: Option<String>,
