@@ -1,7 +1,4 @@
-use crate::{
-    get_peer_of_type,
-    internal::core::{Context, Message},
-};
+use crate::internal::core::{Context, Message, macros::get_peer_of_type};
 
 use super::{algorithms, message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
 

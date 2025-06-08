@@ -2,10 +2,7 @@ use std::collections::HashMap;
 
 use faer::Mat;
 
-use crate::{
-    get_peer_of_type,
-    internal::core::{Context, engine},
-};
+use crate::internal::core::{Context, engine, macros::get_peer_of_type};
 
 use super::{
     generalized_linear_model,

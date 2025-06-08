@@ -6,7 +6,9 @@ type OnMessageReceiveCallback =
 
 #[derive(Clone)]
 pub struct Peer {
-    pub id: Option<usize>,
+    id: usize,
+    instantiated: bool,
+    alive: bool,
     pub position: (f64, f64, f64),
     pub on_message_receive: OnMessageReceiveCallback,
 }
@@ -16,13 +18,16 @@ fn default_on_message_receive(
     _receiver_id: usize,
     _msg: Option<Box<dyn Message>>,
 ) {
+    // Does nothing.
 }
 
 impl Peer {
     #[must_use]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self {
-            id: None,
+            id: 0,
+            instantiated: false,
+            alive: true,
             position: (x, y, z),
             on_message_receive: default_on_message_receive,
         }
@@ -35,8 +40,43 @@ impl Peer {
     }
 }
 
+impl Default for Peer {
+    fn default() -> Self {
+        Self {
+            id: 0,
+            instantiated: false,
+            alive: true,
+            position: (0.0, 0.0, 0.0),
+            on_message_receive: default_on_message_receive,
+        }
+    }
+}
+
 pub trait CustomPeer: Downcast {
     fn get_peer(&self) -> &Peer;
     fn get_peer_mut(&mut self) -> &mut Peer;
+    fn instantiate(&mut self, id: usize) -> usize {
+        self.get_peer_mut().id = id;
+        self.get_peer_mut().instantiated = true;
+        id
+    }
+    fn get_id(&self) -> usize {
+        let p = self.get_peer();
+        if !p.instantiated {
+            panic!(
+                "Attempted to get the id of a non-instantiated peer. Make sure the peer exists in the simulation context."
+            )
+        }
+        p.id
+    }
+    fn revive(&mut self) {
+        self.get_peer_mut().alive = true;
+    }
+    fn kill(&mut self) {
+        self.get_peer_mut().alive = false;
+    }
+    fn is_alive(&self) -> bool {
+        self.get_peer().alive
+    }
 }
 impl_downcast!(CustomPeer);

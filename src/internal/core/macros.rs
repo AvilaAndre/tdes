@@ -1,7 +1,5 @@
-#[macro_export]
 macro_rules! get_peer_of_type {
     ($ctx:expr, $peer_id:expr, $peer_type:ty) => {{
-
         if $peer_id >= $ctx.peers.len() {
             Err(format!("Invalid peer ID: {}", $peer_id))
         } else {
@@ -17,3 +15,62 @@ macro_rules! get_peer_of_type {
         }
     }};
 }
+
+pub(crate) use get_peer_of_type;
+
+macro_rules! define_custom_peer {
+    ($structname: ident) => {
+        impl CustomPeer for $structname {
+            fn get_peer(&self) -> &Peer {
+                &self.peer
+            }
+
+            fn get_peer_mut(&mut self) -> &mut Peer {
+                &mut self.peer
+            }
+        }
+    };
+}
+
+pub(crate) use define_custom_peer;
+
+macro_rules! define_custom_arrival_time_callback {
+    ($name:ident, $topology_name:expr, |$ctx:ident, $from:ident, $to:ident| $connect_fn:block) => {
+        pub struct $name;
+
+        impl ArrivalTimeCallback for $name {
+            fn name() -> &'static str
+            where
+                Self: Sized,
+            {
+                $topology_name
+            }
+
+            fn callback($ctx: &mut Context, $from: usize, $to: usize) -> Option<OrderedFloat<f64>> $connect_fn
+        }
+    };
+}
+
+pub(crate) use define_custom_arrival_time_callback;
+
+macro_rules! define_custom_topology {
+    ($name:ident, $topology_name:expr, $connect_fn:path) => {
+        pub struct $name;
+
+        impl Topology for $name {
+            fn name() -> &'static str {
+                $topology_name
+            }
+
+            fn connect(
+                ctx: &mut Context,
+                n_peers: usize,
+                custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+            ) {
+                $connect_fn(ctx, n_peers, custom_list);
+            }
+        }
+    };
+}
+
+pub(crate) use define_custom_topology;

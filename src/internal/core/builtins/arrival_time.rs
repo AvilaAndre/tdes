@@ -1,23 +1,8 @@
 use ordered_float::OrderedFloat;
 
-use crate::internal::core::{Context, options::ArrivalTimeCallback};
-
-macro_rules! define_custom_arrival_time_callback {
-    ($name:ident, $topology_name:expr, |$ctx:ident, $from:ident, $to:ident| $connect_fn:block) => {
-        pub struct $name;
-
-        impl ArrivalTimeCallback for $name {
-            fn name() -> &'static str
-            where
-                Self: Sized,
-            {
-                $topology_name
-            }
-
-            fn callback($ctx: &mut Context, $from: usize, $to: usize) -> Option<OrderedFloat<f64>> $connect_fn
-        }
-    };
-}
+use crate::internal::core::{
+    Context, macros::define_custom_arrival_time_callback, options::ArrivalTimeCallback,
+};
 
 define_custom_arrival_time_callback!(ConstantArrivalTime, "constant", |_ctx, _from, _to| {
     Some(OrderedFloat(1.0))

@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use faer::Mat;
 
-use crate::internal::core::peer::{CustomPeer, Peer};
+use crate::internal::core::{
+    macros::define_custom_peer,
+    peer::{CustomPeer, Peer},
+};
 
 use super::{
     ModelData, callbacks,
@@ -24,6 +27,8 @@ pub struct GlmPeer {
     pub peer: Peer,
     pub state: GlmState,
 }
+
+define_custom_peer!(GlmPeer);
 
 impl GlmPeer {
     pub fn new(pos_x: f64, pos_y: f64, x: Mat<f64>, y: Mat<f64>) -> Self {
@@ -56,15 +61,5 @@ impl GlmPeer {
                 finished: false,
             },
         }
-    }
-}
-
-impl CustomPeer for GlmPeer {
-    fn get_peer(&self) -> &Peer {
-        &self.peer
-    }
-
-    fn get_peer_mut(&mut self) -> &mut Peer {
-        &mut self.peer
     }
 }

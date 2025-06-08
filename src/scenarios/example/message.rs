@@ -1,7 +1,4 @@
-use crate::{
-    get_peer_of_type,
-    internal::core::{Context, Message, engine, log},
-};
+use crate::internal::core::{Context, Message, engine, log, macros::get_peer_of_type};
 
 use super::peer::ExamplePeer;
 

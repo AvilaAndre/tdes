@@ -1,24 +1,6 @@
-use crate::internal::core::{Context, engine, log, options::Topology};
-
-macro_rules! define_custom_topology {
-    ($name:ident, $topology_name:expr, $connect_fn:path) => {
-        pub struct $name;
-
-        impl Topology for $name {
-            fn name() -> &'static str {
-                $topology_name
-            }
-
-            fn connect(
-                ctx: &mut Context,
-                n_peers: usize,
-                custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
-            ) {
-                $connect_fn(ctx, n_peers, custom_list);
-            }
-        }
-    };
-}
+use crate::internal::core::{
+    Context, engine, log, macros::define_custom_topology, options::Topology,
+};
 
 fn onewaycustomtopology(
     ctx: &mut Context,

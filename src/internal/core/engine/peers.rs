@@ -3,8 +3,7 @@ use indexmap::IndexMap;
 use crate::internal::core::{Context, peer::CustomPeer};
 
 pub fn add_peer(ctx: &mut Context, mut custom_peer: Box<dyn CustomPeer>) -> usize {
-    let new_id = ctx.peers.len();
-    custom_peer.as_mut().get_peer_mut().id = Some(new_id);
+    let new_id = custom_peer.instantiate(ctx.peers.len());
 
     ctx.peers.push(custom_peer);
     ctx.links.push(IndexMap::new());

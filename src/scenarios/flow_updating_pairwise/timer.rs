@@ -1,12 +1,10 @@
 use serde_json::json;
 
-use crate::{
-    get_peer_of_type,
-    internal::core::{
-        Context, engine,
-        events::{Timer, TimerEvent},
-        log,
-    },
+use crate::internal::core::{
+    Context, engine,
+    events::{Timer, TimerEvent},
+    log,
+    macros::get_peer_of_type,
 };
 
 use super::{algorithms, peer::FlowUpdatingPairwisePeer};
