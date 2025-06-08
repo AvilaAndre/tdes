@@ -26,7 +26,7 @@ pub fn get_neighbors_alive(ctx: &mut Context, peer_id: usize) -> Option<Vec<usiz
             .get(peer_id)?
             .keys()
             .copied()
-            .filter(|id| ctx.peers.get(*id).map_or(false, |p| p.is_alive()))
+            .filter(|id| ctx.peers.get(*id).is_some_and(|p| p.is_alive()))
             .collect::<Vec<usize>>(),
     )
 }

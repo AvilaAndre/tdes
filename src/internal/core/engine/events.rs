@@ -1,6 +1,6 @@
 use crate::internal::core::{
     Context,
-    events::{Event, EventType},
+    events::{Event, EventType, Timer, TimerEvent},
     log,
 };
 
@@ -9,6 +9,14 @@ use std::cmp::Reverse;
 
 pub fn add_event(ctx: &mut Context, event: EventType) {
     ctx.event_q.push(Reverse(event));
+}
+
+pub fn add_timer(ctx: &mut Context, time: OrderedFloat<f64>, timer: impl Timer + 'static) {
+    ctx.event_q
+        .push(Reverse(EventType::TimerEvent(TimerEvent::new(
+            time,
+            Box::new(timer),
+        ))));
 }
 
 pub fn run(ctx: &mut Context, deadline_opt: Option<f64>) {

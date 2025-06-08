@@ -22,7 +22,6 @@ use crate::{
         Simulator,
         core::{
             Context, engine,
-            events::TimerEvent,
             options::{ExperimentOptions, Scenario},
         },
     },
@@ -91,10 +90,8 @@ impl Scenario for DistributedGeneralizedLinearModel {
             peer_start(ctx, i);
         }
 
-        engine::add_event(
-            ctx,
-            TimerEvent::create(OrderedFloat(0.1), Box::new(KillTimer::new(0))),
-        );
+        // TODO: Allow custom flags to avoid triggering this
+        engine::add_timer(ctx, OrderedFloat(0.1), KillTimer::new(0));
 
         engine::run(ctx, opts.deadline);
     }
