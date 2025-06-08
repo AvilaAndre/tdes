@@ -6,4 +6,8 @@ pub struct FlowUpdatingPairwiseMessage {
     pub flow: f64,
     pub estimate: f64,
 }
-impl Message for FlowUpdatingPairwiseMessage {}
+impl Message for FlowUpdatingPairwiseMessage {
+    fn size_bytes(&self) -> u64 {
+        1 + 8 + 8
+    }
+}

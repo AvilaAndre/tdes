@@ -9,10 +9,7 @@ use std::error::Error;
 use crate::internal::core::log;
 
 use super::{
-    core::{
-        config::{Experiment, SimulationConfig},
-        options::TopologyInfo,
-    },
+    core::config::{Experiment, SimulationConfig, TopologyInfo},
     simulator::Simulator,
 };
 

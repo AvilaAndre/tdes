@@ -65,7 +65,7 @@ macro_rules! define_custom_topology {
             fn connect(
                 ctx: &mut Context,
                 n_peers: usize,
-                custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
+                custom_list: Option<Vec<ConnectionInfo>>,
             ) {
                 $connect_fn(ctx, n_peers, custom_list);
             }

@@ -1,5 +1,4 @@
 message interference
-bandwidth
 inform where logs are located
 allow custom arguments
 distributions

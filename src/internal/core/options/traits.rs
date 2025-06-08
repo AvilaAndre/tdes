@@ -2,7 +2,7 @@ use ordered_float::OrderedFloat;
 
 use crate::internal::{
     Simulator,
-    core::{Context, options::ExperimentOptions},
+    core::{Context, config::ConnectionInfo, options::ExperimentOptions},
 };
 
 pub trait Scenario {
@@ -22,11 +22,7 @@ pub trait Topology {
     where
         Self: Sized;
 
-    fn connect(
-        ctx: &mut Context,
-        n_peers: usize,
-        custom_list: Option<Vec<(usize, usize, Option<f64>)>>,
-    );
+    fn connect(ctx: &mut Context, n_peers: usize, custom_list: Option<Vec<ConnectionInfo>>);
 }
 
 pub trait ArrivalTimeCallback {

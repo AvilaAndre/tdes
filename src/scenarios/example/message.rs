@@ -6,7 +6,11 @@ use super::peer::ExamplePeer;
 pub struct ExampleMessage {
     pub sender: usize,
 }
-impl Message for ExampleMessage {}
+impl Message for ExampleMessage {
+    fn size_bytes(&self) -> u64 {
+        1
+    }
+}
 
 pub fn example_on_message_receive(ctx: &mut Context, receiver_id: usize, msg: Box<dyn Message>) {
     let peer: &mut ExamplePeer =

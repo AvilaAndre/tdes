@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 mod experiment;
 
-pub use experiment::Experiment;
+pub use experiment::{ConnectionInfo, Experiment, LinkInfo, LinkKind, TopologyInfo};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SimulationConfig {

@@ -6,6 +6,8 @@ use rand::{Rng, SeedableRng};
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
 
+use crate::internal::core::config::LinkInfo;
+
 use super::log::{Logger, LoggerLevel};
 use super::options::ArrivalTimeCallback;
 use super::{builtins, events::EventType, peer::CustomPeer};
@@ -18,7 +20,7 @@ pub struct Context {
     pub clock: OrderedFloat<f64>,
     pub peers: Vec<Box<dyn CustomPeer>>,
     // Rust's HashMap is non-deterministic.
-    pub links: Vec<IndexMap<usize, Option<f64>>>,
+    pub links: Vec<IndexMap<usize, LinkInfo>>,
     pub rng: ChaCha8Rng,
     pub seed: u64,
     pub message_delay_cb: MessageDelayCallback,

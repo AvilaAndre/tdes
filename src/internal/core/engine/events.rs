@@ -32,7 +32,7 @@ pub fn run(ctx: &mut Context, deadline_opt: Option<f64>) {
         // Do not process events after the deadline
         if has_deadline && ev.timestamp() > deadline {
             ctx.clock = deadline;
-            log::global_internal("The simulation reached the deadline");
+            log::global_internal(format!("The simulation reached the deadline: {deadline}"));
             break;
         }
 

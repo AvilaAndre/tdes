@@ -1,18 +1,20 @@
 use indexmap::IndexMap;
 
-use crate::internal::core::{
-    Context,
-    builtins::{
-        self,
-        topologies::{OneWayCustomTopology, TwoWayCustomTopology},
+use super::{
+    super::{
+        Context,
+        builtins::{
+            self,
+            topologies::{OneWayCustomTopology, TwoWayCustomTopology},
+        },
+        config::{ConnectionInfo, TopologyInfo},
+        log,
     },
-    log,
+    Topology,
 };
 
-use super::{Topology, TopologyInfo};
-
 // Type alias for topology functions
-type TopologyFn = fn(&mut Context, usize, Option<Vec<(usize, usize, Option<f64>)>>);
+type TopologyFn = fn(&mut Context, usize, Option<Vec<ConnectionInfo>>);
 
 pub struct TopologyRegistry {
     topologies: IndexMap<String, TopologyFn>,

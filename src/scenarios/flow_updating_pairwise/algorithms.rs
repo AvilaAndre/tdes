@@ -1,4 +1,4 @@
-use crate::internal::core::{engine, log, macros::get_peer_of_type, peer::CustomPeer, Context};
+use crate::internal::core::{Context, engine, log, macros::get_peer_of_type, peer::CustomPeer};
 
 use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
 
@@ -43,7 +43,7 @@ pub fn tick(ctx: &mut Context, peer_id: usize) {
         get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer).expect("peer should exist");
 
     if !peer.is_alive() {
-        return
+        return;
     }
 
     if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
