@@ -67,7 +67,17 @@ impl Event for MessageDeliveryEvent {
 
     fn process(&mut self, ctx: &mut Context) {
         if let Some(receiver) = ctx.peers.get(self.receiver) {
-            (receiver.get_peer().on_message_receive)(ctx, self.receiver, self.message.take());
+            if receiver.is_alive() {
+                (receiver.get_peer().on_message_receive)(ctx, self.receiver, self.message.take());
+            } else {
+                log::warn(
+                    ctx,
+                    format!(
+                        "MessageDeliveryEvent not processed because receiver {} is dead",
+                        self.receiver
+                    ),
+                );
+            }
         } else {
             log::warn(
                 ctx,

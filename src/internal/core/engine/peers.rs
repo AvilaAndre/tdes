@@ -19,3 +19,14 @@ pub fn get_neighbors(ctx: &mut Context, peer_id: usize) -> Option<Vec<usize>> {
             .collect::<Vec<usize>>(),
     )
 }
+
+pub fn get_neighbors_alive(ctx: &mut Context, peer_id: usize) -> Option<Vec<usize>> {
+    Some(
+        ctx.links
+            .get(peer_id)?
+            .keys()
+            .copied()
+            .filter(|id| ctx.peers.get(*id).map_or(false, |p| p.is_alive()))
+            .collect::<Vec<usize>>(),
+    )
+}

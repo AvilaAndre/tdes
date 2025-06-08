@@ -17,7 +17,7 @@ pub fn peer_start(ctx: &mut Context, peer_id: usize) {
 
 fn broadcast_sum_rows(ctx: &mut Context, peer_id: usize) {
     let mut nodes_filtered: Vec<usize> = Vec::new();
-    if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
+    if let Some(neighbors) = engine::get_neighbors_alive(ctx, peer_id) {
         for neigh_id in neighbors {
             if ctx.peers.get(neigh_id).is_some_and(|p| p.is::<GlmPeer>()) {
                 send_sum_rows(ctx, peer_id, neigh_id);

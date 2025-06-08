@@ -13,15 +13,20 @@ mod utils;
 use algorithms::peer_start;
 use data::{ModelData, chunk_nx, model_beta, model_data};
 use faer::Mat;
+use ordered_float::OrderedFloat;
 use peer::GlmPeer;
 use rand::{Rng, distr::Uniform};
 
-use crate::internal::{
-    Simulator,
-    core::{
-        Context, engine,
-        options::{ExperimentOptions, Scenario},
+use crate::{
+    internal::{
+        Simulator,
+        core::{
+            Context, engine,
+            events::TimerEvent,
+            options::{ExperimentOptions, Scenario},
+        },
     },
+    scenarios::distributed_generalized_linear_model::timer::KillTimer,
 };
 
 pub struct DistributedGeneralizedLinearModel;
@@ -63,13 +68,16 @@ impl Scenario for DistributedGeneralizedLinearModel {
         let x_chunks = chunk_nx(data.x, n_peers);
         let y_chunks = chunk_nx(data.y, n_peers);
 
-        for (x, y) in x_chunks.into_iter().zip(y_chunks.into_iter()) {
-            let (rx, ry) = (
-                ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
-                ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
-            );
+        for (i, (x, y)) in x_chunks.into_iter().zip(y_chunks.into_iter()).enumerate() {
+            let (pos_x, pos_y) = match opts.topology.positions.get(i) {
+                Some(&(x, y, _)) => (x, y),
+                None => (
+                    ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()) * 1000.0,
+                    ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()) * 1000.0,
+                ),
+            };
 
-            engine::add_peer(ctx, Box::new(GlmPeer::new(rx, ry, x, y)));
+            engine::add_peer(ctx, Box::new(GlmPeer::new(pos_x, pos_y, x, y)));
         }
 
         simulator
@@ -82,6 +90,11 @@ impl Scenario for DistributedGeneralizedLinearModel {
         for i in 0..n_peers {
             peer_start(ctx, i);
         }
+
+        engine::add_event(
+            ctx,
+            TimerEvent::create(OrderedFloat(0.1), Box::new(KillTimer::new(0))),
+        );
 
         engine::run(ctx, opts.deadline);
     }
