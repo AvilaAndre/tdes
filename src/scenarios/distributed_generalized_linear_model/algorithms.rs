@@ -48,7 +48,7 @@ fn send_sum_rows(ctx: &mut Context, peer_id: usize, target_id: usize) {
         nrows: peer.state.total_nrow,
     };
 
-    engine::send_message_to(ctx, peer_id, target_id, Some(Box::new(msg)));
+    engine::send_message_to(ctx, peer_id, target_id, msg);
 }
 
 fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
@@ -60,7 +60,7 @@ fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
         iter: peer.state.model.iter,
     };
 
-    engine::send_message_to(ctx, peer_id, target_id, Some(Box::new(msg)));
+    engine::send_message_to(ctx, peer_id, target_id, msg);
 }
 
 pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMessage) {

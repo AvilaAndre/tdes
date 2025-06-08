@@ -33,9 +33,9 @@ impl Scenario for Example {
         for i in 0..opts.topology.n_peers {
             if i < opts.topology.positions.len() {
                 let (x, y, z) = opts.topology.positions[i];
-                engine::add_peer(ctx, Box::new(ExamplePeer::new(x, y, z.unwrap_or(0.0))));
+                engine::add_peer(ctx, ExamplePeer::new(x, y, z.unwrap_or(0.0)));
             } else {
-                engine::add_peer(ctx, Box::new(ExamplePeer::new(0.0, 0.0, 0.0)));
+                engine::add_peer(ctx, ExamplePeer::new(0.0, 0.0, 0.0));
             }
         }
 
@@ -47,7 +47,7 @@ impl Scenario for Example {
             .arrival_time_registry
             .get_callback(opts.arrival_time);
 
-        engine::send_message_to(ctx, 0, 1, Some(Box::new(ExampleMessage { sender: 0 })));
+        engine::send_message_to(ctx, 0, 1, ExampleMessage { sender: 0 });
 
         engine::run(ctx, opts.deadline);
     }

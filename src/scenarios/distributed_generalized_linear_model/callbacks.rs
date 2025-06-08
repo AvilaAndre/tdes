@@ -5,12 +5,7 @@ use super::{
     message::{GlmConcatMessage, GlmSumRowsMessage},
 };
 
-pub fn on_message_receive(ctx: &mut Context, receiver_id: usize, msg: Option<Box<dyn Message>>) {
-    if msg.is_none() {
-        return;
-    }
-    let msg = msg.unwrap();
-
+pub fn on_message_receive(ctx: &mut Context, receiver_id: usize, msg: Box<dyn Message>) {
     if let Some(sum_rows_msg) = msg.downcast_ref::<GlmSumRowsMessage>() {
         receive_sum_rows_msg(ctx, receiver_id, *sum_rows_msg);
     } else if let Some(concat_msg) = msg.downcast_ref::<GlmConcatMessage>() {

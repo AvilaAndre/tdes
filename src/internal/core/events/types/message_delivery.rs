@@ -12,6 +12,9 @@ use crate::internal::core::{
 pub struct MessageDeliveryEvent {
     timestamp: OrderedFloat<f64>,
     receiver: usize,
+    // HACK: Because dyn Message does not support the Copy
+    // trait, it is wrapped in an Option so that it can be
+    // moved to the on_message_receive method call.
     message: Option<Box<dyn Message>>,
 }
 
@@ -41,12 +44,12 @@ impl MessageDeliveryEvent {
     pub fn new(
         timestamp: OrderedFloat<f64>,
         receiver: usize,
-        message: Option<Box<dyn Message>>,
+        message: impl Message + 'static,
     ) -> Self {
         Self {
             timestamp,
             receiver,
-            message,
+            message: Some(Box::new(message)),
         }
     }
 
@@ -54,7 +57,7 @@ impl MessageDeliveryEvent {
     pub fn create(
         timestamp: OrderedFloat<f64>,
         recipient: usize,
-        message: Option<Box<dyn Message>>,
+        message: impl Message + 'static,
     ) -> EventType {
         EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(timestamp, recipient, message))
     }
@@ -68,7 +71,13 @@ impl Event for MessageDeliveryEvent {
     fn process(&mut self, ctx: &mut Context) {
         if let Some(receiver) = ctx.peers.get(self.receiver) {
             if receiver.is_alive() {
-                (receiver.get_peer().on_message_receive)(ctx, self.receiver, self.message.take());
+                if let Some(msg) = self.message.take() {
+                    (receiver.get_peer().on_message_receive)(ctx, self.receiver, msg);
+                } else {
+                    log::global_error(
+                        "Failed to send message because message variable was None when it shouldn't.",
+                    );
+                }
             } else {
                 log::warn(
                     ctx,

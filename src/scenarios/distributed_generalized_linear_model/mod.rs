@@ -76,7 +76,7 @@ impl Scenario for DistributedGeneralizedLinearModel {
                 ),
             };
 
-            engine::add_peer(ctx, Box::new(GlmPeer::new(pos_x, pos_y, x, y)));
+            engine::add_peer(ctx, GlmPeer::new(pos_x, pos_y, x, y));
         }
 
         simulator

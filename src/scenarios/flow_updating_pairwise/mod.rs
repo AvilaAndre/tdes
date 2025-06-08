@@ -13,7 +13,6 @@ use crate::internal::{
     Simulator,
     core::{
         Context, engine,
-        events::TimerEvent,
         options::{ExperimentOptions, Scenario},
     },
 };
@@ -44,10 +43,7 @@ impl Scenario for FlowUpdatingPairwise {
                 ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
                 ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()),
             );
-            engine::add_peer(
-                ctx,
-                Box::new(FlowUpdatingPairwisePeer::new(rx, ry, 0.0, rval)),
-            );
+            engine::add_peer(ctx, FlowUpdatingPairwisePeer::new(rx, ry, 0.0, rval));
         }
 
         simulator
@@ -58,10 +54,7 @@ impl Scenario for FlowUpdatingPairwise {
             .get_callback(opts.arrival_time);
         ctx.on_simulation_finish_hook = Some(Box::new(hooks::on_simulation_finish_hook));
 
-        engine::add_event(
-            ctx,
-            TimerEvent::create(ctx.clock, Box::new(TickTimer { interval: 0.1 })),
-        );
+        engine::add_timer(ctx, ctx.clock, TickTimer { interval: 0.1 });
 
         engine::run(ctx, opts.deadline);
     }

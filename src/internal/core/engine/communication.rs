@@ -6,7 +6,7 @@ pub fn send_message_to(
     ctx: &mut Context,
     from: usize,
     to: usize,
-    msg: Option<Box<dyn Message>>,
+    msg: impl Message + 'static,
 ) -> bool {
     // TODO: Add communication failures
 

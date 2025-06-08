@@ -28,13 +28,13 @@ pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
 
         peer.ticks_since_last_avg.insert(neigh_id, 0);
 
-        let payload = Box::new(FlowUpdatingPairwiseMessage {
+        let payload = FlowUpdatingPairwiseMessage {
             sender: peer_id,
             flow: peer.flows.get(&neigh_id).copied().unwrap_or(0.0),
             estimate: avg,
-        });
+        };
 
-        engine::send_message_to(ctx, peer_id, neigh_id, Some(payload));
+        engine::send_message_to(ctx, peer_id, neigh_id, payload);
     }
 }
 
