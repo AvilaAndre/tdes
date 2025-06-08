@@ -4,7 +4,7 @@ use faer::Mat;
 
 use crate::internal::core::{
     macros::define_custom_peer,
-    peer::{CustomPeer, Peer},
+    peer::{CustomPeer, PeerInfo},
 };
 
 use super::{
@@ -24,7 +24,7 @@ pub struct GlmState {
 }
 
 pub struct GlmPeer {
-    pub peer: Peer,
+    pub peer_info: PeerInfo,
     pub state: GlmState,
 }
 
@@ -49,7 +49,7 @@ impl GlmPeer {
         };
 
         Self {
-            peer: Peer::new(pos_x, pos_y, 0.0)
+            peer_info: PeerInfo::new(pos_x, pos_y, 0.0)
                 .with_on_message_receive(callbacks::on_message_receive),
             state: GlmState {
                 model,

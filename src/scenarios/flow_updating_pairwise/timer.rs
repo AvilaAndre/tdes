@@ -11,6 +11,7 @@ pub struct TickTimer {
 
 impl Timer for TickTimer {
     fn fire(&self, ctx: &mut Context) {
+        log::trace(ctx, "TickTimer fired");
         engine::add_timer(ctx, ctx.clock + self.interval, self.clone());
 
         let mut avgs_metric = json!({});

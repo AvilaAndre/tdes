@@ -1,11 +1,11 @@
-use crate::internal::core::{Context, engine, log, macros::get_peer_of_type};
+use crate::internal::core::{engine, log, macros::get_peer_of_type, peer::CustomPeer, Context};
 
 use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
 
 const TICKS: u32 = 50;
 
 pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
-    log::debug(ctx, format!("avg_and_send on {peer_id}"));
+    log::trace(ctx, format!("avg_and_send from {peer_id} to {neigh_id}"));
 
     if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
         let peer: &mut FlowUpdatingPairwisePeer =
@@ -39,6 +39,13 @@ pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
 }
 
 pub fn tick(ctx: &mut Context, peer_id: usize) {
+    let peer: &mut FlowUpdatingPairwisePeer =
+        get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer).expect("peer should exist");
+
+    if !peer.is_alive() {
+        return
+    }
+
     if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
         for neigh_id in neighbors {
             let peer: &mut FlowUpdatingPairwisePeer =

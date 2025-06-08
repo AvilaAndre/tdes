@@ -14,16 +14,18 @@ use super::Context;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, ValueEnum, Serialize, Deserialize)]
 pub enum LoggerLevel {
-    Debug = 0,
-    Info = 1,
-    Warn = 2,
-    Error = 3,
-    Internal = 4,
+    Trace = 0,
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4,
+    Internal = 5,
 }
 
 impl Display for LoggerLevel {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let text = match self {
+            LoggerLevel::Trace => "TRACE",
             LoggerLevel::Debug => "DEBUG",
             LoggerLevel::Info => "INFO",
             LoggerLevel::Warn => "WARN",
@@ -180,6 +182,7 @@ macro_rules! define_log_fn {
     };
 }
 
+define_log_fn!(trace, LoggerLevel::Trace);
 define_log_fn!(debug, LoggerLevel::Debug);
 define_log_fn!(info, LoggerLevel::Info);
 define_log_fn!(warn, LoggerLevel::Warn);

@@ -4,7 +4,7 @@ use downcast_rs::{Downcast, impl_downcast};
 type OnMessageReceiveCallback = fn(&mut Context, usize, Box<dyn Message>) -> ();
 
 #[derive(Clone)]
-pub struct Peer {
+pub struct PeerInfo {
     id: usize,
     instantiated: bool,
     alive: bool,
@@ -16,7 +16,7 @@ fn default_on_message_receive(_ctx: &mut Context, _receiver_id: usize, _msg: Box
     // Does nothing.
 }
 
-impl Peer {
+impl PeerInfo {
     #[must_use]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self {
@@ -35,7 +35,7 @@ impl Peer {
     }
 }
 
-impl Default for Peer {
+impl Default for PeerInfo {
     fn default() -> Self {
         Self {
             id: 0,
@@ -48,8 +48,8 @@ impl Default for Peer {
 }
 
 pub trait CustomPeer: Downcast {
-    fn get_peer(&self) -> &Peer;
-    fn get_peer_mut(&mut self) -> &mut Peer;
+    fn get_peer(&self) -> &PeerInfo;
+    fn get_peer_mut(&mut self) -> &mut PeerInfo;
     fn instantiate(&mut self, id: usize) -> usize {
         self.get_peer_mut().id = id;
         self.get_peer_mut().instantiated = true;

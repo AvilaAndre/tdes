@@ -21,12 +21,12 @@ pub(crate) use get_peer_of_type;
 macro_rules! define_custom_peer {
     ($structname: ident) => {
         impl CustomPeer for $structname {
-            fn get_peer(&self) -> &Peer {
-                &self.peer
+            fn get_peer(&self) -> &PeerInfo {
+                &self.peer_info
             }
 
-            fn get_peer_mut(&mut self) -> &mut Peer {
-                &mut self.peer
+            fn get_peer_mut(&mut self) -> &mut PeerInfo {
+                &mut self.peer_info
             }
         }
     };
