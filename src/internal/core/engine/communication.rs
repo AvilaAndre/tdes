@@ -14,10 +14,7 @@ pub fn send_message_to(
 ) -> bool {
     let drop_rate = ctx.get_drop_rate();
     // only generate random number if not zero
-    let r = ctx.rng.random_range(0.0..1.0);
-
-    println!("{drop_rate} <= {r}");
-    if !drop_rate.is_zero() && drop_rate >= r {
+    if !drop_rate.is_zero() && drop_rate >= ctx.rng.random_range(0.0..1.0) {
         log::trace(
             ctx,
             format!("Message from {from} to {to} dropped due to drop_rate"),
@@ -25,16 +22,15 @@ pub fn send_message_to(
         return false;
     }
 
+    // Gets link, will be None if no link exists between peers
     let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).cloned();
 
-    if let Some(link_info) = link_info {
+    let event = match link_info {
         // if has latency defined
-        if let Some(LinkKind::Latency(latency)) = &link_info {
-            engine::add_event(
-                ctx,
-                MessageDeliveryEvent::create(ctx.clock + OrderedFloat(*latency), to, msg),
-            );
-        } else {
+        Some(Some(LinkKind::Latency(latency))) => {
+            MessageDeliveryEvent::create(ctx.clock + OrderedFloat(latency), to, msg)
+        }
+        Some(bandwith_opt) => {
             let mut delay = match (ctx.message_delay_cb)(ctx, from, to) {
                 Some(val) => val,
                 None => {
@@ -49,24 +45,24 @@ pub fn send_message_to(
             };
 
             // if has bandwidth defined
-            if let Some(LinkKind::Bandwidth(bandwidth)) = &link_info {
+            if let Some(LinkKind::Bandwidth(bandwidth)) = &bandwith_opt {
                 delay += (msg.size_bits() as f64) / bandwidth;
             }
 
-            engine::add_event(
-                ctx,
-                MessageDeliveryEvent::create(ctx.clock + delay, to, msg),
-            );
+            MessageDeliveryEvent::create(ctx.clock + delay, to, msg)
         }
+        None => {
+            log::warn(
+                ctx,
+                format!(
+                    "Failed to send message from peer {from} to {to} because they are not connected"
+                ),
+            );
+            return false;
+        }
+    };
 
-        true
-    } else {
-        log::warn(
-            ctx,
-            format!(
-                "Failed to send message from peer {from} to {to} because they are not connected"
-            ),
-        );
-        false
-    }
+    engine::add_event(ctx, event);
+
+    true
 }
