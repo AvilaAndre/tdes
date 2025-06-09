@@ -4,13 +4,12 @@ use std::cmp::Ordering;
 
 use crate::internal::core::{
     Context,
-    events::{Event, MessageDeliveryEvent, TimerEvent, types::sample::SampleEvent},
+    events::{Event, MessageDeliveryEvent, TimerEvent},
 };
 
 #[enum_dispatch(EventType)]
 #[derive(Debug, Eq)]
 pub enum EventType {
-    SampleEvent,
     TimerEvent,
     MessageDeliveryEvent,
 }
@@ -35,7 +34,6 @@ impl PartialEq for EventType {
 impl Event for EventType {
     fn timestamp(&self) -> OrderedFloat<f64> {
         let event: &dyn Event = match self {
-            EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
             EventType::MessageDeliveryEvent(event) => event,
         };
@@ -44,7 +42,6 @@ impl Event for EventType {
 
     fn process(&mut self, ctx: &mut Context) {
         let event: &mut dyn Event = match self {
-            EventType::SampleEvent(event) => event,
             EventType::TimerEvent(event) => event,
             EventType::MessageDeliveryEvent(event) => event,
         };

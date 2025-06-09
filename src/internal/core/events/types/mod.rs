@@ -1,8 +1,7 @@
 mod event_type;
-pub mod message_delivery;
-pub mod sample;
-pub mod timer;
-
-use super::{Context, Event};
+mod message_delivery;
+mod timer;
 
 pub use event_type::EventType;
+pub use message_delivery::MessageDeliveryEvent;
+pub use timer::{Timer, TimerEvent};

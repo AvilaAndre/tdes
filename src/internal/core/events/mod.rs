@@ -11,8 +11,4 @@ pub trait Event {
     fn process(&mut self, ctx: &mut Context);
 }
 
-pub use types::{
-    EventType,
-    message_delivery::MessageDeliveryEvent,
-    timer::{Timer, TimerEvent},
-};
+pub use types::{EventType, MessageDeliveryEvent, Timer, TimerEvent};
