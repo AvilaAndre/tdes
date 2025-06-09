@@ -3,7 +3,12 @@ use rand::Rng;
 use rand_distr::num_traits::Zero;
 
 use crate::internal::core::{
-    Context, Message, config::LinkKind, engine, events::MessageDeliveryEvent, log,
+    Context, Message,
+    config::LinkKind,
+    delay_modifiers::{self, DelayModifiers},
+    engine,
+    events::MessageDeliveryEvent,
+    log,
 };
 
 pub fn send_message_to(
@@ -48,6 +53,13 @@ pub fn send_message_to(
             if let Some(LinkKind::Bandwidth(bandwidth)) = &bandwith_opt {
                 delay += (msg.size_bits() as f64) / bandwidth;
             }
+
+            // TODO: Add jitter
+            // delay += ctx.jitter
+            delay += delay_modifiers::get_value(ctx, DelayModifiers::Weibull(1.0, 1.0));
+
+            // ensure delay isn't negative
+            delay = delay.max(OrderedFloat(0.0));
 
             MessageDeliveryEvent::create(ctx.clock + delay, to, msg)
         }

@@ -65,7 +65,6 @@ impl Simulator {
             log::global_internal(format!("EXPERIMENT '{}'", experiment.name));
 
             let mut exp_ctx = Context::new(experiment.seed, args.logger_level);
-            println!("drop_rate_opt {:?}", experiment.drop_rate);
             if let Some(rate) = experiment.drop_rate {
                 exp_ctx.set_drop_rate(rate);
             }
@@ -133,8 +132,6 @@ impl Simulator {
             } else {
                 println!("\nConfiguration file:\n{yaml_str}");
             }
-        } else {
-            println!("\nThe parsed configuration file is:\n{yaml_str}");
         }
     }
 }

@@ -1,13 +1,14 @@
 pub mod builtins;
-pub mod communication;
 pub mod config;
 pub mod context;
 pub mod engine;
 pub mod events;
 pub mod log;
 pub mod macros;
+mod message;
 pub mod options;
 pub mod peer;
+pub mod delay_modifiers;
 
-pub use communication::Message;
 pub use context::Context;
+pub use message::Message;
