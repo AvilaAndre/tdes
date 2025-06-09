@@ -7,6 +7,7 @@ use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
 
 use crate::internal::core::config::LinkInfo;
+use crate::internal::core::log;
 
 use super::log::{Logger, LoggerLevel};
 use super::options::ArrivalTimeCallback;
@@ -23,6 +24,7 @@ pub struct Context {
     pub links: Vec<IndexMap<usize, LinkInfo>>,
     pub rng: ChaCha8Rng,
     pub seed: u64,
+    drop_rate: f64,
     pub message_delay_cb: MessageDelayCallback,
     pub on_simulation_finish_hook: Option<CustomHook>,
     pub logger: Logger,
@@ -43,6 +45,7 @@ impl Context {
             peers: Vec::new(),
             links: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
+            drop_rate: 0.0,
             seed,
             message_delay_cb: builtins::arrival_time::ConstantArrivalTime::callback,
             on_simulation_finish_hook: None,
@@ -53,5 +56,21 @@ impl Context {
     #[must_use]
     pub fn seed(&self) -> u64 {
         self.seed
+    }
+
+    #[inline]
+    pub fn get_drop_rate(&self) -> f64 {
+        self.drop_rate
+    }
+
+    #[inline]
+    pub fn set_drop_rate(&mut self, new_rate: f64) {
+        if !(0.0..=1.0).contains(&new_rate) {
+            log::global_warn(format!(
+                "Drop rate should be between 0.0 and 1.0, not {new_rate}."
+            ));
+        }
+
+        self.drop_rate = new_rate.clamp(0.0, 1.0);
     }
 }

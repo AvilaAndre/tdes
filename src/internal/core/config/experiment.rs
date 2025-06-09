@@ -18,6 +18,7 @@ pub struct Experiment {
     pub seed: Option<u64>,
     pub arrival_time: Option<String>,
     pub topology: TopologyInfo,
+    pub drop_rate: Option<f64>,
     pub deadline: Option<f64>,
 }
 

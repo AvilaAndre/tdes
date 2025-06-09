@@ -65,6 +65,10 @@ impl Simulator {
             log::global_internal(format!("EXPERIMENT '{}'", experiment.name));
 
             let mut exp_ctx = Context::new(experiment.seed, args.logger_level);
+            println!("drop_rate_opt {:?}", experiment.drop_rate);
+            if let Some(rate) = experiment.drop_rate {
+                exp_ctx.set_drop_rate(rate);
+            }
 
             if let Some(directory) = &config.dir {
                 let log_file_path = format!(

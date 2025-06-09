@@ -1,4 +1,6 @@
 use ordered_float::OrderedFloat;
+use rand::Rng;
+use rand_distr::num_traits::Zero;
 
 use crate::internal::core::{
     Context, Message, config::LinkKind, engine, events::MessageDeliveryEvent, log,
@@ -10,11 +12,21 @@ pub fn send_message_to(
     to: usize,
     msg: impl Message + 'static,
 ) -> bool {
-    // TODO: Add communication failures
+    let drop_rate = ctx.get_drop_rate();
+    // only generate random number if not zero
+    let r = ctx.rng.random_range(0.0..1.0);
+
+    println!("{drop_rate} <= {r}");
+    if !drop_rate.is_zero() && drop_rate >= r {
+        log::trace(
+            ctx,
+            format!("Message from {from} to {to} dropped due to drop_rate"),
+        );
+        return false;
+    }
 
     let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).cloned();
 
-    // TODO: Here
     if let Some(link_info) = link_info {
         // if has latency defined
         if let Some(LinkKind::Latency(latency)) = &link_info {

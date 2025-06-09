@@ -42,6 +42,10 @@ pub struct Args {
     #[arg(long, requires = "scenario", default_value = "5")]
     pub n_peers: Option<usize>,
 
+    /// Sets the message drop rate (A float in [0.0, 1.0]) - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario")]
+    pub drop_rate: Option<f64>,
+
     /// The topology to use, must be registered in the simulator - can only be used if 'scenario' is set
     #[arg(long, requires = "scenario")]
     pub topology: Option<String>,

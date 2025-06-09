@@ -93,6 +93,7 @@ pub fn get_config_from_args(
                 seed,
                 arrival_time: args.arrival_time,
                 topology: TopologyInfo::from_args(args.n_peers, args.topology),
+                drop_rate: args.drop_rate,
                 deadline: args.deadline,
             }],
             dir: args.dir,
