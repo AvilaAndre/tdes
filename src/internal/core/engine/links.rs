@@ -4,9 +4,9 @@ use crate::internal::core::{
     log,
 };
 
-// Adds a link to another peer.
-// If latency is provided, that value will always be used,
-// if not, the simulator will calculate it using "message_delay_cb".
+/// Adds a link to another peer.
+/// If latency is provided, that value will always be used,
+/// if not, the simulator will calculate it using "message_delay_cb".
 pub fn add_oneway_link(ctx: &mut Context, from: usize, to: usize, info: LinkInfo) {
     validate_link_info(info);
     if from < ctx.links.len() && to < ctx.links.len() {
@@ -18,9 +18,9 @@ pub fn add_oneway_link(ctx: &mut Context, from: usize, to: usize, info: LinkInfo
     }
 }
 
-// Adds two links between two neighbors with the same latency.
-// If latency is provided, that value will always be used,
-// if not, the simulator will calculate it using "message_delay_cb".
+/// Adds two links between two neighbors with the same latency.
+/// If latency is provided, that value will always be used,
+/// if not, the simulator will calculate it using "message_delay_cb".
 pub fn add_twoway_link(ctx: &mut Context, from: usize, to: usize, info: LinkInfo) {
     validate_link_info(info);
 
