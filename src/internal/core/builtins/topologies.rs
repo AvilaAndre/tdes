@@ -1,7 +1,6 @@
 use crate::internal::core::{
-    Context,
-    config::ConnectionInfo,
-    engine,
+    Context, engine,
+    experiment::ConnectionInfo,
     log::{self},
     macros::define_custom_topology,
     options::Topology,

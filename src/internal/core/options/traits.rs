@@ -2,7 +2,7 @@ use ordered_float::OrderedFloat;
 
 use crate::internal::{
     Simulator,
-    core::{Context, config::ConnectionInfo, options::ExperimentOptions},
+    core::{Context, experiment::ConnectionInfo, options::ExperimentOptions},
 };
 
 pub trait Scenario {

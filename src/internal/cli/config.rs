@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
-mod experiment;
 
-pub use experiment::{ConnectionInfo, Experiment, LinkInfo, LinkKind, TopologyInfo};
+use crate::internal::core::experiment::Experiment;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SimulationConfig {

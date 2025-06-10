@@ -28,7 +28,7 @@ pub fn run(ctx: &mut Context, deadline_opt: Option<f64>) {
         None => (false, OrderedFloat(0.0)),
     };
 
-    while let Some(Reverse(mut ev)) = ctx.event_q.pop() {
+    while let Some(mut ev) = ctx.get_next_event() {
         // Do not process events after the deadline
         if has_deadline && ev.timestamp() > deadline {
             ctx.clock = deadline;

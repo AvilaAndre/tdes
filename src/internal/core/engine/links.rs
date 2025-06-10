@@ -1,6 +1,6 @@
 use crate::internal::core::{
     Context,
-    config::{LinkInfo, LinkKind},
+    experiment::{LinkInfo, LinkKind},
     log,
 };
 

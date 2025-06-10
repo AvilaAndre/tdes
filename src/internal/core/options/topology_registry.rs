@@ -7,7 +7,7 @@ use super::{
             self,
             topologies::{OneWayCustomTopology, TwoWayCustomTopology},
         },
-        config::{ConnectionInfo, TopologyInfo},
+        experiment::{ConnectionInfo, TopologyInfo},
         log,
     },
     Topology,

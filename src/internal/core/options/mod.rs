@@ -1,5 +1,5 @@
 use super::Context;
-use super::config::TopologyInfo;
+use super::experiment::TopologyInfo;
 
 pub mod arrival_time_registry;
 pub mod scenario_registry;

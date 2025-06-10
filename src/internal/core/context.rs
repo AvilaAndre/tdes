@@ -6,7 +6,7 @@ use rand::{Rng, SeedableRng};
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
 
-use crate::internal::core::config::LinkInfo;
+use crate::internal::core::experiment::LinkInfo;
 use crate::internal::core::log;
 
 use super::log::{Logger, LoggerLevel};
@@ -72,5 +72,10 @@ impl Context {
         }
 
         self.drop_rate = new_rate.clamp(0.0, 1.0);
+    }
+
+    #[inline]
+    pub fn get_next_event(&mut self) -> Option<EventType> {
+        self.event_q.pop().map(|Reverse(ev)| ev)
     }
 }

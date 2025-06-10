@@ -1,5 +1,5 @@
 pub mod builtins;
-pub mod config;
+pub mod experiment;
 pub mod context;
 pub mod engine;
 pub mod events;

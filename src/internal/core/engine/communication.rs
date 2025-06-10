@@ -4,7 +4,7 @@ use rand_distr::num_traits::Zero;
 
 use crate::internal::core::{
     Context, Message,
-    config::LinkKind,
+    experiment::LinkKind,
     delay_modifiers::{self, DelayModifiers},
     engine,
     events::MessageDeliveryEvent,

@@ -1,15 +1,16 @@
 pub mod args;
+mod config;
 pub mod utils;
 
-use std::{fs, path::Path};
+use std::{error::Error, fs, path::Path};
 
 pub use args::Args;
-use std::error::Error;
+pub use config::SimulationConfig;
 
 use crate::internal::core::log;
 
 use super::{
-    core::config::{Experiment, SimulationConfig, TopologyInfo},
+    core::experiment::{Experiment, TopologyInfo},
     simulator::Simulator,
 };
 
