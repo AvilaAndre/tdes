@@ -87,10 +87,7 @@ impl Logger {
             // if cannot get canonicalize path, use relative
             Err(_) => file_path.as_ref().to_string_lossy().to_string(),
         };
-        global_internal(format!(
-            "Log file created at: {}",
-            self.log_file_location
-        ));
+        global_internal(format!("Log file created at: {}", self.log_file_location));
         Ok(())
     }
 
