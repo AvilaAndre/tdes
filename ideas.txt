@@ -1,6 +1,4 @@
 message interference
 inform where logs are located
 allow custom arguments
-distributions
 add positions to peers right away
-stop_condition

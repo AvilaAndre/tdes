@@ -1,10 +1,10 @@
 use faer::Mat;
 
-use crate::internal::core::{Context, context::CustomHook, log};
+use crate::internal::core::{Context, hooks::CustomOnFinishHook, log};
 
 use super::{peer::GlmPeer, utils::mat_allclose_default};
 
-pub fn on_simulation_finish_hook(central: Mat<f64>) -> CustomHook {
+pub fn on_simulation_finish_hook(central: Mat<f64>) -> CustomOnFinishHook {
     Box::new(move |ctx| {
         let coefficients: Vec<Mat<f64>> = ctx
             .peers

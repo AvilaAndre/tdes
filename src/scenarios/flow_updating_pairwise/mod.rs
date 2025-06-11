@@ -10,11 +10,9 @@ use rand::{Rng, distr::Uniform};
 use timer::TickTimer;
 
 use crate::internal::{
-    Simulator,
     core::{
-        Context, engine,
-        options::{ExperimentOptions, Scenario},
-    },
+        engine, hooks::SimulationHooks, options::{ExperimentOptions, Scenario}, Context
+    }, Simulator
 };
 
 pub struct FlowUpdatingPairwise {}
@@ -46,16 +44,19 @@ impl Scenario for FlowUpdatingPairwise {
             engine::add_peer(ctx, FlowUpdatingPairwisePeer::new(rx, ry, 0.0, rval));
         }
 
+        engine::add_timer(ctx, ctx.clock, TickTimer { interval: 0.1 });
+
         simulator
             .topology_registry
             .connect_peers(ctx, opts.topology);
         ctx.message_delay_cb = simulator
             .arrival_time_registry
             .get_callback(opts.arrival_time);
-        ctx.on_simulation_finish_hook = Some(Box::new(hooks::on_simulation_finish_hook));
 
-        engine::add_timer(ctx, ctx.clock, TickTimer { interval: 0.1 });
+        let mut hooks = SimulationHooks::default();
+        hooks.set_on_simulation_finish_hook(Box::new(hooks::on_simulation_finish_hook));
+        hooks.set_finish_condition(Box::new(hooks::finish_condition_hook));
 
-        engine::run(ctx, opts.deadline);
+        engine::run(ctx, &hooks, opts.deadline);
     }
 }

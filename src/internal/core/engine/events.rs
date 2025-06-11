@@ -1,6 +1,7 @@
 use crate::internal::core::{
     Context,
     events::{Event, EventType, Timer, TimerEvent},
+    hooks::SimulationHooks,
     log,
 };
 
@@ -19,7 +20,7 @@ pub fn add_timer(ctx: &mut Context, time: OrderedFloat<f64>, timer: impl Timer +
         ))));
 }
 
-pub fn run(ctx: &mut Context, deadline_opt: Option<f64>) {
+pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>) {
     log::global_internal("STARTING SIMULATION");
     log::internal(ctx, "SIMULATION STARTED");
 
@@ -43,11 +44,13 @@ pub fn run(ctx: &mut Context, deadline_opt: Option<f64>) {
         ctx.clock = ev.timestamp();
 
         ev.process(ctx);
+
+        if (hooks.finish_condition)(ctx) {
+            break;
+        }
     }
 
-    if let Some(hook) = ctx.on_simulation_finish_hook.take() {
-        hook(ctx);
-    }
+    (hooks.on_simulation_finish_hook)(ctx);
 
     log::internal(ctx, "SIMULATION FINISHED");
     log::global_internal(format!(

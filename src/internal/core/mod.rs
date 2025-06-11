@@ -1,6 +1,7 @@
 pub mod builtins;
 pub mod experiment;
 pub mod context;
+pub mod hooks;
 pub mod engine;
 pub mod events;
 pub mod log;

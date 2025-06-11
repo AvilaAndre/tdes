@@ -8,6 +8,7 @@ use crate::internal::{
     Simulator,
     core::{
         Context, engine,
+        hooks::SimulationHooks,
         options::{ExperimentOptions, Scenario},
     },
 };
@@ -49,6 +50,6 @@ impl Scenario for Example {
 
         engine::send_message_to(ctx, 0, 1, ExampleMessage { sender: 0 });
 
-        engine::run(ctx, opts.deadline);
+        engine::run(ctx, &SimulationHooks::default(), opts.deadline);
     }
 }

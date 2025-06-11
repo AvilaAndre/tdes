@@ -14,7 +14,6 @@ use super::options::ArrivalTimeCallback;
 use super::{builtins, events::EventType, peer::CustomPeer};
 
 pub type MessageDelayCallback = fn(&mut Context, usize, usize) -> Option<OrderedFloat<f64>>;
-pub type CustomHook = Box<dyn Fn(&mut Context)>;
 
 pub struct Context {
     pub event_q: BinaryHeap<Reverse<EventType>>,
@@ -26,7 +25,6 @@ pub struct Context {
     pub seed: u64,
     drop_rate: f64,
     pub message_delay_cb: MessageDelayCallback,
-    pub on_simulation_finish_hook: Option<CustomHook>,
     pub logger: Logger,
 }
 
@@ -48,7 +46,6 @@ impl Context {
             drop_rate: 0.0,
             seed,
             message_delay_cb: builtins::arrival_time::ConstantArrivalTime::callback,
-            on_simulation_finish_hook: None,
             logger: Logger::new(logger_level),
         }
     }

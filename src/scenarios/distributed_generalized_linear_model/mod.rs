@@ -22,6 +22,7 @@ use crate::{
         Simulator,
         core::{
             Context, engine,
+            hooks::SimulationHooks,
             options::{ExperimentOptions, Scenario},
         },
     },
@@ -56,8 +57,6 @@ impl Scenario for DistributedGeneralizedLinearModel {
             |i, j| *beta.get(i).unwrap().get(j).unwrap(),
         );
 
-        ctx.on_simulation_finish_hook = Some(hooks::on_simulation_finish_hook(beta_mat));
-
         let y_len = data.y.nrows();
         let ncols = data.x.ncols();
 
@@ -79,13 +78,6 @@ impl Scenario for DistributedGeneralizedLinearModel {
             engine::add_peer(ctx, GlmPeer::new(pos_x, pos_y, x, y));
         }
 
-        simulator
-            .topology_registry
-            .connect_peers(ctx, opts.topology);
-        ctx.message_delay_cb = simulator
-            .arrival_time_registry
-            .get_callback(opts.arrival_time);
-
         for i in 0..n_peers {
             peer_start(ctx, i);
         }
@@ -93,6 +85,16 @@ impl Scenario for DistributedGeneralizedLinearModel {
         // TODO: Allow custom flags to avoid triggering this
         engine::add_timer(ctx, OrderedFloat(0.1), KillTimer::new(0));
 
-        engine::run(ctx, opts.deadline);
+        simulator
+            .topology_registry
+            .connect_peers(ctx, opts.topology);
+        ctx.message_delay_cb = simulator
+            .arrival_time_registry
+            .get_callback(opts.arrival_time);
+
+        let mut hooks = SimulationHooks::default();
+        hooks.set_on_simulation_finish_hook(hooks::on_simulation_finish_hook(beta_mat));
+
+        engine::run(ctx, &hooks, opts.deadline);
     }
 }
