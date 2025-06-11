@@ -68,7 +68,7 @@ impl Scenario for DistributedGeneralizedLinearModel {
         let y_chunks = chunk_nx(data.y, n_peers);
 
         for (i, (x, y)) in x_chunks.into_iter().zip(y_chunks.into_iter()).enumerate() {
-            let (pos_x, pos_y) = match opts.topology.positions.get(i) {
+            let (pos_x, pos_y) = match opts.topology.positions.as_ref().and_then(|v| v.get(i)) {
                 Some(&(px, py, _)) => (px, py),
                 None => (
                     ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()) * 1000.0,

@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 
+use super::distributions::SimulatorDistribution;
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum LinkKind {
     Bandwidth(f64),
@@ -20,6 +22,7 @@ pub struct Experiment {
     pub arrival_time: Option<String>,
     pub topology: TopologyInfo,
     pub drop_rate: Option<f64>,
+    pub jitter: Option<SimulatorDistribution>,
     pub deadline: Option<f64>,
     pub extra_args: Option<Value>,
 }
@@ -31,7 +34,7 @@ pub struct TopologyInfo {
     #[serde(default)]
     pub connections: Option<Vec<ConnectionInfo>>,
     #[serde(default)]
-    pub positions: Vec<(f64, f64, Option<f64>)>,
+    pub positions: Option<Vec<(f64, f64, Option<f64>)>>,
 }
 
 impl TopologyInfo {
@@ -41,7 +44,7 @@ impl TopologyInfo {
             n_peers: n_peers.unwrap_or(5),
             name,
             connections: None,
-            positions: Vec::new(),
+            positions: Some(Vec::new()),
         }
     }
 }

@@ -32,9 +32,9 @@ impl Scenario for Example {
 
     fn start(ctx: &mut Context, simulator: &Simulator, opts: ExperimentOptions) {
         for i in 0..opts.topology.n_peers {
-            if i < opts.topology.positions.len() {
-                let (x, y, z) = opts.topology.positions[i];
-                engine::add_peer(ctx, ExamplePeer::new(x, y, z.unwrap_or(0.0)));
+            if let Some(positions) = opts.topology.positions.as_ref() {
+                let (x, y, z) = positions.get(i).unwrap_or(&(0.0, 0.0, Some(0.0)));
+                engine::add_peer(ctx, ExamplePeer::new(*x, *y, z.unwrap_or(0.0)));
             } else {
                 engine::add_peer(ctx, ExamplePeer::new(0.0, 0.0, 0.0));
             }
