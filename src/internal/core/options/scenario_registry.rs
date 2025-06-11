@@ -1,11 +1,8 @@
 use indexmap::IndexMap;
 
-use crate::internal::core::log;
-use crate::internal::core::options::traits::Scenario;
-use crate::internal::simulator::Simulator;
-
-use super::super::options::ExperimentOptions;
-use super::Context;
+use super::super::{
+    super::Simulator, Context, log, options::ExperimentOptions, options::traits::Scenario,
+};
 
 // Type alias for scenario functions
 type ScenarioFn = fn(&mut Context, &Simulator, ExperimentOptions);
