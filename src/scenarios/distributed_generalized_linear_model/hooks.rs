@@ -1,4 +1,5 @@
 use faer::Mat;
+use serde_json::json;
 
 use crate::internal::core::{Context, hooks::CustomOnFinishHook, log};
 
@@ -23,6 +24,12 @@ fn check(ctx: &mut Context, central: &Mat<f64>, coefficients: &[Mat<f64>]) {
     let res = coefficients
         .iter()
         .all(|coef| mat_allclose_default(coef, central));
+
+    let data = json!({
+        "coefficients": format!("{coefficients:?}"),
+        "central": format!("{central:?}")
+    });
+    log::metrics(ctx, "central", &data);
 
     log::info(
         ctx,

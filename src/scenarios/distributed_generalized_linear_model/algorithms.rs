@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use faer::Mat;
 
-use crate::internal::core::{Context, engine, macros::get_peer_of_type};
+use crate::internal::core::{Context, engine, log, macros::get_peer_of_type};
 
 use super::{
     generalized_linear_model,
@@ -48,7 +48,11 @@ fn send_sum_rows(ctx: &mut Context, peer_id: usize, target_id: usize) {
         nrows: peer.state.total_nrow,
     };
 
-    engine::send_message_to(ctx, peer_id, target_id, msg);
+    let sent = engine::send_message_to(ctx, peer_id, target_id, msg);
+    log::trace(
+        ctx,
+        format!("send_sum_rows from {peer_id} to {target_id}: {sent}"),
+    );
 }
 
 fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
@@ -60,13 +64,17 @@ fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
         iter: peer.state.model.iter,
     };
 
-    engine::send_message_to(ctx, peer_id, target_id, msg);
+    let sent = engine::send_message_to(ctx, peer_id, target_id, msg);
+    log::trace(
+        ctx,
+        format!("send_concat_r from {peer_id} to {target_id}: {sent}"),
+    );
 }
 
 pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMessage) {
     let peer: &mut GlmPeer = get_peer_of_type!(ctx, peer_id, GlmPeer).expect("peer should exist");
 
-    if !peer.state.r_remotes.contains_key(&msg.origin) {
+    if !peer.state.r_n_rows.contains_key(&msg.origin) {
         // INFO: replaced r_remotes with r_n_rows
         peer.state.r_n_rows.insert(msg.origin, msg.nrows);
 
@@ -76,6 +84,14 @@ pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMe
             // FIXME: Should r_remotes be reset too?
             broadcast_nodes(ctx, peer_id);
         }
+    } else {
+        log::warn(
+            ctx,
+            format!(
+                "peer {peer_id} received sum_rows_msg but r_remotes already contained {}",
+                msg.origin
+            ),
+        );
     }
 }
 
@@ -144,6 +160,23 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                 );
 
                 broadcast_nodes(ctx, peer_id);
+            }
+        } else {
+            let first_check = !peer.state.r_remotes.contains_key(&iter);
+            if first_check {
+                log::warn(
+                    ctx,
+                    format!(
+                        "on peer {peer_id} handle_iter failed because iter {iter} not in r_remotes"
+                    ),
+                );
+            } else {
+                log::warn(
+                    ctx,
+                    format!(
+                        "on peer {peer_id} handle_iter failed because r_remotes[{iter}] does not contain sender {sender}"
+                    ),
+                );
             }
         }
     }

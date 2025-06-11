@@ -42,7 +42,7 @@ pub fn on_simulation_finish_hook(ctx: &mut Context) {
 }
 
 pub fn finish_condition_hook(ctx: &mut Context) -> bool {
-    log::info(ctx, format!("check finish_condition_hook"));
+    log::info(ctx, "check finish_condition_hook");
 
-    return false;
+    false
 }

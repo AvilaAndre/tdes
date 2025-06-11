@@ -4,10 +4,10 @@ use rand_distr::num_traits::Zero;
 
 use crate::internal::core::{
     Context, Message,
-    experiment::LinkKind,
     delay_modifiers::{self, DelayModifiers},
     engine,
     events::MessageDeliveryEvent,
+    experiment::LinkKind,
     log,
 };
 
@@ -54,11 +54,16 @@ pub fn send_message_to(
                 delay += (msg.size_bits() as f64) / bandwidth;
             }
 
-            // TODO: Add jitter
-            // delay += ctx.jitter
-            delay += delay_modifiers::get_value(ctx, DelayModifiers::Weibull(1.0, 1.0));
+            // TODO: Allow for the choice of delay_modifier
+            let jitter = delay_modifiers::get_value(ctx, DelayModifiers::Weibull(1.0, 1.0));
+            // log::trace(ctx, format!("jitter {jitter}"));
+            delay += jitter;
 
             // ensure delay isn't negative
+            if delay < OrderedFloat(0.0) {
+                delay = OrderedFloat(0.0);
+                log::global_warn("Delay was set to 0 because after applying jitter the message delay was negative.");
+            }
             delay = delay.max(OrderedFloat(0.0));
 
             MessageDeliveryEvent::create(ctx.clock + delay, to, msg)

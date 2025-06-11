@@ -21,8 +21,8 @@ pub fn add_timer(ctx: &mut Context, time: OrderedFloat<f64>, timer: impl Timer +
 }
 
 pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>) {
-    log::global_internal("STARTING SIMULATION");
-    log::internal(ctx, "SIMULATION STARTED");
+    log::global_internal("STARTING SIMULATION LOOP");
+    log::internal(ctx, "SIMULATION LOOP STARTED");
 
     let (has_deadline, deadline) = match deadline_opt {
         Some(dedln) => (dedln >= 0.0, OrderedFloat(dedln)),
@@ -52,9 +52,9 @@ pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>
 
     (hooks.on_simulation_finish_hook)(ctx);
 
-    log::internal(ctx, "SIMULATION FINISHED");
+    log::internal(ctx, "SIMULATION LOOP FINISHED");
     log::global_internal(format!(
-        "FINISHED SIMULATION'S SEED IS \"{:?}\"",
+        "FINISHED SIMULATION LOOP, SEED IS \"{:?}\"",
         ctx.seed()
     ));
 

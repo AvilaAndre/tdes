@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_yaml::Value;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum LinkKind {
@@ -20,6 +21,7 @@ pub struct Experiment {
     pub topology: TopologyInfo,
     pub drop_rate: Option<f64>,
     pub deadline: Option<f64>,
+    pub extra_args: Option<Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

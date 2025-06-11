@@ -96,6 +96,7 @@ pub fn get_config_from_args(
                 topology: TopologyInfo::from_args(args.n_peers, args.topology),
                 drop_rate: args.drop_rate,
                 deadline: args.deadline,
+                extra_args: None,
             }],
             dir: args.dir,
             should_write_config: true,

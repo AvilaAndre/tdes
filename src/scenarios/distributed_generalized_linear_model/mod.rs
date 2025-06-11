@@ -16,6 +16,7 @@ use faer::Mat;
 use ordered_float::OrderedFloat;
 use peer::GlmPeer;
 use rand::{Rng, distr::Uniform};
+use serde_yaml::Value;
 
 use crate::{
     internal::{
@@ -68,7 +69,7 @@ impl Scenario for DistributedGeneralizedLinearModel {
 
         for (i, (x, y)) in x_chunks.into_iter().zip(y_chunks.into_iter()).enumerate() {
             let (pos_x, pos_y) = match opts.topology.positions.get(i) {
-                Some(&(x, y, _)) => (x, y),
+                Some(&(px, py, _)) => (px, py),
                 None => (
                     ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()) * 1000.0,
                     ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()) * 1000.0,
@@ -78,19 +79,22 @@ impl Scenario for DistributedGeneralizedLinearModel {
             engine::add_peer(ctx, GlmPeer::new(pos_x, pos_y, x, y));
         }
 
-        for i in 0..n_peers {
-            peer_start(ctx, i);
-        }
-
-        // TODO: Allow custom flags to avoid triggering this
-        engine::add_timer(ctx, OrderedFloat(0.1), KillTimer::new(0));
-
         simulator
             .topology_registry
             .connect_peers(ctx, opts.topology);
         ctx.message_delay_cb = simulator
             .arrival_time_registry
             .get_callback(opts.arrival_time);
+
+        for i in 0..n_peers {
+            peer_start(ctx, i);
+        }
+
+        if let Some(custom) = opts.extra_args {
+            if let Some(Value::Bool(true)) = custom.get("kill_peer") {
+                engine::add_timer(ctx, OrderedFloat(0.1), KillTimer::new(0));
+            }
+        }
 
         let mut hooks = SimulationHooks::default();
         hooks.set_on_simulation_finish_hook(hooks::on_simulation_finish_hook(beta_mat));

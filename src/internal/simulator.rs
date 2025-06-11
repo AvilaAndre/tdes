@@ -101,6 +101,7 @@ impl Simulator {
                 topology: experiment.topology.clone(),
                 arrival_time: experiment.arrival_time.clone(),
                 deadline: experiment.deadline,
+                extra_args: experiment.extra_args.clone(),
             };
 
             if let Err(err) =
