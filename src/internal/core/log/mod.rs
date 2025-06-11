@@ -39,7 +39,9 @@ impl Display for LoggerLevel {
 pub struct Logger {
     level: LoggerLevel,
     log_writer: Option<BufWriter<File>>,
+    log_file_location: String,
     metrics_writer: Option<BufWriter<File>>,
+    metrics_file_location: String,
     flush_threshold: usize,
     log_unflushed_count: usize,
 }
@@ -50,7 +52,9 @@ impl Logger {
         Self {
             level: level.unwrap_or(LoggerLevel::Info),
             log_writer: None,
+            log_file_location: "".to_string(),
             metrics_writer: None,
+            metrics_file_location: "".to_string(),
             flush_threshold: 200,
             log_unflushed_count: 0,
         }
@@ -75,22 +79,45 @@ impl Logger {
     }
 
     pub fn set_log_file<P: AsRef<Path>>(&mut self, file_path: P) -> io::Result<()> {
-        let file = Self::open_file(file_path)?;
+        let file = Self::open_file(&file_path)?;
 
         self.log_writer = Some(BufWriter::new(file));
+        self.log_file_location = match file_path.as_ref().canonicalize() {
+            Ok(path) => path.to_string_lossy().to_string(),
+            // if cannot get canonicalize path, use relative
+            Err(_) => file_path.as_ref().to_string_lossy().to_string(),
+        };
+        global_internal(format!(
+            "Log file created at: {}",
+            self.log_file_location
+        ));
         Ok(())
     }
 
     pub fn set_metrics_file<P: AsRef<Path>>(&mut self, file_path: P) -> io::Result<()> {
-        let file = Self::open_file(file_path)?;
+        let file = Self::open_file(&file_path)?;
 
         self.metrics_writer = Some(BufWriter::new(file));
+        self.metrics_file_location = match file_path.as_ref().canonicalize() {
+            Ok(path) => path.to_string_lossy().to_string(),
+            // if cannot get canonicalize path, use relative
+            Err(_) => file_path.as_ref().to_string_lossy().to_string(),
+        };
+        global_internal(format!(
+            "Metrics file created at: {}",
+            self.metrics_file_location
+        ));
         Ok(())
     }
 
     pub fn close_log_file(&mut self) {
         if let Some(mut writer) = self.log_writer.take() {
             writer.flush().ok();
+            global_internal(format!(
+                "The log file is located at: {}",
+                self.log_file_location
+            ));
+            self.log_file_location = "".to_string();
         }
         self.log_unflushed_count = 0;
     }
@@ -98,6 +125,10 @@ impl Logger {
     pub fn close_metrics_file(&mut self) {
         if let Some(mut writer) = self.metrics_writer.take() {
             writer.flush().ok();
+            global_internal(format!(
+                "The metrics file is located at: {}",
+                self.metrics_file_location
+            ));
         }
         self.log_unflushed_count = 0;
     }

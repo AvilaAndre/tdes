@@ -53,7 +53,7 @@ impl TopologyRegistry {
         if let Some(name) = topology.name {
             match self.topologies.get(&name) {
                 Some(connect_fn) => {
-                    log::global_info(format!("Connecting peers using the {name} topology."));
+                    log::global_info(format!("Connecting peers using the '{name}' topology."));
                     connect_fn(
                         ctx,
                         topology.n_peers.min(ctx.peers.len()),
