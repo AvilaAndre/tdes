@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 
-use super::distributions::SimulatorDistribution;
+use super::distributions::DistributionWrapper;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum LinkKind {
@@ -22,7 +22,7 @@ pub struct Experiment {
     pub arrival_time: Option<String>,
     pub topology: TopologyInfo,
     pub drop_rate: Option<f64>,
-    pub jitter: Option<SimulatorDistribution>,
+    pub jitter: Option<DistributionWrapper>,
     pub deadline: Option<f64>,
     pub extra_args: Option<Value>,
 }

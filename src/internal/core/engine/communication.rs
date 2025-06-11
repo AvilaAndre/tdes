@@ -1,13 +1,10 @@
 use ordered_float::OrderedFloat;
 use rand::Rng;
 use rand_distr::num_traits::Zero;
+use serde_json::json;
 
 use crate::internal::core::{
-    Context, Message,
-    delay_modifiers::{self, DelayModifiers},
-    engine,
-    events::MessageDeliveryEvent,
-    experiment::LinkKind,
+    Context, Message, distributions, engine, events::MessageDeliveryEvent, experiment::LinkKind,
     log,
 };
 
@@ -54,15 +51,24 @@ pub fn send_message_to(
                 delay += (msg.size_bits() as f64) / bandwidth;
             }
 
-            // TODO: Allow for the choice of delay_modifier
-            let jitter = delay_modifiers::get_value(ctx, DelayModifiers::Weibull(1.0, 1.0));
-            // log::trace(ctx, format!("jitter {jitter}"));
+            let jitter = distributions::get_value(ctx, ctx.get_jitter_distribution())
+                .unwrap_or(OrderedFloat(0.0));
+            log::trace(ctx, format!("jitter {jitter}"));
+            log::metrics(
+                ctx,
+                "jitter",
+                &json!({
+                    "jitter": *jitter,
+                }),
+            );
             delay += jitter;
 
             // ensure delay isn't negative
             if delay < OrderedFloat(0.0) {
                 delay = OrderedFloat(0.0);
-                log::global_warn("Delay was set to 0 because after applying jitter the message delay was negative.");
+                log::global_warn(
+                    "Delay was set to 0 because after applying jitter the message delay was negative.",
+                );
             }
             delay = delay.max(OrderedFloat(0.0));
 

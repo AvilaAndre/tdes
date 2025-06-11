@@ -6,12 +6,14 @@ use rand::{Rng, SeedableRng};
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
 
-use crate::internal::core::experiment::LinkInfo;
-use crate::internal::core::log;
-
-use super::log::{Logger, LoggerLevel};
-use super::options::ArrivalTimeCallback;
-use super::{builtins, events::EventType, peer::CustomPeer};
+use super::{
+    builtins,
+    events::EventType,
+    log::{Logger, LoggerLevel},
+    options::ArrivalTimeCallback,
+    peer::CustomPeer,
+};
+use crate::internal::core::{distributions::DistributionWrapper, experiment::LinkInfo, log};
 
 pub type MessageDelayCallback = fn(&mut Context, usize, usize) -> Option<OrderedFloat<f64>>;
 
@@ -24,6 +26,7 @@ pub struct Context {
     pub rng: ChaCha8Rng,
     pub seed: u64,
     drop_rate: f64,
+    jitter: DistributionWrapper,
     pub message_delay_cb: MessageDelayCallback,
     pub logger: Logger,
 }
@@ -44,6 +47,7 @@ impl Context {
             links: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
             drop_rate: 0.0,
+            jitter: DistributionWrapper::default(),
             seed,
             message_delay_cb: builtins::arrival_times::ConstantArrivalTime::callback,
             logger: Logger::new(logger_level),
@@ -69,6 +73,16 @@ impl Context {
         }
 
         self.drop_rate = new_rate.clamp(0.0, 1.0);
+    }
+
+    #[inline]
+    pub fn get_jitter_distribution(&self) -> DistributionWrapper {
+        self.jitter
+    }
+
+    #[inline]
+    pub fn set_jitter_distribution(&mut self, distr: DistributionWrapper) {
+        self.jitter = distr;
     }
 
     #[inline]

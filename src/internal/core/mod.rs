@@ -9,7 +9,7 @@ pub mod macros;
 mod message;
 pub mod options;
 pub mod peer;
-pub mod delay_modifiers;
+pub mod distributions;
 
 pub use context::Context;
 pub use message::Message;

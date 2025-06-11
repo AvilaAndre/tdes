@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::internal::core::Context;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy)]
-pub enum DelayModifiers {
+pub enum DistributionWrapper {
     #[default]
     Nothing,
     Constant(f64),       // c
@@ -16,27 +16,27 @@ pub enum DelayModifiers {
     LogNormal(f64, f64), // mu, sigma
 }
 
-pub fn get_value(ctx: &mut Context, distribution: DelayModifiers) -> OrderedFloat<f64> {
-    let val = match distribution {
-        DelayModifiers::Nothing => Some(OrderedFloat(0.0)),
-        DelayModifiers::Constant(c) => Some(OrderedFloat(c)),
-        DelayModifiers::Exponential(lambda) => Exp::new(lambda)
+pub fn get_value(
+    ctx: &mut Context,
+    distribution: DistributionWrapper,
+) -> Option<OrderedFloat<f64>> {
+    match distribution {
+        DistributionWrapper::Nothing => Some(OrderedFloat(0.0)),
+        DistributionWrapper::Constant(c) => Some(OrderedFloat(c)),
+        DistributionWrapper::Exponential(lambda) => Exp::new(lambda)
             .map(|exp| OrderedFloat(exp.sample(&mut ctx.rng)))
             .ok(),
-
-        DelayModifiers::Gaussian(mean, std_dev) => Normal::new(mean, std_dev)
+        DistributionWrapper::Gaussian(mean, std_dev) => Normal::new(mean, std_dev)
             .map(|exp| OrderedFloat(exp.sample(&mut ctx.rng)))
             .ok(),
-        DelayModifiers::Uniform(min, max) => Uniform::new(min, max)
+        DistributionWrapper::Uniform(min, max) => Uniform::new(min, max)
             .map(|exp| OrderedFloat(exp.sample(&mut ctx.rng)))
             .ok(),
-        DelayModifiers::Weibull(shape, scale) => Weibull::new(scale, shape)
+        DistributionWrapper::Weibull(shape, scale) => Weibull::new(scale, shape)
             .map(|exp| OrderedFloat(exp.sample(&mut ctx.rng)))
             .ok(),
-        DelayModifiers::LogNormal(mu, sigma) => LogNormal::new(mu, sigma)
+        DistributionWrapper::LogNormal(mu, sigma) => LogNormal::new(mu, sigma)
             .map(|exp| OrderedFloat(exp.sample(&mut ctx.rng)))
             .ok(),
-    };
-
-    val.unwrap()
+    }
 }

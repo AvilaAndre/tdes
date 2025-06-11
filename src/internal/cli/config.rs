@@ -90,12 +90,8 @@ pub fn get_config_from_args(
         return Ok(Some(config));
     } else if let Some(scenario_name) = args.scenario {
         let seed: Option<u64> = args.seed.clone().and_then(|s| s.parse().ok());
-        // TODO: refactor this to avoid unwrap
         if args.seed.is_some() && seed.is_none() {
-            log::global_warn(format!(
-                "Failed to parse provided seed: {}",
-                args.seed.unwrap()
-            ));
+            log::global_warn(format!("Failed to parse provided seed: {:?}", args.seed));
         }
 
         let config = SimulationConfig {
@@ -106,6 +102,7 @@ pub fn get_config_from_args(
                 arrival_time: args.arrival_time,
                 topology: TopologyInfo::from_args(args.n_peers, args.topology),
                 drop_rate: args.drop_rate,
+                jitter: None,
                 deadline: args.deadline,
                 extra_args: None,
             }],
