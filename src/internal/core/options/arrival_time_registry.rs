@@ -3,7 +3,7 @@ use indexmap::IndexMap;
 use crate::internal::core::{
     builtins::{
         self,
-        arrival_time::{ConstantArrivalTime, DistanceBasedArrivalTime},
+        arrival_times::{ConstantArrivalTime, DistanceBasedArrivalTime},
     },
     context::MessageDelayCallback,
     log,
@@ -51,10 +51,10 @@ impl ArrivalTimeRegistry {
                 *callback_fn
             } else {
                 log::global_warn(format!("Arrival time callback '{name}' not found"));
-                builtins::arrival_time::ConstantArrivalTime::callback
+                builtins::arrival_times::ConstantArrivalTime::callback
             }
         } else {
-            builtins::arrival_time::ConstantArrivalTime::callback
+            builtins::arrival_times::ConstantArrivalTime::callback
         }
     }
 }

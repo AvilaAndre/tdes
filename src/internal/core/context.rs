@@ -45,7 +45,7 @@ impl Context {
             rng: ChaCha8Rng::seed_from_u64(seed),
             drop_rate: 0.0,
             seed,
-            message_delay_cb: builtins::arrival_time::ConstantArrivalTime::callback,
+            message_delay_cb: builtins::arrival_times::ConstantArrivalTime::callback,
             logger: Logger::new(logger_level),
         }
     }
