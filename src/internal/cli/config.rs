@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::internal::core::{distributions::DistributionWrapper, experiment::Jitter};
+
 use super::{
     super::{
         core::{
@@ -94,6 +96,15 @@ pub fn get_config_from_args(
             log::global_warn(format!("Failed to parse provided seed: {:?}", args.seed));
         }
 
+        let jitter = if args.use_jitter {
+            Some(Jitter {
+                distribution: DistributionWrapper::Weibull(0.760, 7.565),
+                multiplier: 0.001,
+            })
+        } else {
+            None
+        };
+
         let config = SimulationConfig {
             experiments: vec![Experiment {
                 name: args.name.unwrap_or("unnamed_experiment".to_string()),
@@ -102,7 +113,7 @@ pub fn get_config_from_args(
                 arrival_time: args.arrival_time,
                 topology: TopologyInfo::from_args(args.n_peers, args.topology),
                 drop_rate: args.drop_rate,
-                jitter: None,
+                jitter,
                 deadline: args.deadline,
                 extra_args: None,
             }],
