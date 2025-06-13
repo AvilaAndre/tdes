@@ -31,6 +31,7 @@ pub struct TopologyInfo {
 }
 
 impl TopologyInfo {
+    #[must_use]
     pub fn from_args(n_peers: Option<usize>, name: Option<String>) -> Self {
         Self {
             // if n_peers isn't specified it will be the default value of 5

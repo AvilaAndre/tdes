@@ -72,7 +72,7 @@ impl Event for MessageDeliveryEvent {
         if let Some(receiver) = ctx.peers.get(self.receiver) {
             if receiver.is_alive() {
                 if let Some(msg) = self.message.take() {
-                    (receiver.get_peer().on_message_receive)(ctx, self.receiver, msg);
+                    (receiver.get_peer().on_message_receive)(ctx, self.receiver, msg.as_ref());
                 } else {
                     log::global_error(
                         "Failed to send message because message variable was None when it shouldn't.",

@@ -62,6 +62,7 @@ impl Context {
     }
 
     #[inline]
+    #[must_use]
     pub fn get_drop_rate(&self) -> f64 {
         self.drop_rate
     }

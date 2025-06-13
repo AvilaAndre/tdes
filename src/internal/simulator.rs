@@ -72,14 +72,14 @@ impl Simulator {
 
             if let Some(directory) = &config.dir {
                 let log_file_path = format!(
-                    "{}/{}/{}/{}.log",
+                    "{}/results/{}/{}/{}.log",
                     directory,
                     experiment.name,
                     Local::now().timestamp(),
                     experiment.name,
                 );
                 let metrics_file_path = format!(
-                    "{}/{}/{}/{}.jsonl",
+                    "{}/results/{}/{}/{}.jsonl",
                     directory,
                     experiment.name,
                     Local::now().timestamp(),
@@ -116,7 +116,13 @@ impl Simulator {
         }
 
         // TODO: Deal with this as it may panic
-        let yaml_str = serde_yaml::to_string(&config).expect("Failed to serialized configuration");
+        let yaml_str = match serde_yaml::to_string(&config) {
+            Ok(yaml_str) => yaml_str,
+            Err(e) => {
+                log::global_error(format!("Could not serialize configuration: {e}"));
+                return;
+            }
+        };
 
         if config.should_write_config {
             if let Some(dir) = config.dir {

@@ -74,9 +74,9 @@ fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
 pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMessage) {
     let peer: &mut GlmPeer = get_peer_of_type!(ctx, peer_id, GlmPeer).expect("peer should exist");
 
-    if !peer.state.r_n_rows.contains_key(&msg.origin) {
+    if let std::collections::hash_map::Entry::Vacant(e) = peer.state.r_n_rows.entry(msg.origin) {
         // INFO: replaced r_remotes with r_n_rows
-        peer.state.r_n_rows.insert(msg.origin, msg.nrows);
+        e.insert(msg.nrows);
 
         if peer.state.nodes.len() == peer.state.r_n_rows.keys().len() {
             peer.state.total_nrow += peer.state.r_n_rows.values().sum::<usize>();

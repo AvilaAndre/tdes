@@ -12,7 +12,7 @@ impl Message for ExampleMessage {
     }
 }
 
-pub fn example_on_message_receive(ctx: &mut Context, receiver_id: usize, msg: Box<dyn Message>) {
+pub fn example_on_message_receive(ctx: &mut Context, receiver_id: usize, msg: &dyn Message) {
     let peer: &mut ExamplePeer =
         get_peer_of_type!(ctx, receiver_id, ExamplePeer).expect("peer should exist");
 

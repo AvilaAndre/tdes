@@ -29,23 +29,20 @@ pub fn send_message_to(
     }
 
     // Gets link, will be None if no link exists between peers
-    let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).cloned();
+    let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).copied();
 
     let latency = match link_info {
         // if has latency defined
         Some(Some(LinkKind::Latency(latency))) => OrderedFloat(latency),
         Some(bandwith_opt) => {
-            let mut delay = match (ctx.message_delay_cb)(ctx, from, to) {
-                Some(val) => val,
-                None => {
-                    log::warn(
-                        ctx,
-                        format!(
-                            "Failed to send message from peer {from} to {to} because latency couldn't be calculated"
-                        ),
-                    );
-                    return None;
-                }
+            let Some(mut delay) = (ctx.message_delay_cb)(ctx, from, to) else {
+                log::warn(
+                    ctx,
+                    format!(
+                        "Failed to send message from peer {from} to {to} because latency couldn't be calculated"
+                    ),
+                );
+                return None;
             };
 
             // if has bandwidth defined

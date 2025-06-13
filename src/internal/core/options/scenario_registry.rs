@@ -21,10 +21,10 @@ impl ScenarioRegistry {
 
     pub fn register<T: Scenario>(&mut self) -> &mut Self {
         let name = T::name().to_string();
-        if !self.scenarios.contains_key(&name) {
-            self.scenarios.insert(name, (T::start, T::description()));
+        if self.scenarios.contains_key(&name) {
+            log::global_warn(format!("A scenario named {name} already exists"));
         } else {
-            log::global_warn(format!("A scenario named {name} alreay exists"));
+            self.scenarios.insert(name, (T::start, T::description()));
         }
         self
     }

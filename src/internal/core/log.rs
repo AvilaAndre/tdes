@@ -52,9 +52,9 @@ impl Logger {
         Self {
             level: level.unwrap_or(LoggerLevel::Info),
             log_writer: None,
-            log_file_location: "".to_string(),
+            log_file_location: String::new(),
             metrics_writer: None,
-            metrics_file_location: "".to_string(),
+            metrics_file_location: String::new(),
             flush_threshold: 200,
             log_unflushed_count: 0,
         }
@@ -114,7 +114,7 @@ impl Logger {
                 "The log file is located at: {}",
                 self.log_file_location
             ));
-            self.log_file_location = "".to_string();
+            self.log_file_location = String::new();
         }
         self.log_unflushed_count = 0;
     }
@@ -126,6 +126,7 @@ impl Logger {
                 "The metrics file is located at: {}",
                 self.metrics_file_location
             ));
+            self.metrics_file_location = String::new();
         }
         self.log_unflushed_count = 0;
     }
