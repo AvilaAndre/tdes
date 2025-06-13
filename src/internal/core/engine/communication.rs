@@ -86,7 +86,7 @@ pub fn send_message_to(
 
     engine::add_event(
         ctx,
-        MessageDeliveryEvent::create(ctx.clock + latency, to, msg),
+        MessageDeliveryEvent::create(ctx.clock + latency, from, to, msg),
     );
 
     Some(latency)

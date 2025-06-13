@@ -11,6 +11,7 @@ use crate::internal::core::{
 #[derive(Debug)]
 pub struct MessageDeliveryEvent {
     timestamp: OrderedFloat<f64>,
+    sender: usize,
     receiver: usize,
     // HACK: Because dyn Message does not support the Copy
     // trait, it is wrapped in an Option so that it can be
@@ -43,11 +44,13 @@ impl MessageDeliveryEvent {
     #[must_use]
     pub fn new(
         timestamp: OrderedFloat<f64>,
+        sender: usize,
         receiver: usize,
         message: impl Message + 'static,
     ) -> Self {
         Self {
             timestamp,
+            sender,
             receiver,
             message: Some(Box::new(message)),
         }
@@ -56,10 +59,13 @@ impl MessageDeliveryEvent {
     #[must_use]
     pub fn create(
         timestamp: OrderedFloat<f64>,
-        recipient: usize,
+        sender: usize,
+        receiver: usize,
         message: impl Message + 'static,
     ) -> EventType {
-        EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(timestamp, recipient, message))
+        EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(
+            timestamp, sender, receiver, message,
+        ))
     }
 }
 
@@ -72,7 +78,12 @@ impl Event for MessageDeliveryEvent {
         if let Some(receiver) = ctx.peers.get(self.receiver) {
             if receiver.is_alive() {
                 if let Some(msg) = self.message.take() {
-                    (receiver.get_peer().on_message_receive)(ctx, self.receiver, msg.as_ref());
+                    (receiver.get_peer().on_message_receive)(
+                        ctx,
+                        self.sender,
+                        self.receiver,
+                        msg.as_ref(),
+                    );
                 } else {
                     log::global_error(
                         "Failed to send message because message variable was None when it shouldn't.",

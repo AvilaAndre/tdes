@@ -5,17 +5,22 @@ use super::{
     message::{GlmConcatMessage, GlmSumRowsMessage},
 };
 
-pub fn on_message_receive(ctx: &mut Context, receiver_id: usize, msg: &dyn Message) {
+pub fn on_message_receive(
+    ctx: &mut Context,
+    sender_id: usize,
+    receiver_id: usize,
+    msg: &dyn Message,
+) {
     if let Some(sum_rows_msg) = msg.downcast_ref::<GlmSumRowsMessage>() {
         log::trace(
             ctx,
-            format!("{receiver_id} received a GlmSumRowsMessage message"),
+            format!("{receiver_id} received a GlmSumRowsMessage message from {sender_id}"),
         );
         receive_sum_rows_msg(ctx, receiver_id, *sum_rows_msg);
     } else if let Some(concat_msg) = msg.downcast_ref::<GlmConcatMessage>() {
         log::trace(
             ctx,
-            format!("{receiver_id} received a GlmConcatMessage message"),
+            format!("{receiver_id} received a GlmConcatMessage message from {sender_id}"),
         );
         receive_concat_r_msg(ctx, receiver_id, concat_msg.clone());
     } else {

@@ -1,7 +1,8 @@
 use super::{Context, Message};
 use downcast_rs::{Downcast, impl_downcast};
 
-type OnMessageReceiveCallback = fn(&mut Context, usize, &dyn Message) -> ();
+// ctx, sender, receiver, msg
+type OnMessageReceiveCallback = fn(&mut Context, usize, usize, &dyn Message) -> ();
 
 #[derive(Clone)]
 pub struct PeerInfo {
@@ -12,7 +13,12 @@ pub struct PeerInfo {
     pub on_message_receive: OnMessageReceiveCallback,
 }
 
-fn default_on_message_receive(_ctx: &mut Context, _receiver_id: usize, _msg: &dyn Message) {
+fn default_on_message_receive(
+    _ctx: &mut Context,
+    _sender_id: usize,
+    _receiver_id: usize,
+    _msg: &dyn Message,
+) {
     // Does nothing.
 }
 

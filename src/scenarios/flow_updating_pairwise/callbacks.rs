@@ -2,10 +2,15 @@ use crate::internal::core::{Context, Message, log, macros::get_peer_of_type};
 
 use super::{algorithms, message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
 
-pub fn example_on_message_receive(ctx: &mut Context, receiver_id: usize, msg: &dyn Message) {
+pub fn example_on_message_receive(
+    ctx: &mut Context,
+    sender_id: usize,
+    receiver_id: usize,
+    msg: &dyn Message,
+) {
     log::trace(
         ctx,
-        format!("FlowUpdatingPairwisePeer {receiver_id} received a message"),
+        format!("FlowUpdatingPairwisePeer {receiver_id} received a message from {sender_id}"),
     );
 
     let peer: &mut FlowUpdatingPairwisePeer =
