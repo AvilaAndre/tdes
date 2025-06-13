@@ -11,21 +11,14 @@ pub enum LinkKind {
 
 pub type LinkInfo = Option<LinkKind>;
 
+#[derive(Debug, Serialize, Deserialize, Default, Copy, Clone)]
+pub struct Jitter {
+    pub distribution: DistributionWrapper,
+    pub multiplier: f64,
+}
+
 // from, to, bandwidth, latency
 pub type ConnectionInfo = (usize, usize, LinkInfo);
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Experiment {
-    pub name: String,
-    pub scenario: String,
-    pub seed: Option<u64>,
-    pub arrival_time: Option<String>,
-    pub topology: TopologyInfo,
-    pub drop_rate: Option<f64>,
-    pub jitter: Option<DistributionWrapper>,
-    pub deadline: Option<f64>,
-    pub extra_args: Option<Value>,
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TopologyInfo {
@@ -47,4 +40,17 @@ impl TopologyInfo {
             positions: Some(Vec::new()),
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Experiment {
+    pub name: String,
+    pub scenario: String,
+    pub seed: Option<u64>,
+    pub arrival_time: Option<String>,
+    pub topology: TopologyInfo,
+    pub drop_rate: Option<f64>,
+    pub jitter: Option<Jitter>,
+    pub deadline: Option<f64>,
+    pub extra_args: Option<Value>,
 }

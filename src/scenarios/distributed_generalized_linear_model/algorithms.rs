@@ -48,11 +48,11 @@ fn send_sum_rows(ctx: &mut Context, peer_id: usize, target_id: usize) {
         nrows: peer.state.total_nrow,
     };
 
-    let sent = engine::send_message_to(ctx, peer_id, target_id, msg);
-    log::trace(
-        ctx,
-        format!("send_sum_rows from {peer_id} to {target_id}: {sent}"),
-    );
+    let trace = match engine::send_message_to(ctx, peer_id, target_id, msg) {
+        Some(lat) => format!("Sent GlmSumRowsMessage from {peer_id} to {target_id} in {lat}"),
+        None => format!("Failed to send GlmConcatMessage from {peer_id} to {target_id}"),
+    };
+    log::trace(ctx, trace);
 }
 
 fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
@@ -64,11 +64,11 @@ fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
         iter: peer.state.model.iter,
     };
 
-    let sent = engine::send_message_to(ctx, peer_id, target_id, msg);
-    log::trace(
-        ctx,
-        format!("send_concat_r from {peer_id} to {target_id}: {sent}"),
-    );
+    let trace = match engine::send_message_to(ctx, peer_id, target_id, msg) {
+        Some(lat) => format!("Sent GlmSumRowsMessage from {peer_id} to {target_id} in {lat}"),
+        None => format!("Failed to send GlmConcatMessage from {peer_id} to {target_id}"),
+    };
+    log::trace(ctx, trace);
 }
 
 pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMessage) {

@@ -67,7 +67,7 @@ impl Simulator {
                 exp_ctx.set_drop_rate(rate);
             }
             if let Some(jitter) = experiment.jitter {
-                exp_ctx.set_jitter_distribution(jitter);
+                exp_ctx.set_jitter(jitter);
             }
 
             if let Some(directory) = &config.dir {

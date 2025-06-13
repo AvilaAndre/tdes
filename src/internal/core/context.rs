@@ -5,15 +5,17 @@ use rand::{Rng, SeedableRng};
 
 use ordered_float::OrderedFloat;
 use rand_chacha::ChaCha8Rng;
+use rand_distr::num_traits::Zero;
 
 use super::{
-    builtins,
+    builtins, distributions,
     events::EventType,
+    experiment::{Jitter, LinkInfo},
+    log,
     log::{Logger, LoggerLevel},
     options::ArrivalTimeCallback,
     peer::CustomPeer,
 };
-use crate::internal::core::{distributions::DistributionWrapper, experiment::LinkInfo, log};
 
 pub type MessageDelayCallback = fn(&mut Context, usize, usize) -> Option<OrderedFloat<f64>>;
 
@@ -26,7 +28,7 @@ pub struct Context {
     pub rng: ChaCha8Rng,
     pub seed: u64,
     drop_rate: f64,
-    jitter: DistributionWrapper,
+    jitter: Jitter,
     pub message_delay_cb: MessageDelayCallback,
     pub logger: Logger,
 }
@@ -47,7 +49,7 @@ impl Context {
             links: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
             drop_rate: 0.0,
-            jitter: DistributionWrapper::default(),
+            jitter: Jitter::default(),
             seed,
             message_delay_cb: builtins::arrival_times::ConstantArrivalTime::callback,
             logger: Logger::new(logger_level),
@@ -75,14 +77,24 @@ impl Context {
         self.drop_rate = new_rate.clamp(0.0, 1.0);
     }
 
+    /// Returns a jitter value by sampling from
+    /// self.jitter.distribution and multiplying
+    /// it by self.jitter.multiplier.
     #[inline]
-    pub fn get_jitter_distribution(&self) -> DistributionWrapper {
-        self.jitter
+    pub fn get_jitter_value(&mut self) -> OrderedFloat<f64> {
+        if self.jitter.multiplier.is_zero() {
+            return OrderedFloat(0.0);
+        }
+
+        let from_sample =
+            distributions::get_value(self, self.jitter.distribution).unwrap_or(OrderedFloat(0.0));
+
+        from_sample * self.jitter.multiplier
     }
 
     #[inline]
-    pub fn set_jitter_distribution(&mut self, distr: DistributionWrapper) {
-        self.jitter = distr;
+    pub fn set_jitter(&mut self, jitter: Jitter) {
+        self.jitter = jitter;
     }
 
     #[inline]

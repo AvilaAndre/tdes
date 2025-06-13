@@ -1,19 +1,23 @@
 use ordered_float::OrderedFloat;
 use rand::Rng;
 use rand_distr::num_traits::Zero;
-use serde_json::json;
 
 use crate::internal::core::{
-    Context, Message, distributions, engine, events::MessageDeliveryEvent, experiment::LinkKind,
-    log,
+    Context, Message, engine, events::MessageDeliveryEvent, experiment::LinkKind, log,
 };
 
+/// Verifies if peer 'from' can send a message to peer 'to' and
+/// calculates the time it takes for the message to arrive.
+/// If they message cannot be sent or the latency fails to be
+/// calculated, this function returns None. If it suceeds, it
+/// returns Some(latency), with latency being the latency value
+/// calculated.
 pub fn send_message_to(
     ctx: &mut Context,
     from: usize,
     to: usize,
     msg: impl Message + 'static,
-) -> bool {
+) -> Option<OrderedFloat<f64>> {
     let drop_rate = ctx.get_drop_rate();
     // only generate random number if not zero
     if !drop_rate.is_zero() && drop_rate >= ctx.rng.random_range(0.0..1.0) {
@@ -21,17 +25,15 @@ pub fn send_message_to(
             ctx,
             format!("Message from {from} to {to} dropped due to drop_rate"),
         );
-        return false;
+        return None;
     }
 
     // Gets link, will be None if no link exists between peers
     let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).cloned();
 
-    let event = match link_info {
+    let latency = match link_info {
         // if has latency defined
-        Some(Some(LinkKind::Latency(latency))) => {
-            MessageDeliveryEvent::create(ctx.clock + OrderedFloat(latency), to, msg)
-        }
+        Some(Some(LinkKind::Latency(latency))) => OrderedFloat(latency),
         Some(bandwith_opt) => {
             let mut delay = match (ctx.message_delay_cb)(ctx, from, to) {
                 Some(val) => val,
@@ -42,7 +44,7 @@ pub fn send_message_to(
                             "Failed to send message from peer {from} to {to} because latency couldn't be calculated"
                         ),
                     );
-                    return false;
+                    return None;
                 }
             };
 
@@ -51,8 +53,8 @@ pub fn send_message_to(
                 delay += (msg.size_bits() as f64) / bandwidth;
             }
 
-            let jitter = distributions::get_value(ctx, ctx.get_jitter_distribution())
-                .unwrap_or(OrderedFloat(0.0));
+            // TODO: log jitter so that it can be visualized
+            /*
             log::trace(ctx, format!("jitter {jitter}"));
             log::metrics(
                 ctx,
@@ -61,7 +63,8 @@ pub fn send_message_to(
                     "jitter": *jitter,
                 }),
             );
-            delay += jitter;
+            */
+            delay += ctx.get_jitter_value();
 
             // ensure delay isn't negative
             if delay < OrderedFloat(0.0) {
@@ -70,9 +73,8 @@ pub fn send_message_to(
                     "Delay was set to 0 because after applying jitter the message delay was negative.",
                 );
             }
-            delay = delay.max(OrderedFloat(0.0));
 
-            MessageDeliveryEvent::create(ctx.clock + delay, to, msg)
+            delay
         }
         None => {
             log::warn(
@@ -81,11 +83,14 @@ pub fn send_message_to(
                     "Failed to send message from peer {from} to {to} because they are not connected"
                 ),
             );
-            return false;
+            return None;
         }
     };
 
-    engine::add_event(ctx, event);
+    engine::add_event(
+        ctx,
+        MessageDeliveryEvent::create(ctx.clock + latency, to, msg),
+    );
 
-    true
+    Some(latency)
 }
