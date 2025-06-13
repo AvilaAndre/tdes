@@ -1,13 +1,14 @@
-use crate::internal::core::options::Scenario;
-use crate::internal::core::options::ScenarioRegistry;
-
-use super::cli::{Args, SimulationConfig, get_config_from_args, utils::write_file_with_dirs};
-use super::core::{
-    Context, log,
-    options::{
-        ArrivalTimeCallback, ArrivalTimeRegistry, ExperimentOptions, Topology, TopologyRegistry,
+use super::{
+    cli::{Args, SimulationConfig, get_config_from_args, utils::write_file_with_dirs},
+    core::{
+        Context, log,
+        options::{
+            ArrivalTimeCallback, ArrivalTimeRegistry, ExperimentOptions, Scenario,
+            ScenarioRegistry, Topology, TopologyRegistry,
+        },
     },
 };
+
 use chrono::Local;
 use clap::Parser;
 

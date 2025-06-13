@@ -1,9 +1,8 @@
 use std::{cmp::Reverse, collections::BinaryHeap};
 
 use indexmap::IndexMap;
-use rand::{Rng, SeedableRng};
-
 use ordered_float::OrderedFloat;
+use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use rand_distr::num_traits::Zero;
 
