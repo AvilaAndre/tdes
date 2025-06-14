@@ -50,7 +50,7 @@ pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>
         }
     }
 
-    (hooks.on_simulation_finish_hook)(ctx);
+    (hooks.on_simulation_finish)(ctx);
 
     log::internal(ctx, "SIMULATION LOOP FINISHED");
     log::global_internal(format!(
