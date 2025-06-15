@@ -31,7 +31,7 @@ pub fn send_message_to(
     // Gets link, will be None if no link exists between peers
     let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).copied();
 
-    let latency = match link_info {
+    let mut latency = match link_info {
         // if has latency defined
         Some(Some(LinkKind::Latency(latency))) => OrderedFloat(latency),
         Some(bandwith_opt) => {
@@ -50,27 +50,6 @@ pub fn send_message_to(
                 delay += (msg.size_bits() as f64) / bandwidth;
             }
 
-            // TODO: log jitter so that it can be visualized
-            /*
-            log::trace(ctx, format!("jitter {jitter}"));
-            log::metrics(
-                ctx,
-                "jitter",
-                &json!({
-                    "jitter": *jitter,
-                }),
-            );
-            */
-            delay += ctx.get_jitter_value();
-
-            // ensure delay isn't negative
-            if delay < OrderedFloat(0.0) {
-                delay = OrderedFloat(0.0);
-                log::global_warn(
-                    "Delay was set to 0 because after applying jitter the message delay was negative.",
-                );
-            }
-
             delay
         }
         None => {
@@ -83,6 +62,27 @@ pub fn send_message_to(
             return None;
         }
     };
+
+    // TODO: log jitter so that it can be visualized
+    /*
+    log::trace(ctx, format!("jitter {jitter}"));
+    log::metrics(
+        ctx,
+        "jitter",
+        &json!({
+            "jitter": *jitter,
+        }),
+    );
+    */
+    latency += ctx.get_jitter_value();
+
+    // ensure delay isn't negative
+    if latency < OrderedFloat(0.0) {
+        latency = OrderedFloat(0.0);
+        log::global_warn(
+            "Delay was set to 0 because after applying jitter the message delay was negative.",
+        );
+    }
 
     engine::add_event(
         ctx,
