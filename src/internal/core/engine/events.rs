@@ -38,7 +38,8 @@ pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>
         }
 
         if ev.timestamp() < ctx.clock {
-            log::global_error("An event was earlier than the simulation clock");
+            log::global_error("An event's timestamp was earlier than the simulation clock");
+            continue;
         }
 
         ctx.clock = ev.timestamp();
