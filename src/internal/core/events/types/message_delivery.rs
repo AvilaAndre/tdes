@@ -13,10 +13,7 @@ pub struct MessageDeliveryEvent {
     timestamp: OrderedFloat<f64>,
     sender: usize,
     receiver: usize,
-    // HACK: Because dyn Message does not support the Copy
-    // trait, it is wrapped in an Option so that it can be
-    // moved to the on_message_receive method call.
-    message: Option<Box<dyn Message>>,
+    message: Box<dyn Message>,
 }
 
 // This compares only the timestamps
@@ -52,7 +49,7 @@ impl MessageDeliveryEvent {
             timestamp,
             sender,
             receiver,
-            message: Some(Box::new(message)),
+            message: Box::new(message),
         }
     }
 
@@ -77,18 +74,12 @@ impl Event for MessageDeliveryEvent {
     fn process(&mut self, ctx: &mut Context) {
         if let Some(receiver) = ctx.peers.get(self.receiver) {
             if receiver.is_alive() {
-                if let Some(msg) = self.message.take() {
-                    (receiver.get_peer().on_message_receive)(
-                        ctx,
-                        self.sender,
-                        self.receiver,
-                        msg.as_ref(),
-                    );
-                } else {
-                    log::global_error(
-                        "Failed to send message because message variable was None when it shouldn't.",
-                    );
-                }
+                (receiver.get_peer().on_message_receive)(
+                    ctx,
+                    self.sender,
+                    self.receiver,
+                    self.message.as_ref(),
+                );
             } else {
                 log::warn(
                     ctx,
