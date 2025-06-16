@@ -46,6 +46,10 @@ pub struct Args {
     #[arg(long, requires = "scenario")]
     pub drop_rate: Option<f64>,
 
+    /// Sets the message duplicate rate (A float in [0.0, 1.0]) - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario")]
+    pub duplicate_rate: Option<f64>,
+
     /// The topology to use, must be registered in the simulator - can only be used if 'scenario' is set
     #[arg(long, requires = "scenario")]
     pub topology: Option<String>,

@@ -18,18 +18,18 @@ pub fn send_message_to(
     to: usize,
     msg: impl Message + 'static,
 ) -> Option<OrderedFloat<f64>> {
+    // Gets link, will be None if no link exists between peers
+    let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).copied();
+
     let drop_rate = ctx.get_drop_rate();
     // only generate random number if not zero
-    if !drop_rate.is_zero() && drop_rate >= ctx.rng.random_range(0.0..1.0) {
+    if link_info.is_some() && !drop_rate.is_zero() && drop_rate >= ctx.rng.random_range(0.0..1.0) {
         log::trace(
             ctx,
             format!("Message from {from} to {to} dropped due to drop_rate"),
         );
         return None;
     }
-
-    // Gets link, will be None if no link exists between peers
-    let link_info = ctx.links.get(from).and_then(|map| map.get(&to)).copied();
 
     let mut latency = match link_info {
         // if has latency defined
@@ -81,6 +81,22 @@ pub fn send_message_to(
         latency = OrderedFloat(0.0);
         log::global_warn(
             "Delay was set to 0 because after applying jitter the message delay was negative.",
+        );
+    }
+
+    let duplicate_rate = ctx.get_duplicate_rate();
+    // only generate random number if not zero
+    if link_info.is_some()
+        && !duplicate_rate.is_zero()
+        && duplicate_rate >= ctx.rng.random_range(0.0..1.0)
+    {
+        engine::add_event(
+            ctx,
+            MessageDeliveryEvent::create_boxed(ctx.clock + latency, from, to, msg.clone_box()),
+        );
+        log::trace(
+            ctx,
+            format!("Message from {from} to {to} duplicated due to duplicate_rate"),
         );
     }
 

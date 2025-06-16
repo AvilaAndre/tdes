@@ -17,7 +17,7 @@ pub struct Jitter {
     pub multiplier: f64,
 }
 
-// from, to, bandwidth, latency
+// from, to, option(bandwidth or latency)
 pub type ConnectionInfo = (usize, usize, LinkInfo);
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -51,6 +51,7 @@ pub struct Experiment {
     pub arrival_time: Option<String>,
     pub topology: TopologyInfo,
     pub drop_rate: Option<f64>,
+    pub duplicate_rate: Option<f64>,
     pub jitter: Option<Jitter>,
     pub deadline: Option<f64>,
     pub extra_args: Option<Value>,

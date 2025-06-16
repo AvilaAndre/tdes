@@ -67,6 +67,9 @@ impl Simulator {
             if let Some(rate) = experiment.drop_rate {
                 exp_ctx.set_drop_rate(rate);
             }
+            if let Some(rate) = experiment.duplicate_rate {
+                exp_ctx.set_duplicate_rate(rate);
+            }
             if let Some(jitter) = experiment.jitter {
                 exp_ctx.set_jitter(jitter);
             }

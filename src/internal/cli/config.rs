@@ -113,6 +113,7 @@ pub fn get_config_from_args(
                 arrival_time: args.arrival_time,
                 topology: TopologyInfo::from_args(args.n_peers, args.topology),
                 drop_rate: args.drop_rate,
+                duplicate_rate: args.duplicate_rate,
                 jitter,
                 deadline: args.deadline,
                 extra_args: None,

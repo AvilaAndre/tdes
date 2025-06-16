@@ -26,10 +26,11 @@ pub struct Context {
     pub links: Vec<IndexMap<usize, LinkInfo>>,
     pub rng: ChaCha8Rng,
     pub seed: u64,
-    drop_rate: f64,
-    jitter: Jitter,
     pub message_delay_cb: MessageDelayCallback,
     pub logger: Logger,
+    drop_rate: f64,
+    duplicate_rate: f64,
+    jitter: Jitter,
 }
 
 impl Context {
@@ -47,11 +48,12 @@ impl Context {
             peers: Vec::new(),
             links: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(seed),
-            drop_rate: 0.0,
-            jitter: Jitter::default(),
             seed,
             message_delay_cb: builtins::arrival_times::ConstantArrivalTime::callback,
             logger: Logger::new(logger_level),
+            drop_rate: 0.0,
+            duplicate_rate: 0.0,
+            jitter: Jitter::default(),
         }
     }
 
@@ -75,6 +77,23 @@ impl Context {
         }
 
         self.drop_rate = new_rate.clamp(0.0, 1.0);
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn get_duplicate_rate(&self) -> f64 {
+        self.duplicate_rate
+    }
+
+    #[inline]
+    pub fn set_duplicate_rate(&mut self, new_rate: f64) {
+        if !(0.0..=1.0).contains(&new_rate) {
+            log::global_warn(format!(
+                "Duplicate rate should be between 0.0 and 1.0, not {new_rate}."
+            ));
+        }
+
+        self.duplicate_rate = new_rate.clamp(0.0, 1.0);
     }
 
     /// Returns a jitter value by sampling from

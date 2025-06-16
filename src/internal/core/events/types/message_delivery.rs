@@ -43,13 +43,13 @@ impl MessageDeliveryEvent {
         timestamp: OrderedFloat<f64>,
         sender: usize,
         receiver: usize,
-        message: impl Message + 'static,
+        message: Box<dyn Message>,
     ) -> Self {
         Self {
             timestamp,
             sender,
             receiver,
-            message: Box::new(message),
+            message,
         }
     }
 
@@ -59,6 +59,18 @@ impl MessageDeliveryEvent {
         sender: usize,
         receiver: usize,
         message: impl Message + 'static,
+    ) -> EventType {
+        EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(
+            timestamp, sender, receiver, Box::new(message),
+        ))
+    }
+
+    #[must_use]
+    pub fn create_boxed(
+        timestamp: OrderedFloat<f64>,
+        sender: usize,
+        receiver: usize,
+        message: Box<dyn Message>,
     ) -> EventType {
         EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(
             timestamp, sender, receiver, message,

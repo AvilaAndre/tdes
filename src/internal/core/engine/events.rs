@@ -51,11 +51,12 @@ pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>
         }
     }
 
+    log::internal(ctx, "SIMULATION LOOP FINISHED");
+
     (hooks.on_simulation_finish)(ctx);
 
-    log::internal(ctx, "SIMULATION LOOP FINISHED");
     log::global_internal(format!(
-        "FINISHED SIMULATION LOOP, SEED IS \"{:?}\"",
+        "FINISHED SIMULATION, SEED IS \"{:?}\"",
         ctx.seed()
     ));
 
