@@ -61,7 +61,10 @@ impl MessageDeliveryEvent {
         message: impl Message + 'static,
     ) -> EventType {
         EventType::MessageDeliveryEvent(MessageDeliveryEvent::new(
-            timestamp, sender, receiver, Box::new(message),
+            timestamp,
+            sender,
+            receiver,
+            Box::new(message),
         ))
     }
 
