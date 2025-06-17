@@ -74,15 +74,6 @@ pub fn send_message_to(
         }),
     );
     */
-    latency += ctx.get_jitter_value();
-
-    // ensure delay isn't negative
-    if latency < OrderedFloat(0.0) {
-        latency = OrderedFloat(0.0);
-        log::global_warn(
-            "Delay was set to 0 because after applying jitter the message delay was negative.",
-        );
-    }
 
     let duplicate_rate = ctx.get_duplicate_rate();
     // only generate random number if not zero
@@ -90,13 +81,38 @@ pub fn send_message_to(
         && !duplicate_rate.is_zero()
         && duplicate_rate >= ctx.rng.random_range(0.0..1.0)
     {
+        let mut duplicate_latency = latency + ctx.get_jitter_value();
+
+        // ensure delay isn't negative
+        if duplicate_latency < OrderedFloat(0.0) {
+            duplicate_latency = OrderedFloat(0.0);
+            log::global_warn(
+                "Delay was set to 0 because after applying jitter the message delay was negative.",
+            );
+        }
+
         engine::add_event(
             ctx,
-            MessageDeliveryEvent::create_boxed(ctx.clock + latency, from, to, msg.clone_box()),
+            MessageDeliveryEvent::create_boxed(
+                ctx.clock + duplicate_latency,
+                from,
+                to,
+                msg.clone_box(),
+            ),
         );
         log::trace(
             ctx,
             format!("Message from {from} to {to} duplicated due to duplicate_rate"),
+        );
+    }
+
+    latency += ctx.get_jitter_value();
+
+    // ensure delay isn't negative
+    if latency < OrderedFloat(0.0) {
+        latency = OrderedFloat(0.0);
+        log::global_warn(
+            "Delay was set to 0 because after applying jitter the message delay was negative.",
         );
     }
 
