@@ -3,6 +3,7 @@ mod peer;
 
 use message::ExampleMessage;
 use peer::ExamplePeer;
+use rand::Rng;
 
 use crate::internal::{
     Simulator,
@@ -32,12 +33,17 @@ impl Scenario for Example {
 
     fn start(ctx: &mut Context, simulator: &Simulator, opts: ExperimentOptions) {
         for i in 0..opts.topology.n_peers {
-            if let Some(positions) = opts.topology.positions.as_ref() {
-                let (x, y, z) = positions.get(i).unwrap_or(&(0.0, 0.0, Some(0.0)));
-                engine::add_peer(ctx, ExamplePeer::new(*x, *y, z.unwrap_or(0.0)));
-            } else {
-                engine::add_peer(ctx, ExamplePeer::new(0.0, 0.0, 0.0));
-            }
+            let (pos_x, pos_y, pos_z) =
+                match opts.topology.positions.as_ref().and_then(|v| v.get(i)) {
+                    Some(&(px, py, pz)) => (px, py, pz.unwrap_or(0.0)),
+                    None => (
+                        ctx.rng.random_range(-10.0..=10.0),
+                        ctx.rng.random_range(-10.0..=10.0),
+                        0.0,
+                    ),
+                };
+
+            engine::add_peer(ctx, ExamplePeer::new(pos_x, pos_y, pos_z));
         }
 
         simulator

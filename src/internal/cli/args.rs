@@ -54,7 +54,7 @@ pub struct Args {
     #[arg(long, requires = "scenario")]
     pub topology: Option<String>,
 
-    /// If set to true, uses the jitter configuration Weibull(1.064, 5.744) * 0.001 - can only be used if 'scenario' is set
+    /// If set to true, uses the jitter configuration Weibull(1.064, 2.872) * 0.001 - can only be used if 'scenario' is set
     #[arg(long, requires = "scenario")]
     pub use_jitter: bool,
 

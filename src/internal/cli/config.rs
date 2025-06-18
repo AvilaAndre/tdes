@@ -98,7 +98,7 @@ pub fn get_config_from_args(
 
         let jitter = if args.use_jitter {
             Some(Jitter {
-                distribution: DistributionWrapper::Weibull(1.064, 5.744),
+                distribution: DistributionWrapper::Weibull(1.064, 2.872),
                 multiplier: 0.001,
             })
         } else {
