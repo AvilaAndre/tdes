@@ -122,7 +122,7 @@ impl Simulator {
             }
         }
 
-        println!("\nFinished all the simulations, timestamp is: {timestamp}");
+        println!("\nFinished all the simulations, wall clock timestamp is: {timestamp}");
 
         // TODO: Deal with this as it may panic
         let yaml_str = match serde_yaml::to_string(&config) {
