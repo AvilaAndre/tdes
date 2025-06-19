@@ -4,38 +4,20 @@ use ordered_float::OrderedFloat;
 
 use crate::internal::core::{
     Context, Message,
-    events::{Event, types::EventType},
+    events::{Event, event::impl_timestamp_id_ordering, types::EventType},
     log,
 };
 
 #[derive(Debug)]
 pub struct MessageDeliveryEvent {
+    id: u64,
     timestamp: OrderedFloat<f64>,
     sender: usize,
     receiver: usize,
     message: Box<dyn Message>,
 }
 
-// This compares only the timestamps
-impl PartialOrd for MessageDeliveryEvent {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for MessageDeliveryEvent {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.timestamp.total_cmp(&other.timestamp)
-    }
-}
-
-impl PartialEq for MessageDeliveryEvent {
-    fn eq(&self, other: &Self) -> bool {
-        self.timestamp == other.timestamp
-    }
-}
-
-impl Eq for MessageDeliveryEvent {}
+impl_timestamp_id_ordering!(MessageDeliveryEvent);
 
 impl MessageDeliveryEvent {
     #[must_use]
@@ -46,6 +28,7 @@ impl MessageDeliveryEvent {
         message: Box<dyn Message>,
     ) -> Self {
         Self {
+            id: 0,
             timestamp,
             sender,
             receiver,
@@ -82,6 +65,14 @@ impl MessageDeliveryEvent {
 }
 
 impl Event for MessageDeliveryEvent {
+    fn id(&self) -> u64 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u64) {
+        self.id = id
+    }
+
     fn timestamp(&self) -> OrderedFloat<f64> {
         self.timestamp
     }

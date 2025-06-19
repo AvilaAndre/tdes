@@ -8,11 +8,9 @@ define_custom_arrival_time_callback!(ConstantArrivalTime, "constant", |_ctx, _fr
     Some(OrderedFloat(1.0))
 });
 
-define_custom_arrival_time_callback!(
-    DistanceBasedArrivalTime,
-    "distance",
-    |ctx, from, to| { distance(ctx, from, to) }
-);
+define_custom_arrival_time_callback!(DistanceBasedArrivalTime, "distance", |ctx, from, to| {
+    distance(ctx, from, to)
+});
 
 // optical fiber latency per kilometer in seconds
 const OPTICAL_FIBER: f64 = 0.350e-6;

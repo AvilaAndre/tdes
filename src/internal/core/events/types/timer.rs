@@ -5,7 +5,7 @@ use ordered_float::OrderedFloat;
 
 use crate::internal::core::{
     Context,
-    events::{Event, types::EventType},
+    events::{Event, event::impl_timestamp_id_ordering, types::EventType},
 };
 
 pub trait Timer: Debug + Downcast {
@@ -15,35 +15,21 @@ impl_downcast!(Timer);
 
 #[derive(Debug)]
 pub struct TimerEvent {
+    id: u64,
     timestamp: OrderedFloat<f64>,
     timer: Box<dyn Timer>,
 }
 
-// This compares only the timestamps
-impl PartialOrd for TimerEvent {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for TimerEvent {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.timestamp.total_cmp(&other.timestamp)
-    }
-}
-
-impl PartialEq for TimerEvent {
-    fn eq(&self, other: &Self) -> bool {
-        self.timestamp == other.timestamp
-    }
-}
-
-impl Eq for TimerEvent {}
+impl_timestamp_id_ordering!(TimerEvent);
 
 impl TimerEvent {
     #[must_use]
     pub fn new(timestamp: OrderedFloat<f64>, timer: Box<dyn Timer>) -> Self {
-        Self { timestamp, timer }
+        Self {
+            id: 0,
+            timestamp,
+            timer,
+        }
     }
 
     #[must_use]
@@ -53,6 +39,14 @@ impl TimerEvent {
 }
 
 impl Event for TimerEvent {
+    fn id(&self) -> u64 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u64) {
+        self.id = id
+    }
+
     fn timestamp(&self) -> OrderedFloat<f64> {
         self.timestamp
     }

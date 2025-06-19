@@ -16,7 +16,10 @@ pub enum EventType {
 
 impl Ord for EventType {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.timestamp().cmp(&other.timestamp())
+        match self.timestamp().total_cmp(&other.timestamp()) {
+            Ordering::Equal => self.id().cmp(&other.id()),
+            other_ordering => other_ordering,
+        }
     }
 }
 impl PartialOrd for EventType {
@@ -27,11 +30,27 @@ impl PartialOrd for EventType {
 
 impl PartialEq for EventType {
     fn eq(&self, other: &Self) -> bool {
-        self.timestamp() == other.timestamp()
+        self.timestamp() == other.timestamp() && self.id() == other.id()
     }
 }
 
 impl Event for EventType {
+    fn id(&self) -> u64 {
+        let event: &dyn Event = match self {
+            EventType::TimerEvent(event) => event,
+            EventType::MessageDeliveryEvent(event) => event,
+        };
+        event.id()
+    }
+
+    fn set_id(&mut self, id: u64) {
+        let event: &mut dyn Event = match self {
+            EventType::TimerEvent(event) => event,
+            EventType::MessageDeliveryEvent(event) => event,
+        };
+        event.set_id(id)
+    }
+
     fn timestamp(&self) -> OrderedFloat<f64> {
         let event: &dyn Event = match self {
             EventType::TimerEvent(event) => event,

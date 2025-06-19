@@ -6,18 +6,16 @@ use crate::internal::core::{
 };
 
 use ordered_float::OrderedFloat;
-use std::cmp::Reverse;
 
 pub fn add_event(ctx: &mut Context, event: EventType) {
-    ctx.event_q.push(Reverse(event));
+    ctx.push_event(event);
 }
 
 pub fn add_timer(ctx: &mut Context, time: OrderedFloat<f64>, timer: impl Timer + 'static) {
-    ctx.event_q
-        .push(Reverse(EventType::TimerEvent(TimerEvent::new(
-            time,
-            Box::new(timer),
-        ))));
+    ctx.push_event(EventType::TimerEvent(TimerEvent::new(
+        time,
+        Box::new(timer),
+    )));
 }
 
 pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>) {
@@ -55,10 +53,7 @@ pub fn run(ctx: &mut Context, hooks: &SimulationHooks, deadline_opt: Option<f64>
 
     (hooks.on_simulation_finish)(ctx);
 
-    log::global_internal(format!(
-        "FINISHED SIMULATION, SEED IS \"{:?}\"",
-        ctx.seed()
-    ));
+    log::global_internal(format!("FINISHED SIMULATION, SEED IS \"{:?}\"", ctx.seed()));
 
     ctx.logger.close_log_file();
     log::global_internal(

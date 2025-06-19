@@ -8,7 +8,7 @@ use rand_distr::num_traits::Zero;
 
 use super::{
     builtins, distributions,
-    events::EventType,
+    events::{Event, EventType},
     experiment::{Jitter, LinkInfo},
     log,
     log::{Logger, LoggerLevel},
@@ -19,7 +19,8 @@ use super::{
 pub type MessageDelayCallback = fn(&mut Context, usize, usize) -> Option<OrderedFloat<f64>>;
 
 pub struct Context {
-    pub event_q: BinaryHeap<Reverse<EventType>>,
+    event_id: u64,
+    event_q: BinaryHeap<Reverse<EventType>>,
     pub clock: OrderedFloat<f64>,
     pub peers: Vec<Box<dyn CustomPeer>>,
     // Rust's HashMap is non-deterministic.
@@ -43,6 +44,7 @@ impl Context {
         };
 
         Self {
+            event_id: 0,
             event_q: BinaryHeap::new(),
             clock: OrderedFloat(0.0),
             peers: Vec::new(),
@@ -77,6 +79,14 @@ impl Context {
         }
 
         self.drop_rate = new_rate.clamp(0.0, 1.0);
+    }
+
+    #[inline]
+    pub fn push_event(&mut self, mut event: EventType) {
+        event.set_id(self.event_id);
+        self.event_id += 1;
+
+        self.event_q.push(Reverse(event));
     }
 
     #[inline]
@@ -119,5 +129,10 @@ impl Context {
     #[inline]
     pub fn get_next_event(&mut self) -> Option<EventType> {
         self.event_q.pop().map(|Reverse(ev)| ev)
+    }
+
+    #[inline]
+    pub fn events_left(&self) -> usize {
+        self.event_q.len()
     }
 }
