@@ -46,7 +46,7 @@ fn send_sum_rows(ctx: &mut Context, peer_id: usize, target_id: usize) {
 
     let trace = match engine::send_message_to(ctx, peer_id, target_id, msg) {
         Some(lat) => format!("Sent GlmSumRowsMessage from {peer_id} to {target_id} in {lat}"),
-        None => format!("Failed to send GlmConcatMessage from {peer_id} to {target_id}"),
+        None => format!("Failed to send GlmSumRowsMessage from {peer_id} to {target_id}"),
     };
     log::trace(ctx, trace);
 }
@@ -60,8 +60,12 @@ fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
         iter: peer.state.model.iter,
     };
 
+    let iter = peer.state.model.iter;
+
     let trace = match engine::send_message_to(ctx, peer_id, target_id, msg) {
-        Some(lat) => format!("Sent GlmSumRowsMessage from {peer_id} to {target_id} in {lat}"),
+        Some(lat) => format!(
+            "Sent GlmConcatMessage from {peer_id} to {target_id} (iteration {iter}) in {lat}",
+        ),
         None => format!("Failed to send GlmConcatMessage from {peer_id} to {target_id}"),
     };
     log::trace(ctx, trace);
@@ -86,14 +90,13 @@ pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMe
         if peer.state.nodes.len() == peer.state.r_n_rows.keys().len() {
             peer.state.total_nrow += peer.state.r_n_rows.values().sum::<usize>();
             peer.state.r_remotes = HashMap::new();
-            // FIXME: Should r_remotes be reset too?
             broadcast_nodes(ctx, peer_id);
         }
     } else {
         log::warn(
             ctx,
             format!(
-                "peer {peer_id} received sum_rows_msg but r_remotes already contained {}",
+                "peer {peer_id} received GlmSumRowsMessage but r_remotes already contained {}",
                 msg.origin
             ),
         );
@@ -104,7 +107,7 @@ pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMes
     log::trace(
         ctx,
         format!(
-            "peer {peer_id} received GlmConcatMessage from {sender} on iteration {iter}",
+            "peer {peer_id} received a GlmConcatMessage from {sender} on iteration {iter}",
             sender = msg.origin,
             iter = msg.iter
         ),
@@ -134,9 +137,11 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
             .get_mut(&iter)
             .and_then(|r| r.insert(sender, r_remote));
 
-        if iter == peer.state.model.iter
-            && peer.state.nodes.len() == peer.state.r_remotes.get(&iter).unwrap().keys().len()
-        {
+        let current_iter = peer.state.model.iter;
+        let msgs_to_receive = peer.state.nodes.len();
+        let msgs_received_in_iter = peer.state.r_remotes.get(&iter).unwrap().keys().len();
+
+        if iter == current_iter && msgs_to_receive == msgs_received_in_iter {
             let mut all_r_remotes = peer
                 .state
                 .r_remotes
@@ -173,16 +178,40 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                     beta,
                 );
 
+                let new_current_iter = peer.state.model.iter;
+                log::info(
+                    ctx,
+                    format!(
+                        "peer {peer_id} broadcasting as it starts iteration {new_current_iter}"
+                    ),
+                );
+
                 broadcast_nodes(ctx, peer_id);
             } else {
                 log::info(ctx, format!("peer {peer_id} finished on iteration {iter}"));
+            }
+        } else {
+            if msgs_to_receive == msgs_received_in_iter {
+                log::warn(
+                    ctx,
+                    format!(
+                        "peer {peer_id} handle_iter, received all messages from iteration {iter} but current iteration is {current_iter}",
+                    ),
+                );
+            } else {
+                log::trace(
+                    ctx,
+                    format!(
+                        "peer {peer_id} handle_iter, received ({msgs_received_in_iter}/{msgs_to_receive}) messages on iteration {iter} (current iteration is {current_iter})",
+                    ),
+                );
             }
         }
     } else {
         log::warn(
             ctx,
             format!(
-                "on peer {peer_id} handle_iter failed because r_remotes[{iter}] already contains sender {sender}"
+                "peer {peer_id} handle_iter failed because r_remotes[{iter}] already contains sender {sender}"
             ),
         );
     }
