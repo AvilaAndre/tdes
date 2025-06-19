@@ -23,7 +23,7 @@ pub struct Args {
     pub logger_level: Option<LoggerLevel>,
 
     /// The simulator does not output the logs to the console
-    #[arg(long)]
+    #[arg(short, long)]
     pub quiet: bool,
 
     /// Which scenario should be run
