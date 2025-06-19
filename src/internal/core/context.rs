@@ -35,7 +35,7 @@ pub struct Context {
 
 impl Context {
     #[must_use]
-    pub fn new(seed_opt: Option<u64>, logger_level: Option<LoggerLevel>) -> Self {
+    pub fn new(seed_opt: Option<u64>, logger_level: Option<LoggerLevel>, quiet: bool) -> Self {
         // Generate seed if none is provided
         let seed: u64 = match seed_opt {
             Some(s) => s,
@@ -50,7 +50,7 @@ impl Context {
             rng: ChaCha8Rng::seed_from_u64(seed),
             seed,
             message_delay_cb: builtins::arrival_times::ConstantArrivalTime::callback,
-            logger: Logger::new(logger_level),
+            logger: Logger::new(logger_level, quiet),
             drop_rate: 0.0,
             duplicate_rate: 0.0,
             jitter: Jitter::default(),

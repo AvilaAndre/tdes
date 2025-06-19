@@ -22,6 +22,10 @@ pub struct Args {
     #[arg(long, value_enum, default_value = "info")]
     pub logger_level: Option<LoggerLevel>,
 
+    /// The simulator does not output the logs to the console
+    #[arg(long)]
+    pub quiet: bool,
+
     /// Which scenario should be run
     #[arg(short, long)]
     pub scenario: Option<String>,

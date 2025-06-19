@@ -44,11 +44,12 @@ pub struct Logger {
     metrics_file_location: String,
     flush_threshold: usize,
     log_unflushed_count: usize,
+    quiet: bool,
 }
 
 impl Logger {
     #[must_use]
-    pub fn new(level: Option<LoggerLevel>) -> Self {
+    pub fn new(level: Option<LoggerLevel>, quiet: bool) -> Self {
         Self {
             level: level.unwrap_or(LoggerLevel::Info),
             log_writer: None,
@@ -57,6 +58,7 @@ impl Logger {
             metrics_file_location: String::new(),
             flush_threshold: 200,
             log_unflushed_count: 0,
+            quiet,
         }
     }
 
@@ -168,11 +170,12 @@ fn log_format(clock: OrderedFloat<f64>, level: LoggerLevel, text: impl AsRef<str
 
 fn ctx_log(ctx: &mut Context, level: LoggerLevel, text: impl AsRef<str>) {
     // outputs logs to file independently of the logger_level
-
     if ctx.logger.log_writer.is_some() {
         ctx.logger
             .write_to_log_file(&log_format(ctx.clock, level, &text), level);
-    } else {
+    }
+
+    if !ctx.logger.quiet {
         let msg = log_format(ctx.clock, level, &text);
         if ctx.logger.enabled(level) {
             match level {

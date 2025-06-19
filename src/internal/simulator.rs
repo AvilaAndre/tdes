@@ -66,7 +66,7 @@ impl Simulator {
                 println!();
                 log::global_internal(format!("EXPERIMENT '{}'", experiment.name));
 
-                let mut exp_ctx = Context::new(experiment.seed, args.logger_level);
+                let mut exp_ctx = Context::new(experiment.seed, args.logger_level, args.quiet);
                 if let Some(rate) = experiment.drop_rate {
                     exp_ctx.set_drop_rate(rate);
                 }
