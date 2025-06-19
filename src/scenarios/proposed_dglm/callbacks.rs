@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-use super::{algorithms::receive_concat_r_msg, message::GlmConcatMessage};
+use super::{algorithms::receive_concat_r_msg, message::PGlmConcatMessage};
 
 pub fn on_message_receive(
     ctx: &mut Context,
@@ -20,7 +20,7 @@ pub fn on_message_receive(
         if operation_msg_hash_guard(ctx, sender_id, receiver_id, sum_rows_msg.hash) {
             receive_sum_rows_msg(ctx, receiver_id, sum_rows_msg.clone());
         }
-    } else if let Some(concat_msg) = msg.downcast_ref::<GlmConcatMessage>() {
+    } else if let Some(concat_msg) = msg.downcast_ref::<PGlmConcatMessage>() {
         if operation_msg_hash_guard(ctx, sender_id, receiver_id, concat_msg.hash) {
             receive_concat_r_msg(ctx, receiver_id, concat_msg.clone());
         }

@@ -15,13 +15,13 @@ impl Message for PGlmSumRowsMessage {
 }
 
 #[derive(Debug, Clone)]
-pub struct GlmConcatMessage {
+pub struct PGlmConcatMessage {
     pub origin: usize,
     pub r_remote: Mat<f64>,
     pub iter: usize,
     pub hash: u64,
 }
-impl Message for GlmConcatMessage {
+impl Message for PGlmConcatMessage {
     fn size_bytes(&self) -> u64 {
         let (r, c) = self.r_remote.shape();
 

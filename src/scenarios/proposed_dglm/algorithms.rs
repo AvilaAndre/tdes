@@ -9,7 +9,7 @@ use crate::{
 
 use super::{
     generalized_linear_model,
-    message::GlmConcatMessage,
+    message::PGlmConcatMessage,
     peer::PGlmPeer,
     utils::{CatDim, mat_cat_vec},
 };
@@ -38,7 +38,7 @@ fn send_sum_rows(ctx: &mut Context, peer_id: usize, target_id: usize) {
     log::trace(ctx, trace);
 }
 
-pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMessage) {
+pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: PGlmConcatMessage) {
     log::trace(
         ctx,
         format!(
@@ -416,7 +416,7 @@ pub fn receive_concat_r_req_msg(
                 ctx,
                 peer_id,
                 requester_id,
-                GlmConcatMessage {
+                PGlmConcatMessage {
                     origin: p_id,
                     r_remote: r_to_send,
                     iter: msg.iter,
