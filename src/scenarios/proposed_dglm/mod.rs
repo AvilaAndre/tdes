@@ -1,19 +1,20 @@
 mod algorithms;
 mod callbacks;
+mod data;
+mod discovery;
+mod family;
+mod generalized_linear_model;
 mod hooks;
+mod improve;
 mod message;
 mod peer;
 mod timers;
-
-mod data;
-mod family;
-mod generalized_linear_model;
 mod utils;
 
 use data::{ModelData, chunk_nx, model_beta, model_data};
 use faer::Mat;
 use ordered_float::OrderedFloat;
-use peer::GlmPeer;
+use peer::PGlmPeer;
 use rand::Rng;
 use serde_yaml::Value;
 
@@ -26,7 +27,7 @@ use crate::{
             options::{ExperimentOptions, Scenario},
         },
     },
-    scenarios::proposed_dglm::timers::{KillTimer, StartTimer},
+    scenarios::proposed_dglm::timers::{KillTimer, StartTimer, TickTimer},
 };
 
 pub struct ProposedDglm;
@@ -75,7 +76,7 @@ impl Scenario for ProposedDglm {
                 ),
             };
 
-            engine::add_peer(ctx, GlmPeer::new(pos_x, pos_y, x, y));
+            engine::add_peer(ctx, PGlmPeer::new(pos_x, pos_y, x, y));
         }
 
         simulator
@@ -89,6 +90,9 @@ impl Scenario for ProposedDglm {
         for peer_id in 0..ctx.peers.len() {
             engine::add_timer(ctx, OrderedFloat(0.0), StartTimer { peer_id });
         }
+
+        // tick
+        engine::add_timer(ctx, OrderedFloat(0.01), TickTimer { interval: 1.00 });
 
         if let Some(custom) = opts.extra_args {
             if let Some(Value::Bool(true)) = custom.get("kill_peer") {

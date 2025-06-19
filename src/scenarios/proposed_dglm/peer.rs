@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::{BTreeSet, HashMap, hash_map},
+    hash::{Hash, Hasher},
+};
 
 use faer::Mat;
 
@@ -14,23 +17,44 @@ use super::{
 };
 
 pub struct GlmState {
+    pub initial_model: GeneralizedLinearModel,
     pub model: GeneralizedLinearModel,
     pub data: ModelData,
     pub r_n_rows: HashMap<usize, usize>, // how many rows remotes have
     pub r_remotes: HashMap<usize, HashMap<usize, Mat<f64>>>,
+    pub local_nrow: usize,
     pub total_nrow: usize,
-    pub nodes: Vec<usize>,
+    pub nodes: BTreeSet<usize>,
+    pub neighbors: Vec<usize>,
     pub finished: bool,
+    pub hash: u64,
 }
 
-pub struct GlmPeer {
+impl GlmState {
+    pub fn update_hash(&mut self) {
+        let mut s = hash_map::DefaultHasher::new();
+        self.nodes.hash(&mut s);
+        self.hash = s.finish()
+    }
+
+    pub fn discovery_reset(&mut self) {
+        self.r_n_rows = HashMap::new();
+        self.r_remotes = HashMap::new();
+        self.total_nrow = 0;
+        self.finished = false;
+        self.model = self.initial_model.clone();
+        self.update_hash();
+    }
+}
+
+pub struct PGlmPeer {
     pub peer_info: PeerInfo,
     pub state: GlmState,
 }
 
-define_custom_peer!(GlmPeer);
+define_custom_peer!(PGlmPeer);
 
-impl GlmPeer {
+impl PGlmPeer {
     pub fn new(pos_x: f64, pos_y: f64, x: Mat<f64>, y: Mat<f64>) -> Self {
         let (r, c) = x.shape();
         let beta: Mat<f64> = Mat::zeros(c, 1);
@@ -41,7 +65,7 @@ impl GlmPeer {
         let r_local =
             generalized_linear_model::distributed_single_iter_n(family, &x, &y, beta.clone());
 
-        let model = GeneralizedLinearModel {
+        let initial_model = GeneralizedLinearModel {
             r_local,
             coefficients: beta.clone(),
             family,
@@ -52,13 +76,17 @@ impl GlmPeer {
             peer_info: PeerInfo::new(pos_x, pos_y, 0.0)
                 .with_on_message_receive(callbacks::on_message_receive),
             state: GlmState {
-                model,
+                model: initial_model.clone(),
+                initial_model,
                 data: ModelData { x, y },
                 r_n_rows: HashMap::new(),
                 r_remotes: HashMap::new(),
+                local_nrow: r,
                 total_nrow: r,
-                nodes: Vec::new(),
+                nodes: BTreeSet::new(),
+                neighbors: Vec::new(),
                 finished: false,
+                hash: 0,
             },
         }
     }

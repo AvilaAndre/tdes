@@ -14,6 +14,7 @@ use super::{
 pub const DEFAULT_MAXIT: usize = 25;
 pub const DEFAULT_TOL: f64 = 1.0e-10;
 
+#[derive(Clone)]
 pub struct GeneralizedLinearModel {
     pub r_local: Mat<f64>,
     pub coefficients: Mat<f64>,
