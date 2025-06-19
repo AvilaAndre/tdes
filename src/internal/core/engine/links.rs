@@ -49,7 +49,7 @@ fn validate_link_info(info_opt: Option<LinkKind>) -> Result<(), String> {
         None => (None, None),
     };
 
-    for (value_opt, type_name) in vec![(bandwidth, "bandwith"), (latency, "latency")] {
+    for (value_opt, type_name) in [(bandwidth, "bandwith"), (latency, "latency")] {
         if let Some(val) = value_opt {
             if val.is_sign_negative() {
                 return Err(format!("A link was provided with negative {type_name}."));
