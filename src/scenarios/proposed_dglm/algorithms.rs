@@ -241,8 +241,7 @@ pub fn receive_sum_rows_req_msg(
 ) {
     let peer: &mut PGlmPeer = get_peer_of_type!(ctx, peer_id, PGlmPeer).expect("peer should exist");
 
-    let mut has: Vec<usize> = peer.state.r_n_rows.keys().copied().collect();
-    has.push(peer_id);
+    let has: Vec<usize> = peer.state.r_n_rows.keys().copied().collect();
 
     log::trace(
         ctx,
@@ -283,7 +282,7 @@ pub fn receive_sum_rows_req_msg(
     }
 }
 
-pub fn tick(ctx: &mut Context, peer_id: usize) {
+pub fn timeout(ctx: &mut Context, peer_id: usize) {
     if check_missing_sum_rows(ctx, peer_id) {
         return;
     }

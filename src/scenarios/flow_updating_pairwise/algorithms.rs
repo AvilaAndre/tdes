@@ -2,12 +2,13 @@ use crate::internal::core::{Context, engine, log, macros::get_peer_of_type, peer
 
 use super::{message::FlowUpdatingPairwiseMessage, peer::FlowUpdatingPairwisePeer};
 
-const TICKS: u32 = 50;
-
 pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
-    log::trace(ctx, format!("avg_and_send from {peer_id} to {neigh_id}"));
+    log::trace(
+        ctx,
+        format!("Peer_{peer_id} avg_and_send to Peer_{neigh_id}"),
+    );
 
-    if let Some(neighbors) = engine::get_neighbors(ctx, peer_id) {
+    if let Some(neighbors) = engine::get_neighbors_alive(ctx, peer_id) {
         let peer: &mut FlowUpdatingPairwisePeer =
             get_peer_of_type!(ctx, peer_id, FlowUpdatingPairwisePeer).expect("peer should exist");
 
@@ -34,9 +35,24 @@ pub fn avg_and_send(ctx: &mut Context, peer_id: usize, neigh_id: usize) {
             estimate: avg,
         };
 
+        log::trace(
+            ctx,
+            format!("Peer_{peer_id} flows_sum {flows_sum}"),
+        );
+        log::trace(
+            ctx,
+            format!("Peer_{peer_id} estimate {estimate}"),
+        );
+        log::trace(
+            ctx,
+            format!("Peer_{peer_id} new last_avg {avg}"),
+        );
+
         engine::send_message_to(ctx, peer_id, neigh_id, payload);
     }
 }
+
+const TICKS: u32 = 50;
 
 pub fn tick(ctx: &mut Context, peer_id: usize) {
     let peer: &mut FlowUpdatingPairwisePeer =

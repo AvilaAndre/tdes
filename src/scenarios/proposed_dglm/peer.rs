@@ -16,7 +16,7 @@ use super::{
     generalized_linear_model::{self, GeneralizedLinearModel},
 };
 
-pub struct GlmState {
+pub struct PGlmState {
     pub initial_model: GeneralizedLinearModel,
     pub model: GeneralizedLinearModel,
     pub data: ModelData,
@@ -30,11 +30,9 @@ pub struct GlmState {
     pub hash: u64,
 }
 
-impl GlmState {}
-
 pub struct PGlmPeer {
     pub peer_info: PeerInfo,
-    pub state: GlmState,
+    pub state: PGlmState,
 }
 
 define_custom_peer!(PGlmPeer);
@@ -60,7 +58,7 @@ impl PGlmPeer {
         Self {
             peer_info: PeerInfo::new(pos_x, pos_y, 0.0)
                 .with_on_message_receive(callbacks::on_message_receive),
-            state: GlmState {
+            state: PGlmState {
                 model: initial_model.clone(),
                 initial_model,
                 data: ModelData { x, y },

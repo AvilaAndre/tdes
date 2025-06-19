@@ -1,0 +1,138 @@
+seed: &default_seed 2586804559409604052
+arrival_time: &default_arrival_time distance
+topology: &default_topology
+  n_peers: 7
+  name: full
+deadline: &default_deadline 500
+
+experiments:
+- name: default_run
+  scenario: proposed_dglm
+  arrival_time: *default_arrival_time
+  topology: *default_topology
+  repetitions: 100
+  deadline: *default_deadline
+
+- name: run_100_peers
+  scenario: proposed_dglm
+  seed: *default_seed
+  arrival_time: *default_arrival_time
+  topology:
+    n_peers: 100
+    name: full
+  deadline: *default_deadline
+
+- name: constant_latency 
+  scenario: proposed_dglm
+  seed: *default_seed
+  arrival_time: constant
+  topology: *default_topology
+  deadline: *default_deadline
+
+- name: custom_latency
+  scenario: proposed_dglm
+  seed: *default_seed
+  topology:
+    n_peers: 7
+    name: twowaycustom
+    connections:
+      - [0, 1, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [0, 2, !Full {bandwidth: 80000, latency: 0.03604} ]
+      - [0, 3, !Full {bandwidth: 80000, latency: 0.04768} ]
+      - [0, 4, !Full {bandwidth: 80000, latency: 0.04768} ]
+      - [0, 5, !Full {bandwidth: 80000, latency: 0.03604} ]
+      - [0, 6, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [1, 2, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [1, 3, !Full {bandwidth: 80000, latency: 0.03604} ]
+      - [1, 4, !Full {bandwidth: 80000, latency: 0.04768} ]
+      - [1, 5, !Full {bandwidth: 80000, latency: 0.04768} ]
+      - [1, 6, !Full {bandwidth: 80000, latency: 0.03604} ]
+      - [2, 3, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [2, 4, !Full {bandwidth: 80000, latency: 0.03604} ]
+      - [2, 5, !Full {bandwidth: 80000, latency: 0.04768} ]
+      - [2, 6, !Full {bandwidth: 80000, latency: 0.04768} ]
+      - [3, 4, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [3, 5, !Full {bandwidth: 80000, latency: 0.03604} ]
+      - [3, 6, !Full {bandwidth: 80000, latency: 0.04768} ]
+      - [4, 5, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [4, 6, !Full {bandwidth: 80000, latency: 0.03604} ]
+      - [5, 6, !Full {bandwidth: 80000, latency: 0.02} ]
+  deadline: *default_deadline
+
+- name: ring_topology
+  scenario: proposed_dglm
+  seed: *default_seed
+  arrival_time: *default_arrival_time
+  topology:
+    n_peers: 7
+    name: ring
+  deadline: *default_deadline
+
+- name: custom_ring_topology
+  scenario: proposed_dglm
+  topology:
+    n_peers: 7
+    name: twowaycustom
+    connections:
+      - [0, 1, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [1, 2, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [2, 3, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [3, 4, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [4, 5, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [5, 6, !Full {bandwidth: 80000, latency: 0.02} ]
+      - [6, 0, !Full {bandwidth: 80000, latency: 0.02} ]
+  deadline: *default_deadline
+
+- name: star_topology
+  scenario: proposed_dglm
+  arrival_time: *default_arrival_time
+  topology:
+    n_peers: 7
+    name: star
+  repetitions: 10
+  deadline: *default_deadline
+
+- name: peer_killed
+  scenario: proposed_dglm
+  seed: *default_seed
+  arrival_time: *default_arrival_time
+  topology: *default_topology
+  extra_args:
+    kill_peer: true
+  deadline: *default_deadline
+
+- name: drop_rate_0_2
+  scenario: proposed_dglm
+  seed: *default_seed
+  arrival_time: *default_arrival_time
+  topology: *default_topology
+  drop_rate: 0.2
+  deadline: *default_deadline
+
+- name: duplicate_rate_0_2
+  scenario: proposed_dglm
+  seed: *default_seed
+  arrival_time: *default_arrival_time
+  topology: *default_topology
+  duplicate_rate: 0.2
+  deadline: *default_deadline
+
+- name: jitter
+  scenario: proposed_dglm
+  arrival_time: *default_arrival_time
+  topology: *default_topology
+  jitter: 
+    distribution: !Weibull [1.064, 2.872]
+    multiplier: 0.001
+  repetitions: 100
+  deadline: *default_deadline
+
+- name: peer_revived
+  scenario: proposed_dglm
+  seed: *default_seed
+  arrival_time: *default_arrival_time
+  topology: *default_topology
+  extra_args:
+    revive_peer: true
+  deadline: *default_deadline
+

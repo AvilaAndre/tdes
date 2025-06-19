@@ -1,0 +1,44 @@
+custom_connections: &custom_connections
+  - [0, 1, !Bandwidth 10000]
+  - [0, 2, !Bandwidth 1000]
+  - [0, 3, !Bandwidth 100]
+  - [0, 4, !Bandwidth 10]
+  - [0, 5, !Bandwidth 1]
+  - [0, 6, !Latency 0.1]
+  
+
+experiments:
+- name: no_drop
+  scenario: flow_updating_pairwise
+  seed: 123504
+  arrival_time: constant_distance
+  topology:
+    n_peers: 5
+    name: full 
+    connections: *custom_connections
+    positions: []
+  drop_rate: ~
+  deadline: 10.0
+- name: 0_5_drop
+  scenario: flow_updating_pairwise
+  seed: 123504
+  arrival_time: constant_distance
+  topology:
+    n_peers: 7
+    name: twowaycustom
+    connections: *custom_connections
+    positions: []
+  drop_rate: 0.5
+  deadline: 10.0
+- name: 0_2_drop
+  scenario: flow_updating_pairwise
+  seed: 123504
+  arrival_time: constant_distance
+  topology:
+    n_peers: 7
+    name: twowaycustom
+    connections: *custom_connections
+    positions: []
+  drop_rate: 0.2
+  deadline: 10.0
+

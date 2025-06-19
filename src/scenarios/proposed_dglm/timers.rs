@@ -43,11 +43,11 @@ impl Timer for StartTimer {
 }
 
 #[derive(Debug, Clone)]
-pub struct TickTimer {
+pub struct TimeoutTimer {
     pub interval: f64,
 }
 
-impl Timer for TickTimer {
+impl Timer for TimeoutTimer {
     fn fire(&self, ctx: &mut Context) {
         for peer_id in 0..ctx.peers.len() {
             if ctx.peers[peer_id].is::<PGlmPeer>() {
@@ -56,7 +56,7 @@ impl Timer for TickTimer {
                 if !peer.is_alive() {
                     continue;
                 }
-                algorithms::tick(ctx, peer_id);
+                algorithms::timeout(ctx, peer_id);
             }
         }
 

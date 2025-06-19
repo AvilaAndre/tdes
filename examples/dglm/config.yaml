@@ -1,0 +1,26 @@
+experiments:
+- name: dglm_kill
+  scenario: dglm
+  seed: 2586804559409604052
+  arrival_time: constant_distance
+  topology:
+    n_peers: 7
+    name: full
+    connections: ~
+    positions: []
+  drop_rate: 0.0
+  extra_args:
+    kill_peer: true
+- name: dglm_no_kill
+  scenario: dglm
+  seed: 2586804559409604052
+  arrival_time: constant_distance
+  topology:
+    n_peers: 7
+    name: full
+    connections: ~
+    positions: []
+  drop_rate: 0.0
+  extra_args:
+    kill_peer: false
+

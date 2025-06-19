@@ -19,15 +19,15 @@ pub struct FlowUpdatingPairwisePeer {
 define_custom_peer!(FlowUpdatingPairwisePeer);
 
 impl FlowUpdatingPairwisePeer {
-    pub fn new(x: f64, y: f64, z: f64, value: i32) -> Self {
+    pub fn new(x: f64, y: f64, value: i32) -> Self {
         Self {
-            peer_info: PeerInfo::new(x, y, z)
-                .with_on_message_receive(callbacks::example_on_message_receive),
+            peer_info: PeerInfo::new(x, y, 0.0)
+                .with_on_message_receive(callbacks::on_message_receive),
             value,
             flows: HashMap::new(),
             estimates: HashMap::new(),
             ticks_since_last_avg: HashMap::new(),
-            last_avg: 0.0,
+            last_avg: f64::from(value),
         }
     }
 }

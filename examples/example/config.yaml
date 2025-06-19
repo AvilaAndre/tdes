@@ -1,0 +1,30 @@
+experiments:
+- name: experiment_name 
+  scenario: example
+  topology:
+    n_peers: 14
+    positions: [
+      [1.0, 2.0, 0.4],
+      [-10.0, 5.0, 0.0],
+      [3.0, 0.0, ~],
+    ]
+
+- name: experiment2_name 
+  scenario: example
+  topology:
+    n_peers: 5
+    name: onewaycustom
+    connections:
+      - [0, 1, !Bandwidth 100]
+      - [0, 2, !Bandwidth 10]
+      - [0, 3, !Latency 0.1]
+      - [3, 0, !Latency 0.1]
+      - [0, 4, ~]
+
+- name: experiment3
+  scenario: example
+  topology:
+    n_peers: 5
+  jitter:
+    distribution: !Weibull [1.064, 2.872]
+    multiplier: 0.001

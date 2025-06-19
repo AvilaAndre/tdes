@@ -190,22 +190,20 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
             } else {
                 log::info(ctx, format!("peer {peer_id} finished on iteration {iter}"));
             }
+        } else if msgs_to_receive == msgs_received_in_iter {
+            log::warn(
+                ctx,
+                format!(
+                    "peer {peer_id} handle_iter, received all messages from iteration {iter} but current iteration is {current_iter}",
+                ),
+            );
         } else {
-            if msgs_to_receive == msgs_received_in_iter {
-                log::warn(
-                    ctx,
-                    format!(
-                        "peer {peer_id} handle_iter, received all messages from iteration {iter} but current iteration is {current_iter}",
-                    ),
-                );
-            } else {
-                log::trace(
-                    ctx,
-                    format!(
-                        "peer {peer_id} handle_iter, received ({msgs_received_in_iter}/{msgs_to_receive}) messages on iteration {iter} (current iteration is {current_iter})",
-                    ),
-                );
-            }
+            log::trace(
+                ctx,
+                format!(
+                    "peer {peer_id} handle_iter, received ({msgs_received_in_iter}/{msgs_to_receive}) messages on iteration {iter} (current iteration is {current_iter})",
+                ),
+            );
         }
     } else {
         log::warn(

@@ -28,7 +28,7 @@ use crate::{
             peer::CustomPeer,
         },
     },
-    scenarios::proposed_dglm::timers::{KillTimer, ReviveTimer, StartTimer, TickTimer},
+    scenarios::proposed_dglm::timers::{KillTimer, ReviveTimer, StartTimer, TimeoutTimer},
 };
 
 pub struct ProposedDglm;
@@ -93,7 +93,7 @@ impl Scenario for ProposedDglm {
         }
 
         // tick
-        engine::add_timer(ctx, OrderedFloat(0.01), TickTimer { interval: 0.5 });
+        engine::add_timer(ctx, OrderedFloat(0.01), TimeoutTimer { interval: 0.5 });
 
         if let Some(custom) = opts.extra_args {
             if let Some(Value::Bool(true)) = custom.get("kill_peer") {
