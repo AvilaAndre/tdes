@@ -58,66 +58,69 @@ impl Simulator {
             }
         };
 
+        let timestamp = Local::now().timestamp();
+
         for experiment in &mut config.experiments {
-            // Print new line before each experiment
-            println!();
-            log::global_internal(format!("EXPERIMENT '{}'", experiment.name));
+            for rep in 0..experiment.repetitions.unwrap_or(1) {
+                // Print new line before each experiment
+                println!();
+                log::global_internal(format!("EXPERIMENT '{}'", experiment.name));
 
-            let mut exp_ctx = Context::new(experiment.seed, args.logger_level);
-            if let Some(rate) = experiment.drop_rate {
-                exp_ctx.set_drop_rate(rate);
-            }
-            if let Some(rate) = experiment.duplicate_rate {
-                exp_ctx.set_duplicate_rate(rate);
-            }
-            if let Some(jitter) = experiment.jitter {
-                exp_ctx.set_jitter(jitter);
-            }
-
-            if let Some(directory) = &config.dir {
-                let log_file_path = format!(
-                    "{}/results/{}/{}/{}.log",
-                    directory,
-                    experiment.name,
-                    Local::now().timestamp(),
-                    experiment.name,
-                );
-                let metrics_file_path = format!(
-                    "{}/results/{}/{}/{}.jsonl",
-                    directory,
-                    experiment.name,
-                    Local::now().timestamp(),
-                    experiment.name,
-                );
-                if let Err(e) = exp_ctx.logger.set_log_file(&log_file_path) {
-                    log::global_error(format!("Failed to set log file to {log_file_path}: {e}"));
+                let mut exp_ctx = Context::new(experiment.seed, args.logger_level);
+                if let Some(rate) = experiment.drop_rate {
+                    exp_ctx.set_drop_rate(rate);
                 }
-                if let Err(e) = exp_ctx.logger.set_metrics_file(&metrics_file_path) {
-                    log::global_error(format!(
-                        "Failed to set metrics file to {metrics_file_path}: {e}"
-                    ));
+                if let Some(rate) = experiment.duplicate_rate {
+                    exp_ctx.set_duplicate_rate(rate);
                 }
-            }
+                if let Some(jitter) = experiment.jitter {
+                    exp_ctx.set_jitter(jitter);
+                }
 
-            exp_ctx.logger.set_flush_threshold(args.flush_threshold);
+                if let Some(directory) = &config.dir {
+                    let name = experiment.name.clone();
 
-            // add generated seed to config
-            experiment.seed = Some(exp_ctx.seed);
+                    let log_file_path =
+                        format!("{directory}/results/{name}/{timestamp}/{name}_{rep}.log",);
+                    let metrics_file_path =
+                        format!("{directory}/results/{name}/{timestamp}/{name}_{rep}.jsonl",);
 
-            let opts = ExperimentOptions {
-                topology: experiment.topology.clone(),
-                arrival_time: experiment.arrival_time.clone(),
-                deadline: experiment.deadline,
-                extra_args: experiment.extra_args.clone(),
-            };
+                    if let Err(e) = exp_ctx.logger.set_log_file(&log_file_path) {
+                        log::global_error(format!(
+                            "Failed to set log file to {log_file_path}: {e}"
+                        ));
+                    }
+                    if let Err(e) = exp_ctx.logger.set_metrics_file(&metrics_file_path) {
+                        log::global_error(format!(
+                            "Failed to set metrics file to {metrics_file_path}: {e}"
+                        ));
+                    }
+                }
 
-            if let Err(err) =
-                self.scenario_registry
-                    .run_scenario(&experiment.scenario, &mut exp_ctx, self, opts)
-            {
-                log::global_error(format!("Scenario not run: {err:?}"));
+                exp_ctx.logger.set_flush_threshold(args.flush_threshold);
+
+                // add generated seed to config
+                experiment.seed = Some(exp_ctx.seed);
+
+                let opts = ExperimentOptions {
+                    topology: experiment.topology.clone(),
+                    arrival_time: experiment.arrival_time.clone(),
+                    deadline: experiment.deadline,
+                    extra_args: experiment.extra_args.clone(),
+                };
+
+                if let Err(err) = self.scenario_registry.run_scenario(
+                    &experiment.scenario,
+                    &mut exp_ctx,
+                    self,
+                    opts,
+                ) {
+                    log::global_error(format!("Scenario not run: {err:?}"));
+                }
             }
         }
+
+        println!("\nFinished all the simulations, timestamp is: {timestamp}");
 
         // TODO: Deal with this as it may panic
         let yaml_str = match serde_yaml::to_string(&config) {

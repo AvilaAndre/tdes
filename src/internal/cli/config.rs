@@ -117,6 +117,7 @@ pub fn get_config_from_args(
                 jitter,
                 deadline: args.deadline,
                 extra_args: None,
+                repetitions: Some(args.repetitions),
             }],
             dir: args.dir,
             should_write_config: true,

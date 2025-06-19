@@ -55,4 +55,5 @@ pub struct Experiment {
     pub jitter: Option<Jitter>,
     pub deadline: Option<f64>,
     pub extra_args: Option<Value>,
+    pub repetitions: Option<u64>,
 }

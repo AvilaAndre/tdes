@@ -10,14 +10,14 @@ define_custom_arrival_time_callback!(ConstantArrivalTime, "constant", |_ctx, _fr
 
 define_custom_arrival_time_callback!(
     DistanceBasedArrivalTime,
-    "constant_distance",
-    |ctx, from, to| { constant_distance(ctx, from, to) }
+    "distance",
+    |ctx, from, to| { distance(ctx, from, to) }
 );
 
 // optical fiber latency per kilometer in seconds
 const OPTICAL_FIBER: f64 = 0.350e-6;
 
-fn constant_distance(ctx: &mut Context, from: usize, to: usize) -> Option<OrderedFloat<f64>> {
+fn distance(ctx: &mut Context, from: usize, to: usize) -> Option<OrderedFloat<f64>> {
     let (from_peer, to_peer) = (ctx.peers.get(from)?, ctx.peers.get(to)?);
 
     let dist = distance_between_points(from_peer.get_peer().position, to_peer.get_peer().position);

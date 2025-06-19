@@ -42,11 +42,11 @@ pub struct Args {
     #[arg(long, requires = "scenario", default_value = "5")]
     pub n_peers: Option<usize>,
 
-    /// Sets the message drop rate (A float in [0.0, 1.0]) - can only be used if 'scenario' is set
+    /// Sets the message drop rate (a float in [0.0, 1.0]) - can only be used if 'scenario' is set
     #[arg(long, requires = "scenario")]
     pub drop_rate: Option<f64>,
 
-    /// Sets the message duplicate rate (A float in [0.0, 1.0]) - can only be used if 'scenario' is set
+    /// Sets the message duplicate rate (a float in [0.0, 1.0]) - can only be used if 'scenario' is set
     #[arg(long, requires = "scenario")]
     pub duplicate_rate: Option<f64>,
 
@@ -57,6 +57,10 @@ pub struct Args {
     /// If set to true, uses the jitter configuration Weibull(1.064, 2.872) * 0.001 - can only be used if 'scenario' is set
     #[arg(long, requires = "scenario")]
     pub use_jitter: bool,
+
+    /// Sets the amount of times an experiment should be run - can only be used if 'scenario' is set
+    #[arg(long, requires = "scenario", default_value = "1")]
+    pub repetitions: u64,
 
     /// Which topologies can be selected
     #[arg(long)]
