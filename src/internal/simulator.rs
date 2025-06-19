@@ -100,7 +100,9 @@ impl Simulator {
                 exp_ctx.logger.set_flush_threshold(args.flush_threshold);
 
                 // add generated seed to config
-                experiment.seed = Some(exp_ctx.seed);
+                if experiment.repetitions.unwrap_or(1) == 1 {
+                    experiment.seed = Some(exp_ctx.seed);
+                }
 
                 let opts = ExperimentOptions {
                     topology: experiment.topology.clone(),
