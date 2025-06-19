@@ -1,4 +1,7 @@
-use crate::internal::core::{Context, events::Timer, log};
+use crate::{
+    internal::core::{Context, events::Timer, log},
+    scenarios::distributed_generalized_linear_model::algorithms,
+};
 
 #[derive(Debug, Clone)]
 pub struct KillTimer {
@@ -17,5 +20,16 @@ impl Timer for KillTimer {
             target.kill();
             log::info(ctx, format!("Peer {} killed.", self.target));
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct StartTimer {
+    pub peer_id: usize,
+}
+
+impl Timer for StartTimer {
+    fn fire(&self, ctx: &mut Context) {
+        algorithms::broadcast_sum_rows(ctx, self.peer_id);
     }
 }

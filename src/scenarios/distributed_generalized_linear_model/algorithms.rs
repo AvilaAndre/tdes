@@ -11,11 +11,7 @@ use super::{
     utils::{CatDim, mat_cat_vec},
 };
 
-pub fn peer_start(ctx: &mut Context, peer_id: usize) {
-    broadcast_sum_rows(ctx, peer_id);
-}
-
-fn broadcast_sum_rows(ctx: &mut Context, peer_id: usize) {
+pub fn broadcast_sum_rows(ctx: &mut Context, peer_id: usize) {
     let mut nodes_filtered: Vec<usize> = Vec::new();
     if let Some(neighbors) = engine::get_neighbors_alive(ctx, peer_id) {
         for neigh_id in neighbors {
@@ -72,6 +68,15 @@ fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
 }
 
 pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMessage) {
+    log::trace(
+        ctx,
+        format!(
+            "peer {peer_id} received a GlmSumRowsMessage message from peer {sender} with nrows: {nrows}",
+            sender = msg.origin,
+            nrows = msg.nrows
+        ),
+    );
+
     let peer: &mut GlmPeer = get_peer_of_type!(ctx, peer_id, GlmPeer).expect("peer should exist");
 
     if let std::collections::hash_map::Entry::Vacant(e) = peer.state.r_n_rows.entry(msg.origin) {
@@ -96,6 +101,15 @@ pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: GlmSumRowsMe
 }
 
 pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMessage) {
+    log::trace(
+        ctx,
+        format!(
+            "peer {peer_id} received GlmConcatMessage from {sender} on iteration {iter}",
+            sender = msg.origin,
+            iter = msg.iter
+        ),
+    );
+
     let peer: &mut GlmPeer = get_peer_of_type!(ctx, peer_id, GlmPeer).expect("peer should exist");
 
     // if does not have key msg.iter then insert HashMap::new()
@@ -160,24 +174,16 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                 );
 
                 broadcast_nodes(ctx, peer_id);
-            }
-        } else {
-            let first_check = !peer.state.r_remotes.contains_key(&iter);
-            if first_check {
-                log::warn(
-                    ctx,
-                    format!(
-                        "on peer {peer_id} handle_iter failed because iter {iter} not in r_remotes"
-                    ),
-                );
             } else {
-                log::warn(
-                    ctx,
-                    format!(
-                        "on peer {peer_id} handle_iter failed because r_remotes[{iter}] does not contain sender {sender}"
-                    ),
-                );
+                log::info(ctx, format!("peer {peer_id} finished on iteration {iter}"));
             }
         }
+    } else {
+        log::warn(
+            ctx,
+            format!(
+                "on peer {peer_id} handle_iter failed because r_remotes[{iter}] already contains sender {sender}"
+            ),
+        );
     }
 }

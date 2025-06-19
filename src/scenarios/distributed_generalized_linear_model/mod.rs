@@ -3,19 +3,18 @@ mod callbacks;
 mod hooks;
 mod message;
 mod peer;
-mod timer;
+mod timers;
 
 mod data;
 mod family;
 mod generalized_linear_model;
 mod utils;
 
-use algorithms::peer_start;
 use data::{ModelData, chunk_nx, model_beta, model_data};
 use faer::Mat;
 use ordered_float::OrderedFloat;
 use peer::GlmPeer;
-use rand::{Rng, distr::Uniform};
+use rand::Rng;
 use serde_yaml::Value;
 
 use crate::{
@@ -27,7 +26,7 @@ use crate::{
             options::{ExperimentOptions, Scenario},
         },
     },
-    scenarios::distributed_generalized_linear_model::timer::KillTimer,
+    scenarios::distributed_generalized_linear_model::timers::{KillTimer, StartTimer},
 };
 
 pub struct DistributedGeneralizedLinearModel;
@@ -71,8 +70,8 @@ impl Scenario for DistributedGeneralizedLinearModel {
             let (pos_x, pos_y) = match opts.topology.positions.as_ref().and_then(|v| v.get(i)) {
                 Some(&(px, py, _)) => (px, py),
                 None => (
-                    ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()) * 1000.0,
-                    ctx.rng.sample(Uniform::new(-100.0, 100.0).unwrap()) * 1000.0,
+                    ctx.rng.random_range(-100.0..=100.0) * 1000.0,
+                    ctx.rng.random_range(-100.0..=100.0) * 1000.0,
                 ),
             };
 
@@ -86,8 +85,9 @@ impl Scenario for DistributedGeneralizedLinearModel {
             .arrival_time_registry
             .get_callback(opts.arrival_time);
 
-        for i in 0..n_peers {
-            peer_start(ctx, i);
+        // init
+        for peer_id in 0..ctx.peers.len() {
+            engine::add_timer(ctx, OrderedFloat(0.0), StartTimer { peer_id });
         }
 
         if let Some(custom) = opts.extra_args {
