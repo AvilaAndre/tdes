@@ -1,2 +1,0 @@
-message interference
-add positions to peers right away
