@@ -8,7 +8,11 @@ use crate::internal::core::{
 /// If latency is provided, that value will always be used,
 /// if not, the simulator will calculate it using `message_delay_cb`.
 pub fn add_oneway_link(ctx: &mut Context, from: usize, to: usize, info: LinkInfo) {
-    validate_link_info(info);
+    if let Err(err) = validate_link_info(info) {
+        log::global_warn(format!("Failed to create a two way link, reason: {err}"));
+        return;
+    }
+
     if from < ctx.links.len() && to < ctx.links.len() {
         ctx.links[from].insert(to, info);
     } else {
@@ -22,7 +26,10 @@ pub fn add_oneway_link(ctx: &mut Context, from: usize, to: usize, info: LinkInfo
 /// If latency is provided, that value will always be used,
 /// if not, the simulator will calculate it using `message_delay_cb`.
 pub fn add_twoway_link(ctx: &mut Context, from: usize, to: usize, info: LinkInfo) {
-    validate_link_info(info);
+    if let Err(err) = validate_link_info(info) {
+        log::global_warn(format!("Failed to create a two way link, reason: {err}"));
+        return;
+    }
 
     if from < ctx.links.len() && to < ctx.links.len() {
         ctx.links[from].insert(to, info);
@@ -34,21 +41,23 @@ pub fn add_twoway_link(ctx: &mut Context, from: usize, to: usize, info: LinkInfo
     }
 }
 
-fn validate_link_info(info_opt: LinkInfo) {
-    if let Some(info) = info_opt {
-        let (val, type_name) = match info {
-            LinkKind::Bandwidth(b) => (b, "bandwith"),
-            LinkKind::Latency(l) => (l, "latency"),
-        };
+fn validate_link_info(info_opt: Option<LinkKind>) -> Result<(), String> {
+    let (bandwidth, latency) = match info_opt {
+        Some(LinkKind::Bandwidth(b)) => (Some(b), None),
+        Some(LinkKind::Latency(l)) => (None, Some(l)),
+        Some(LinkKind::Full(b, l)) => (Some(b), Some(l)),
+        None => (None, None),
+    };
 
-        if val.is_sign_negative() {
-            let reason = format!("A link was provided with negative {type_name}.");
-            log::global_error(&reason);
-            panic!("{reason}");
-        } else if !val.is_normal() {
-            let reason = format!("A link was provided with an invalid {type_name}.");
-            log::global_error(&reason);
-            panic!("{reason}");
+    for (value_opt, type_name) in vec![(bandwidth, "bandwith"), (latency, "latency")] {
+        if let Some(val) = value_opt {
+            if val.is_sign_negative() {
+                return Err(format!("A link was provided with negative {type_name}."));
+            } else if !val.is_normal() {
+                return Err(format!("A link was provided with an invalid {type_name}."));
+            }
         }
     }
+
+    Ok(())
 }
