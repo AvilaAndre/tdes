@@ -59,9 +59,18 @@ pub fn operation_msg_hash_guard(
         return false;
     };
 
-    if peer.state.hash == sender_hash {
+    let receiver_hash = peer.state.hash;
+
+    if receiver_hash == sender_hash {
         true
     } else {
+        log::warn(
+            ctx,
+            format!(
+                "receiver peer {receiver_id} has a different hash than sender peer {sender_id}, {receiver_hash} != {sender_hash}"
+            ),
+        );
+
         send_discovery_msg(ctx, sender_id, receiver_id);
         false
     }

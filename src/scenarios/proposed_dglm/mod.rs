@@ -24,10 +24,12 @@ use crate::{
         core::{
             Context, engine,
             hooks::SimulationHooks,
+            macros::get_peer_of_type,
             options::{ExperimentOptions, Scenario},
+            peer::CustomPeer,
         },
     },
-    scenarios::proposed_dglm::timers::{KillTimer, StartTimer, TickTimer},
+    scenarios::proposed_dglm::timers::{KillTimer, ReviveTimer, StartTimer, TickTimer},
 };
 
 pub struct ProposedDglm;
@@ -92,11 +94,19 @@ impl Scenario for ProposedDglm {
         }
 
         // tick
-        engine::add_timer(ctx, OrderedFloat(0.01), TickTimer { interval: 1.00 });
+        engine::add_timer(ctx, OrderedFloat(0.01), TickTimer { interval: 0.5 });
 
         if let Some(custom) = opts.extra_args {
             if let Some(Value::Bool(true)) = custom.get("kill_peer") {
                 engine::add_timer(ctx, OrderedFloat(0.1), KillTimer::new(0));
+            }
+            if let Some(Value::Bool(true)) = custom.get("revive_peer") {
+                let target = 0;
+
+                let peer: &mut PGlmPeer =
+                    get_peer_of_type!(ctx, target, PGlmPeer).expect("peer should exist");
+                peer.kill();
+                engine::add_timer(ctx, OrderedFloat(1.0), ReviveTimer { target });
             }
         }
 

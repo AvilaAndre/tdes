@@ -28,7 +28,8 @@ pub fn get_node_ids(ctx: &mut Context, peer_id: usize) {
 
     peer_ids_filtered.push(peer.get_id());
     peer.state.nodes = BTreeSet::from_iter(peer_ids_filtered);
-    peer.state.update_hash();
+    peer.discovery_reset();
+    log::trace(ctx, format!("peer {peer_id} called discovery_reset"));
 }
 
 pub fn broadcast_sum_rows_req(ctx: &mut Context, peer_id: usize, msg: ReqSumRowsMessage) {
@@ -48,17 +49,26 @@ pub fn check_missing_sum_rows(ctx: &mut Context, peer_id: usize) -> bool {
 
     let mut sum_rows_to_req: Vec<usize> = vec![];
     for neigh_id in peer.state.nodes.iter() {
-        if !peer.state.r_n_rows.contains_key(&neigh_id) && *neigh_id != peer_id {
+        if !peer.state.r_n_rows.contains_key(neigh_id) && *neigh_id != peer_id {
             sum_rows_to_req.push(*neigh_id);
         }
     }
 
     let hash = peer.state.hash;
+    let nodes = peer.state.nodes.clone();
+    let neighbors = peer.state.neighbors.clone();
 
-    if sum_rows_to_req.len() > 0 {
+    log::debug(
+        ctx,
+        format!(
+            "tick check check_missing_sum_rows peer {peer_id} misses: {sum_rows_to_req:?}, {nodes:?}, neighbors: {neighbors:?}"
+        ),
+    );
+
+    if !sum_rows_to_req.is_empty() {
         log::trace(
             ctx,
-            format!("{peer_id} has missing rows {sum_rows_to_req:?}"),
+            format!("peer {peer_id} has missing rows {sum_rows_to_req:?}"),
         );
         let msg = ReqSumRowsMessage {
             needs: sum_rows_to_req.clone(),
@@ -79,7 +89,7 @@ pub fn receive_sum_rows_req_msg(
 ) {
     let peer: &mut PGlmPeer = get_peer_of_type!(ctx, peer_id, PGlmPeer).expect("peer should exist");
 
-    let mut has: Vec<usize> = peer.state.r_n_rows.keys().into_iter().copied().collect();
+    let mut has: Vec<usize> = peer.state.r_n_rows.keys().copied().collect();
     has.push(peer_id);
 
     log::trace(
@@ -125,9 +135,7 @@ pub fn tick(ctx: &mut Context, peer_id: usize) {
     if check_missing_sum_rows(ctx, peer_id) {
         return;
     }
-    if check_missing_concat_r(ctx, peer_id) {
-        return;
-    }
+    check_missing_concat_r(ctx, peer_id);
 }
 
 pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: PGlmSumRowsMessage) {
@@ -148,7 +156,13 @@ pub fn receive_sum_rows_msg(ctx: &mut Context, peer_id: usize, msg: PGlmSumRowsM
         if peer.state.nodes.len() - 1 == peer.state.r_n_rows.keys().len() {
             peer.state.total_nrow =
                 peer.state.local_nrow + peer.state.r_n_rows.values().sum::<usize>();
-            peer.state.r_remotes = HashMap::new();
+            peer.state.r_matrices = HashMap::new();
+            // r_matrices should include initial r_local
+            peer.state
+                .r_matrices
+                .entry(0)
+                .or_default()
+                .insert(peer_id, peer.state.model.r_local.clone());
 
             peer.state.model = peer.state.initial_model.clone();
 
@@ -198,16 +212,14 @@ pub fn receive_concat_r_req_msg(
         return;
     }
 
-    let mut has: Vec<usize> = peer
+    let has: Vec<usize> = peer
         .state
-        .r_remotes
+        .r_matrices
         .entry(msg_iter)
         .or_default()
         .keys()
-        .into_iter()
         .copied()
         .collect();
-    has.push(peer_id);
 
     log::trace(
         ctx,
@@ -225,16 +237,26 @@ pub fn receive_concat_r_req_msg(
         let hash = peer.state.hash;
 
         let mut has_r = false;
-        if let Some(r) = peer.state.r_remotes.entry(msg.iter).or_default().get(&p_id) {
+        if let Some(r) = peer
+            .state
+            .r_matrices
+            .entry(msg.iter)
+            .or_default()
+            .get(&p_id)
+        {
             r_to_send = r.clone();
             has_r = true;
         } else if p_id == peer_id {
-            // TODO: does not take into consideration past r_local
-            if peer.state.model.iter != msg_iter {
-                panic!("wrong r_local {} != {}", peer.state.model.iter, msg_iter);
-            }
-            r_to_send = peer.state.model.r_local.clone();
-            has_r = true;
+            panic!(
+                "peer_id {peer_id} r_local must exist in r_matrices r_matrice msg_iter {msg_iter} r_matrices: {:?} r_matrices[{msg_iter}]: {:?}",
+                peer.state.r_matrices.keys().copied().collect::<Vec<_>>(),
+                peer.state
+                    .r_matrices
+                    .entry(msg_iter)
+                    .or_default()
+                    .keys()
+                    .collect::<Vec<_>>(),
+            );
         }
 
         if has_r {
@@ -262,10 +284,10 @@ pub fn check_missing_concat_r(ctx: &mut Context, peer_id: usize) -> bool {
     for neigh_id in peer.state.nodes.iter() {
         if !peer
             .state
-            .r_remotes
+            .r_matrices
             .entry(iter)
             .or_default()
-            .contains_key(&neigh_id)
+            .contains_key(neigh_id)
             && *neigh_id != peer_id
         {
             concat_r_to_req.push(*neigh_id);
@@ -274,10 +296,10 @@ pub fn check_missing_concat_r(ctx: &mut Context, peer_id: usize) -> bool {
 
     let hash = peer.state.hash;
 
-    if concat_r_to_req.len() > 0 {
+    if !concat_r_to_req.is_empty() {
         log::trace(
             ctx,
-            format!("{peer_id} has missing r matrices {concat_r_to_req:?}"),
+            format!("peer {peer_id} has missing r_matrices[{iter}] {concat_r_to_req:?}"),
         );
         let msg = ReqConcatMessage {
             needs: concat_r_to_req.clone(),
@@ -290,4 +312,3 @@ pub fn check_missing_concat_r(ctx: &mut Context, peer_id: usize) -> bool {
         false
     }
 }
-

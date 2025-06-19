@@ -21,7 +21,7 @@ pub struct GlmState {
     pub model: GeneralizedLinearModel,
     pub data: ModelData,
     pub r_n_rows: HashMap<usize, usize>, // how many rows remotes have
-    pub r_remotes: HashMap<usize, HashMap<usize, Mat<f64>>>,
+    pub r_matrices: HashMap<usize, HashMap<usize, Mat<f64>>>,
     pub local_nrow: usize,
     pub total_nrow: usize,
     pub nodes: BTreeSet<usize>,
@@ -30,22 +30,7 @@ pub struct GlmState {
     pub hash: u64,
 }
 
-impl GlmState {
-    pub fn update_hash(&mut self) {
-        let mut s = hash_map::DefaultHasher::new();
-        self.nodes.hash(&mut s);
-        self.hash = s.finish()
-    }
-
-    pub fn discovery_reset(&mut self) {
-        self.r_n_rows = HashMap::new();
-        self.r_remotes = HashMap::new();
-        self.total_nrow = 0;
-        self.finished = false;
-        self.model = self.initial_model.clone();
-        self.update_hash();
-    }
-}
+impl GlmState {}
 
 pub struct PGlmPeer {
     pub peer_info: PeerInfo,
@@ -80,7 +65,7 @@ impl PGlmPeer {
                 initial_model,
                 data: ModelData { x, y },
                 r_n_rows: HashMap::new(),
-                r_remotes: HashMap::new(),
+                r_matrices: HashMap::new(),
                 local_nrow: r,
                 total_nrow: r,
                 nodes: BTreeSet::new(),
@@ -89,5 +74,28 @@ impl PGlmPeer {
                 hash: 0,
             },
         }
+    }
+
+    pub fn update_hash(&mut self) {
+        let mut s = hash_map::DefaultHasher::new();
+        self.state.nodes.hash(&mut s);
+        self.state.hash = s.finish()
+    }
+
+    pub fn discovery_reset(&mut self) {
+        self.state.r_n_rows = HashMap::new();
+        self.state.r_matrices = HashMap::new();
+        self.state.total_nrow = 0;
+        self.state.finished = false;
+        self.state.model = self.state.initial_model.clone();
+
+        let peer_id = self.get_id();
+        self.state
+            .r_matrices
+            .entry(0)
+            .or_default()
+            .insert(peer_id, self.state.model.r_local.clone());
+
+        self.update_hash();
     }
 }

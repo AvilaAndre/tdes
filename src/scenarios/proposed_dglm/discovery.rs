@@ -49,7 +49,23 @@ pub fn receive_discovery_msg(ctx: &mut Context, peer_id: usize, msg: DiscoveryMe
 
     // Check if discovery updated
     if old_peers_size != peer.state.nodes.len() {
-        peer.state.discovery_reset();
+        peer.discovery_reset();
+        log::trace(ctx, format!("peer {peer_id} called discovery_reset"));
+
+        // before broadcasting, check if a neighbor was added
+        let peer_ids_filtered: Vec<usize> = engine::get_neighbors_alive(ctx, peer_id)
+            .map(|neighbors| {
+                neighbors
+                    .into_iter()
+                    .filter(|&neigh_id| ctx.peers.get(neigh_id).is_some_and(|p| p.is::<PGlmPeer>()))
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        let peer: &mut PGlmPeer =
+            get_peer_of_type!(ctx, peer_id, PGlmPeer).expect("peer should exist");
+
+        peer.state.neighbors = peer_ids_filtered.clone();
 
         broadcast_ids(ctx, peer_id);
 

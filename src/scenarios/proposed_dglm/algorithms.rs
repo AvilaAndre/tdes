@@ -2,7 +2,7 @@ use faer::Mat;
 
 use crate::{
     internal::core::{Context, engine, log, macros::get_peer_of_type},
-    scenarios::proposed_dglm::message::PGlmSumRowsMessage,
+    scenarios::proposed_dglm::{improve::check_missing_concat_r, message::PGlmSumRowsMessage},
 };
 
 use super::{
@@ -17,15 +17,6 @@ pub fn broadcast_sum_rows(ctx: &mut Context, peer_id: usize) {
 
     for neigh_id in peer.state.neighbors.clone() {
         send_sum_rows(ctx, peer_id, neigh_id);
-    }
-}
-
-fn broadcast_nodes(ctx: &mut Context, peer_id: usize) {
-    let peer: &mut PGlmPeer = get_peer_of_type!(ctx, peer_id, PGlmPeer).expect("peer should exist");
-
-    let neigh_ids = peer.state.neighbors.clone();
-    for neigh_id in neigh_ids {
-        send_concat_r(ctx, peer_id, neigh_id);
     }
 }
 
@@ -45,27 +36,6 @@ fn send_sum_rows(ctx: &mut Context, peer_id: usize, target_id: usize) {
     log::trace(ctx, trace);
 }
 
-fn send_concat_r(ctx: &mut Context, peer_id: usize, target_id: usize) {
-    let peer: &mut PGlmPeer = get_peer_of_type!(ctx, peer_id, PGlmPeer).expect("peer should exist");
-
-    let msg = GlmConcatMessage {
-        origin: peer_id,
-        r_remote: peer.state.model.r_local.clone(),
-        iter: peer.state.model.iter,
-        hash: peer.state.hash,
-    };
-
-    let iter = peer.state.model.iter;
-
-    let trace = match engine::send_message_to(ctx, peer_id, target_id, msg) {
-        Some(lat) => format!(
-            "Sent GlmConcatMessage from {peer_id} to {target_id} (iteration {iter}) in {lat}",
-        ),
-        None => format!("Failed to send GlmConcatMessage from {peer_id} to {target_id}"),
-    };
-    log::trace(ctx, trace);
-}
-
 pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMessage) {
     log::trace(
         ctx,
@@ -79,7 +49,7 @@ pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMes
     let peer: &mut PGlmPeer = get_peer_of_type!(ctx, peer_id, PGlmPeer).expect("peer should exist");
 
     // if does not have key msg.iter then insert HashMap::new()
-    peer.state.r_remotes.entry(msg.iter).or_default();
+    peer.state.r_matrices.entry(msg.iter).or_default();
 
     handle_iter(ctx, peer_id, msg.origin, msg.r_remote, msg.iter);
 }
@@ -87,33 +57,32 @@ pub fn receive_concat_r_msg(ctx: &mut Context, peer_id: usize, msg: GlmConcatMes
 fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f64>, iter: usize) {
     let peer: &mut PGlmPeer = get_peer_of_type!(ctx, peer_id, PGlmPeer).expect("peer should exist");
 
-    if peer.state.r_remotes.contains_key(&iter)
+    if peer.state.r_matrices.contains_key(&iter)
         && !peer
             .state
-            .r_remotes
+            .r_matrices
             .get(&iter)
             .unwrap()
             .contains_key(&sender)
     {
         peer.state
-            .r_remotes
+            .r_matrices
             .get_mut(&iter)
             .and_then(|r| r.insert(sender, r_remote));
 
         let current_iter = peer.state.model.iter;
-        let msgs_to_receive = peer.state.nodes.len() - 1;
-        let msgs_received_in_iter = peer.state.r_remotes.get(&iter).unwrap().keys().len();
+        let msgs_to_receive = peer.state.nodes.len();
+        let msgs_received_in_iter = peer.state.r_matrices.get(&iter).unwrap().keys().len();
 
         if iter == current_iter && msgs_to_receive == msgs_received_in_iter {
-            let mut all_r_remotes = peer
+            let all_r_remotes = peer
                 .state
-                .r_remotes
+                .r_matrices
                 .get(&iter)
                 .unwrap()
                 .values()
                 .cloned()
                 .collect::<Vec<Mat<f64>>>();
-            all_r_remotes.push(peer.state.model.r_local.clone());
 
             let r_local_with_all_r_remotes = mat_cat_vec(&all_r_remotes, CatDim::Vertical);
 
@@ -127,12 +96,19 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                 peer.state.model.iter,
             );
 
-            peer.state.model.r_local = r_local;
+            peer.state.model.r_local = r_local.clone();
             peer.state.model.coefficients = beta.clone();
             peer.state.model.iter += 1;
             peer.state.finished = stop;
 
-            // INFO: Did not add branch where simulation stops
+            let new_current_iter = peer.state.model.iter;
+            // add r_local to r_matrices
+            peer.state
+                .r_matrices
+                .entry(new_current_iter)
+                .or_default()
+                .insert(peer_id, r_local);
+
             if !stop {
                 peer.state.model.r_local = generalized_linear_model::distributed_single_iter_n(
                     peer.state.model.family,
@@ -141,7 +117,13 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                     beta,
                 );
 
-                let new_current_iter = peer.state.model.iter;
+                // add r_local to r_matrices
+                peer.state
+                    .r_matrices
+                    .entry(new_current_iter)
+                    .or_default()
+                    .insert(peer_id, peer.state.model.r_local.clone());
+
                 log::info(
                     ctx,
                     format!(
@@ -149,7 +131,7 @@ fn handle_iter(ctx: &mut Context, peer_id: usize, sender: usize, r_remote: Mat<f
                     ),
                 );
 
-                broadcast_nodes(ctx, peer_id);
+                check_missing_concat_r(ctx, peer_id);
             } else {
                 log::info(ctx, format!("peer {peer_id} finished on iteration {iter}"));
             }
