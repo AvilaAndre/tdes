@@ -7,7 +7,7 @@ use super::distributions::DistributionWrapper;
 pub enum LinkKind {
     Bandwidth(f64),
     Latency(f64),
-    Full(f64, f64)
+    Full { bandwidth: f64, latency: f64 },
 }
 
 pub type LinkInfo = Option<LinkKind>;

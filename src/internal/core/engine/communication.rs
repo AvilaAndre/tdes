@@ -34,6 +34,11 @@ pub fn send_message_to(
     let mut latency = match link_info {
         // if has latency defined
         Some(Some(LinkKind::Latency(latency))) => OrderedFloat(latency),
+        // if latency and bandwidth defined
+        Some(Some(LinkKind::Full { bandwidth, latency })) => {
+            OrderedFloat(latency + (msg.size_bits() as f64) / bandwidth)
+        }
+        // if latency undefined, use arrival_time_callback
         Some(bandwith_opt) => {
             let Some(mut delay) = (ctx.message_delay_cb)(ctx, from, to) else {
                 log::warn(

@@ -45,7 +45,7 @@ fn validate_link_info(info_opt: Option<LinkKind>) -> Result<(), String> {
     let (bandwidth, latency) = match info_opt {
         Some(LinkKind::Bandwidth(b)) => (Some(b), None),
         Some(LinkKind::Latency(l)) => (None, Some(l)),
-        Some(LinkKind::Full(b, l)) => (Some(b), Some(l)),
+        Some(LinkKind::Full { bandwidth, latency }) => (Some(bandwidth), Some(latency)),
         None => (None, None),
     };
 
