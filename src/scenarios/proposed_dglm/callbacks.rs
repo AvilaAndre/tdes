@@ -1,8 +1,8 @@
 use crate::{
     internal::core::{Context, Message, log, macros::get_peer_of_type},
     scenarios::proposed_dglm::{
+        algorithms::{receive_concat_r_req_msg, receive_sum_rows_msg, receive_sum_rows_req_msg},
         discovery::{receive_discovery_msg, send_discovery_msg},
-        improve::{self},
         message::{DiscoveryMessage, PGlmSumRowsMessage, ReqConcatMessage, ReqSumRowsMessage},
         peer::PGlmPeer,
     },
@@ -18,7 +18,7 @@ pub fn on_message_receive(
 ) {
     if let Some(sum_rows_msg) = msg.downcast_ref::<PGlmSumRowsMessage>() {
         if operation_msg_hash_guard(ctx, sender_id, receiver_id, sum_rows_msg.hash) {
-            improve::receive_sum_rows_msg(ctx, receiver_id, sum_rows_msg.clone());
+            receive_sum_rows_msg(ctx, receiver_id, sum_rows_msg.clone());
         }
     } else if let Some(concat_msg) = msg.downcast_ref::<GlmConcatMessage>() {
         if operation_msg_hash_guard(ctx, sender_id, receiver_id, concat_msg.hash) {
@@ -26,16 +26,11 @@ pub fn on_message_receive(
         }
     } else if let Some(discovery_req_msg) = msg.downcast_ref::<ReqSumRowsMessage>() {
         if operation_msg_hash_guard(ctx, sender_id, receiver_id, discovery_req_msg.hash) {
-            improve::receive_sum_rows_req_msg(
-                ctx,
-                receiver_id,
-                sender_id,
-                discovery_req_msg.clone(),
-            );
+            receive_sum_rows_req_msg(ctx, receiver_id, sender_id, discovery_req_msg.clone());
         }
     } else if let Some(concat_req_msg) = msg.downcast_ref::<ReqConcatMessage>() {
         if operation_msg_hash_guard(ctx, sender_id, receiver_id, concat_req_msg.hash) {
-            improve::receive_concat_r_req_msg(ctx, receiver_id, sender_id, concat_req_msg.clone());
+            receive_concat_r_req_msg(ctx, receiver_id, sender_id, concat_req_msg.clone());
         }
     } else if let Some(discovery_msg) = msg.downcast_ref::<DiscoveryMessage>() {
         receive_discovery_msg(ctx, receiver_id, discovery_msg.clone());

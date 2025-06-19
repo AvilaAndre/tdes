@@ -1,7 +1,7 @@
 use super::{message::DiscoveryMessage, peer::PGlmPeer};
 use crate::{
     internal::core::{Context, engine, log, macros::get_peer_of_type},
-    scenarios::proposed_dglm::improve::check_missing_sum_rows,
+    scenarios::proposed_dglm::algorithms::check_missing_sum_rows,
 };
 
 pub fn broadcast_ids(ctx: &mut Context, peer_id: usize) {

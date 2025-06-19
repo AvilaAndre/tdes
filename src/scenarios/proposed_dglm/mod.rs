@@ -5,7 +5,6 @@ mod discovery;
 mod family;
 mod generalized_linear_model;
 mod hooks;
-mod improve;
 mod message;
 mod peer;
 mod timers;

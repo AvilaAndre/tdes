@@ -2,11 +2,7 @@ use crate::{
     internal::core::{
         Context, engine, events::Timer, log, macros::get_peer_of_type, peer::CustomPeer,
     },
-    scenarios::proposed_dglm::{
-        algorithms,
-        improve::{self, tick},
-        peer::PGlmPeer,
-    },
+    scenarios::proposed_dglm::{algorithms, peer::PGlmPeer},
 };
 
 #[derive(Debug, Clone)]
@@ -41,7 +37,7 @@ impl Timer for StartTimer {
         if !peer.is_alive() {
             return;
         }
-        improve::get_node_ids(ctx, self.peer_id);
+        algorithms::get_node_ids(ctx, self.peer_id);
         algorithms::broadcast_sum_rows(ctx, self.peer_id);
     }
 }
@@ -60,7 +56,7 @@ impl Timer for TickTimer {
                 if !peer.is_alive() {
                     continue;
                 }
-                tick(ctx, peer_id);
+                algorithms::tick(ctx, peer_id);
             }
         }
 
@@ -86,7 +82,7 @@ impl Timer for ReviveTimer {
         if let Some(target) = ctx.peers.get_mut(self.target) {
             target.revive();
             log::info(ctx, format!("Peer {} revived.", self.target));
-            improve::get_node_ids(ctx, self.target);
+            algorithms::get_node_ids(ctx, self.target);
             algorithms::broadcast_sum_rows(ctx, self.target);
         }
     }
